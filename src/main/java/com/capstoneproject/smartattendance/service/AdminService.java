@@ -14,6 +14,7 @@ import com.capstoneproject.smartattendance.entity.Student;
 import com.capstoneproject.smartattendance.exception.AuthException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.repository.StudentRepository;
+import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
 @Service
 public class AdminService {
@@ -28,7 +29,7 @@ public class AdminService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    MailService mailService;
+    AdminMailService adminMailService;
 
     public ResponseEntity<?> addStudentService(StudentDto studentDto, String adminName) {
         String userId = studentDto.getUserId();
@@ -61,9 +62,13 @@ public class AdminService {
         student.setManagedBy(adminName);
         student.setPassword(passwordEncoder.encode(password));
 
-        mailService.sendStudentAccountDetailsMail(studentDto, adminName);
+        adminMailService.sendStudentAccountCreatedMail(studentDto, adminName);
         studentRepository.save(student);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ID_CREATED_SUCCESSFULLY"));
     }
+
+    // public ResponseEntity<?> updateStudentService(StudentDto studentDto,String adminId){
+
+    // }
 
 }

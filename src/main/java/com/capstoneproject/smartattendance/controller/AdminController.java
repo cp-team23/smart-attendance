@@ -24,4 +24,10 @@ public class AdminController {
         return adminService.addStudentService(studentDto,adminName);  
     }
 
+    // @PostMapping("/updatestudent")
+    // public ResponseEntity<?> updatestudent(@RequestBody StudentDto studentDto,Authentication authentication){
+    //     String adminName = authentication.getName();
+    //     return adminService.updateStudentService(studentDto,adminName);
+    // }
+
 }

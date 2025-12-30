@@ -86,7 +86,8 @@ public class AuthService {
             if (email == null || email.isBlank()) {
                 throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
             }
-            return otpService.createOtp(email.toLowerCase());
+            otpService.createOtp(email.toLowerCase());
+            return ResponseEntity.ok(Map.of("message", "OTP_SENT"));
         } catch (Exception e) {
             throw new AuthException(ErrorCode.INTERNAL_ERROR);
         }

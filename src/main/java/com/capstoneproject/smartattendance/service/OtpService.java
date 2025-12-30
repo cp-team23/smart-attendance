@@ -6,33 +6,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.capstoneproject.smartattendance.dto.OtpDto;
 import com.capstoneproject.smartattendance.exception.AuthException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
+import com.capstoneproject.smartattendance.service.mail.AuthMailService;
 
 @Service
 public class OtpService {
 
     @Autowired
-    MailService mailService;
+    AuthMailService AuthMailService;
 
     private final Map<String, OtpDto> otpStore = new ConcurrentHashMap<>();
 
-    public ResponseEntity<?> createOtp(String email) {
+    public void createOtp(String email) {
 
         long expiresTime = Instant.now().plusSeconds(2 * 60).toEpochMilli(); // 2 min
         int code = ThreadLocalRandom.current().nextInt(100000, 1_000_000);
         String otp = String.valueOf(code);
 
         try {
-            ResponseEntity<?> response = mailService.sendOtpOnMail(email, otp);
+            AuthMailService.sendOtpMail(email, otp);
             otpStore.put(email, new OtpDto(otp, expiresTime));
-            return response;
-
         } catch (Exception e) {
             throw new AuthException(ErrorCode.INTERNAL_ERROR);
         }
