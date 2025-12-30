@@ -154,10 +154,6 @@ public class AuthService {
         String password = adminDto.getPassword();
         String confirmPassword = adminDto.getConfirmPassword();
 
-        if (userId == null || userId.isBlank() || email == null || email.isBlank()
-                || password == null || password.isBlank() || otp == null || otp.isBlank()) {
-            throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
-        }
         if (!password.equals(confirmPassword)) {
             throw new AuthException(ErrorCode.BOTH_PASSWORD_SHOULD_BE_SAME);
         }

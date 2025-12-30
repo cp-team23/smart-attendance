@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.service.AdminService;
 
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("admin")
@@ -19,13 +21,13 @@ public class AdminController {
     AdminService adminService;
 
     @PostMapping("/addstudent")
-    public ResponseEntity<?> addStudent(@RequestBody StudentDto studentDto,Authentication authentication){
+    public ResponseEntity<?> addStudent(@Valid @RequestBody StudentDto studentDto,Authentication authentication){
         String adminName = authentication.getName();
         return adminService.addStudentService(studentDto,adminName);  
     }
 
     // @PostMapping("/updatestudent")
-    // public ResponseEntity<?> updatestudent(@RequestBody StudentDto studentDto,Authentication authentication){
+    // public ResponseEntity<?> updatestudent(@Valid @RequestBody StudentDto studentDto,Authentication authentication){
     //     String adminName = authentication.getName();
     //     return adminService.updateStudentService(studentDto,adminName);
     // }

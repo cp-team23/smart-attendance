@@ -3,6 +3,7 @@ package com.capstoneproject.smartattendance.exception;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -18,6 +19,17 @@ public class GlobalExceptionHandler {
                 .status(code.getStatus())
                 .body(Map.of(
                         "error", code.getMessage() // SAME AS BEFORE
+                ));
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(
+            MethodArgumentNotValidException ex) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error", "ALL_FIELD_REQUIRED"
                 ));
     }
 

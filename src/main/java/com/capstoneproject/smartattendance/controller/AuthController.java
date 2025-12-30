@@ -13,6 +13,7 @@ import com.capstoneproject.smartattendance.service.AuthService;
 import com.capstoneproject.smartattendance.service.OtpService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/auth")
@@ -25,12 +26,12 @@ public class AuthController {
      OtpService otpService;
 
      @PostMapping("/login")
-     public ResponseEntity<?> login(@RequestBody UserDto userDto,HttpServletResponse response){
+     public ResponseEntity<?> login(@Valid @RequestBody UserDto userDto,HttpServletResponse response){
             return authService.loginService(userDto,response);
      }
 
      @PostMapping("/register")
-     public ResponseEntity<?> register(@RequestBody AdminDto adminDto){
+     public ResponseEntity<?> register(@Valid @RequestBody AdminDto adminDto){
             return authService.adminRegister(adminDto);
      }
 
