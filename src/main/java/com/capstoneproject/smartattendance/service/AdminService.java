@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.entity.Student;
+import com.capstoneproject.smartattendance.exception.AuthException;
+import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.repository.StudentRepository;
 
 @Service
@@ -25,7 +27,10 @@ public class AdminService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<?> addStudentService(StudentDto studentDto,String adminName) {
+    @Autowired
+    MailService mailService;
+
+    public ResponseEntity<?> addStudentService(StudentDto studentDto, String adminName) {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
         String name = studentDto.getName();
@@ -43,21 +48,20 @@ public class AdminService {
                 sem == null || sem.isBlank() || email == null || email.isBlank() ||
                 className == null || className.isBlank() || batchName == null || batchName.isBlank()) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", "ALL_FIELDS_REQUIRED"));
+            throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
         }
 
-        if(studentRepository.findById(userId).isPresent()){
-                return ResponseEntity.badRequest().body(Map.of("error","USERID_NOT_AVAILABLE"));
-            }
-        
-        Student student =  modelMapper.map(studentDto, Student.class);
+        if (studentRepository.findById(userId).isPresent()) {
+            throw new AuthException(ErrorCode.USERID_NOT_AVAILABLE);
+        }
+
+        Student student = modelMapper.map(studentDto, Student.class);
         student.setAttendance(0);
         student.setRole(Role.STUDENT);
         student.setManagedBy(adminName);
         student.setPassword(passwordEncoder.encode(password));
-        
+
+        mailService.sendStudentAccountDetailsMail(studentDto, adminName);
         studentRepository.save(student);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ID_CREATED_SUCCESSFULLY"));
     }

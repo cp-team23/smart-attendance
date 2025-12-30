@@ -1,10 +1,7 @@
 package com.capstoneproject.smartattendance.service;
 
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +17,8 @@ import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.UserDto;
 import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.User;
+import com.capstoneproject.smartattendance.exception.AuthException;
+import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.repository.AdminRepository;
 import com.capstoneproject.smartattendance.repository.UserRepository;
 import com.capstoneproject.smartattendance.security.JwtService;
@@ -27,7 +26,6 @@ import com.capstoneproject.smartattendance.security.JwtService;
 @Service
 public class AuthService {
 
-    
     @Autowired
     OtpService otpService;
 
@@ -45,157 +43,137 @@ public class AuthService {
 
     @Autowired
     private JwtService jwtService;
-    
 
-    //admin register service
-    public ResponseEntity<?> adminRegister(AdminDto adminDto){
+    // admin register service
+    public ResponseEntity<?> adminRegister(AdminDto adminDto) {
 
-            String userId = adminDto.getUserId();
-            String email = adminDto.getEmail().toLowerCase();
-            String name = adminDto.getName();
-            String collegeName = adminDto.getCollegeName();
-            String otp = adminDto.getOtp();
-            String password =  adminDto.getPassword();
-            String confirmPassword = adminDto.getConfirmPassword();
-            adminDto.setRole(Role.ADMIN);
-        
-            
-            if (userId == null || userId.isBlank() || email == null || email.isBlank() || name == null || name.isBlank()||
-                collegeName == null || collegeName.isBlank()|| password == null || password.isBlank() ||otp==null || otp.isBlank()
-            ){
-                return ResponseEntity.badRequest().body(Map.of("error","ALL_FIELD_REQUIRED"));
-            }
-            if(!password.equals(confirmPassword)){
-                return ResponseEntity.badRequest().body(Map.of("error","BOTH_PASSWORD_SHOULD_BE_SAME"));
-            }
-            if(adminRepository.findById(userId).isPresent()){
-                return ResponseEntity.badRequest().body(Map.of("error","USERID_NOT_AVAILABLE"));
-            }
-            if(adminRepository.findByEmail(email).isPresent()){
-                return ResponseEntity.badRequest().body(Map.of("error","EMAIL_NOT_AVAILABLE"));
-            }
+        String userId = adminDto.getUserId();
+        String email = adminDto.getEmail().toLowerCase();
+        String name = adminDto.getName();
+        String collegeName = adminDto.getCollegeName();
+        String otp = adminDto.getOtp();
+        String password = adminDto.getPassword();
+        String confirmPassword = adminDto.getConfirmPassword();
+        adminDto.setRole(Role.ADMIN);
 
-            ResponseEntity<?> otpResponse = otpService.verifyOtp(email, otp);
-            if (!otpResponse.getStatusCode().is2xxSuccessful()) {
-                return otpResponse;
-            }
-            
-            adminDto.setPassword(passwordEncoder.encode(password));
-            Admin admin = modelMapper.map(adminDto, Admin.class);
-            adminRepository.save(admin);
+        if (userId == null || userId.isBlank() || email == null || email.isBlank() || name == null || name.isBlank() ||
+                collegeName == null || collegeName.isBlank() || password == null || password.isBlank() || otp == null
+                || otp.isBlank()) {
+            throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
+        }
+        if (!password.equals(confirmPassword)) {
+            throw new AuthException(ErrorCode.BOTH_PASSWORD_SHOULD_BE_SAME);
+        }
+        if (adminRepository.findById(userId).isPresent()) {
+            throw new AuthException(ErrorCode.USERID_NOT_AVAILABLE);
+        }
+        if (adminRepository.findByEmail(email).isPresent()) {
+            throw new AuthException(ErrorCode.EMAIL_NOT_AVAILABLE);
+        }
 
-            return ResponseEntity.ok(Map.of("message", "REGISTER_SUCCESSFULLY"));
+        otpService.verifyOtp(email, otp);
+
+        adminDto.setPassword(passwordEncoder.encode(password));
+        Admin admin = modelMapper.map(adminDto, Admin.class);
+        adminRepository.save(admin);
+
+        return ResponseEntity.ok(Map.of("message", "REGISTER_SUCCESSFULLY"));
     }
 
     // otp send service
-    public ResponseEntity<?> sendOtpService(String email){
+    public ResponseEntity<?> sendOtpService(String email) {
         try {
-                if(email==null || email.isBlank()){
-                    return ResponseEntity.badRequest().body(Map.of("error", "EMAIL_NOT_FOUND"));
-                }
-                return otpService.createOtp(email.toLowerCase());
-            }catch(Exception e){
-                return ResponseEntity.internalServerError().body(Map.of("error","An unexpected error occurred: " + e.getMessage()));
-            }  
+            if (email == null || email.isBlank()) {
+                throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
+            }
+            return otpService.createOtp(email.toLowerCase());
+        } catch (Exception e) {
+            throw new AuthException(ErrorCode.INTERNAL_ERROR);
+        }
     }
 
     // all user login service
-    public ResponseEntity<?> loginService(UserDto userDto,HttpServletResponse response) {
-            
-            String userId = userDto.getUserId();
-            String password = userDto.getPassword();
-            Role role = userDto.getRole();
-            
-            if(userId==null || userId.isBlank()||password== null || password.isBlank()){
-                return ResponseEntity.badRequest().body(Map.of("error","ALL_FIELD_REQUIRED"));
-            }
+    public ResponseEntity<?> loginService(UserDto userDto, HttpServletResponse response) {
 
-            Optional<User> optionalUser = userRepository.findByUserId(userId);
-            
-            if(!optionalUser.isPresent()){
-                return ResponseEntity.badRequest().body(Map.of("error","USER_NOT_FOUND"));
-            }
+        String userId = userDto.getUserId();
+        String password = userDto.getPassword();
+        Role role = userDto.getRole();
 
-            User user = optionalUser.get();
+        if (userId == null || userId.isBlank() || password == null || password.isBlank()) {
+            throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
+        }
 
-            if (user.getRole()!=role) {
-                return ResponseEntity.badRequest().body(Map.of("error","USER_NOT_FOUND"));
-            }
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                return ResponseEntity.badRequest().body(Map.of("error", "PASSWORD_NOT_MATCH"));
-            }
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
 
-            String token = jwtService.generateToken(user.getUserId(),user.getRole());
+        if (user.getRole() != role) {
+            throw new AuthException(ErrorCode.USER_NOT_FOUND); // SAME MESSAGE AS BEFORE
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new AuthException(ErrorCode.WRONG_PASSWORD);
+        }
 
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("token", token);
-            responseBody.put("username", user.getUserId());
-            responseBody.put("role", user.getRole());
-            
+        String token = jwtService.generateToken(user.getUserId(), user.getRole());
 
-            Cookie jwtCookie = new Cookie("JWT", token);
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(24 * 60 * 60);
-            jwtCookie.setSecure(false);
-            response.addCookie(jwtCookie);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("token", token);
+        responseBody.put("username", user.getUserId());
+        responseBody.put("role", user.getRole());
 
-            return ResponseEntity.ok(responseBody);
+        Cookie jwtCookie = new Cookie("JWT", token);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(24 * 60 * 60);
+        jwtCookie.setSecure(false);
+        response.addCookie(jwtCookie);
+
+        return ResponseEntity.ok(responseBody);
     }
 
     // all user logout service
     public ResponseEntity<?> logoutService(HttpServletResponse response) {
 
-            Cookie cookie = new Cookie("JWT", "");
-            cookie.setPath("/");
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(0);
-            cookie.setSecure(false);
+        Cookie cookie = new Cookie("JWT", "");
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookie.setSecure(false);
 
-            response.addCookie(cookie);
+        response.addCookie(cookie);
 
-            return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
+        return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
     }
 
     // admin forgot password service
     public ResponseEntity<?> forgotPasswordService(AdminDto adminDto) {
 
-            String userId = adminDto.getUserId();
-            String email = adminDto.getEmail().toLowerCase();
-            String otp = adminDto.getOtp();
-            String password =  adminDto.getPassword();
-            String confirmPassword = adminDto.getConfirmPassword();
+        String userId = adminDto.getUserId();
+        String email = adminDto.getEmail().toLowerCase();
+        String otp = adminDto.getOtp();
+        String password = adminDto.getPassword();
+        String confirmPassword = adminDto.getConfirmPassword();
 
-            if (userId == null || userId.isBlank() || email == null || email.isBlank() 
-                || password == null || password.isBlank()||otp==null || otp.isBlank()
-            ){
-                return ResponseEntity.badRequest().body(Map.of("error","ALL_FIELD_REQUIRED"));
-            }
-            if(!password.equals(confirmPassword)){
-                return ResponseEntity.badRequest().body(Map.of("error","BOTH_PASSWORD_SHOULD_BE_SAME"));
-            }
-            
-            Optional<Admin> optionalAdmin = adminRepository.findById(userId);
+        if (userId == null || userId.isBlank() || email == null || email.isBlank()
+                || password == null || password.isBlank() || otp == null || otp.isBlank()) {
+            throw new AuthException(ErrorCode.ALL_FIELD_REQUIRED);
+        }
+        if (!password.equals(confirmPassword)) {
+            throw new AuthException(ErrorCode.BOTH_PASSWORD_SHOULD_BE_SAME);
+        }
 
-            if(!optionalAdmin.isPresent()){
-                return ResponseEntity.badRequest().body(Map.of("error","USER_NOT_FOUND"));
-            }
-            
-            Admin admin = optionalAdmin.get();
+        Admin admin = adminRepository.findById(userId)
+                .orElseThrow(() -> new AuthException(ErrorCode.USER_NOT_FOUND));
 
-            if(!admin.getEmail().equals(adminDto.getEmail())){
-                return ResponseEntity.badRequest().body(Map.of("error","EMAIL_NOT_MATCH"));
-            }
+        if (!admin.getEmail().equals(adminDto.getEmail())) {
+            throw new AuthException(ErrorCode.EMAIL_NOT_MATCH);
+        }
 
-            ResponseEntity<?> otpResponse = otpService.verifyOtp(email, otp);
-            if (!otpResponse.getStatusCode().is2xxSuccessful()) {
-                return otpResponse;
-            }
-            
-            admin.setPassword(passwordEncoder.encode(password));
-            adminRepository.save(admin);
+        otpService.verifyOtp(email, otp);
 
-            return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));
+        admin.setPassword(passwordEncoder.encode(password));
+        adminRepository.save(admin);
+
+        return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));
     }
 
 }
