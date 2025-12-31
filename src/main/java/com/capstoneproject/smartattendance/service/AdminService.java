@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.entity.Admin;
@@ -36,11 +37,18 @@ public class AdminService {
     @Autowired
     AdminMailService adminMailService;
 
-    public ResponseEntity<?> updateAcademicStructure(String academicstructure, String adminName) {
+    public ResponseEntity<?> updateAcademicStructureService(String academicstructure, String adminName) {
         Admin admin = adminRepository.findById(adminName).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         admin.setAcademicStructure(academicstructure);
         adminRepository.save(admin);
         return ResponseEntity.ok(Map.of("message", "UPDATED_SUCCESSFULLY"));
+    }
+
+    
+    public ResponseEntity<?> getMyDetailsService(String adminName) {
+        Admin admin = adminRepository.findById(adminName).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+        BasicDataDto basicDataDto = modelMapper.map(admin,BasicDataDto.class);
+        return ResponseEntity.ok(basicDataDto);
     }
 
     public ResponseEntity<?> addStudentService(StudentDto studentDto, String adminName) {
@@ -51,6 +59,7 @@ public class AdminService {
         
 
         Student student = modelMapper.map(studentDto, Student.class);
+
         student.setAttendance(0);
         student.setRole(Role.STUDENT);
         student.setManagedBy(adminName);
@@ -94,6 +103,5 @@ public class AdminService {
         }
         studentRepository.deleteById(userId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));
-
     }
 }
