@@ -35,6 +35,12 @@ public class AdminController {
         return adminService.updateStudentService(studentDto,adminName);
     }
 
+    @PutMapping("/updateacademicstructure")
+    public ResponseEntity<?> updateacademicstructure(@RequestBody String academicstructure,Authentication authentication){
+        String adminName = authentication.getName();
+        return adminService.updateAcademicStructure(academicstructure,adminName);
+    }
+
     @DeleteMapping("/deletestudent/{userId}")
     public ResponseEntity<?> deleteStudent(@PathVariable String userId,Authentication authentication){
         String adminName = authentication.getName();

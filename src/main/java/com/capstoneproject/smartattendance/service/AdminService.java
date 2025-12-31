@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
+import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.Student;
 import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
+import com.capstoneproject.smartattendance.repository.AdminRepository;
 import com.capstoneproject.smartattendance.repository.StudentRepository;
 import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
@@ -23,6 +25,9 @@ public class AdminService {
     StudentRepository studentRepository;
 
     @Autowired
+    AdminRepository adminRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
@@ -31,13 +36,19 @@ public class AdminService {
     @Autowired
     AdminMailService adminMailService;
 
+    public ResponseEntity<?> updateAcademicStructure(String academicstructure, String adminName) {
+        Admin admin = adminRepository.findById(adminName).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+        admin.setAcademicStructure(academicstructure);
+        adminRepository.save(admin);
+        return ResponseEntity.ok(Map.of("message", "UPDATED_SUCCESSFULLY"));
+    }
+
     public ResponseEntity<?> addStudentService(StudentDto studentDto, String adminName) {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
 
-        if (studentRepository.findById(userId).isPresent()) {
-            throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
-        }
+        studentRepository.findById(userId).orElseThrow(() -> new CustomeException(ErrorCode.USERID_NOT_AVAILABLE));
+        
 
         Student student = modelMapper.map(studentDto, Student.class);
         student.setAttendance(0);

@@ -1,5 +1,6 @@
 package com.capstoneproject.smartattendance.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,8 @@ public class AdminDto extends UserDto {
     
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String confirmPassword;
+
+    @Column(columnDefinition = "json")
+    private String academicStructure;
 
 }

@@ -19,4 +19,7 @@ public class Admin extends User {
 
     private String name;
     private String collegeName;
+
+    @Column(columnDefinition = "json")
+    private String academicStructure;
 }
