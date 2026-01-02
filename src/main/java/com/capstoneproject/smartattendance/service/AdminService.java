@@ -15,6 +15,7 @@ import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
+// import com.capstoneproject.smartattendance.dto.TeacherDto;
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.Student;
@@ -197,4 +198,66 @@ public class AdminService {
         studentRepo.deleteById(userId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));
     }
+
+    // public ResponseEntity<?> addTeacherService(TeacherDto teacherDto, String adminId) {
+    //     String userId = studentDto.getUserId();
+    //     String password = studentDto.getPassword();
+
+    //     studentRepo.findById(userId).orElseThrow(() -> new CustomeException(ErrorCode.USERID_NOT_AVAILABLE));
+
+    //     Admin admin = adminRepo.findById(adminId).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+    //     Student student = modelMapper.map(studentDto, Student.class);
+
+    //     student.setAttendance(0);
+    //     student.setRole(Role.STUDENT);
+    //     student.setAdmin(admin);
+    //     student.setPassword(passwordEncoder.encode(password));
+
+    //     adminMailService.sendStudentDetailsMail(studentDto, adminId, "created");
+    //     studentRepo.save(student);
+    //     return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_CREATED_SUCCESSFULLY"));
+    // }
+
+    // public ResponseEntity<?> updateTeacherService(TeacherDto teacherDto, String adminId) {
+    //     String userId = studentDto.getUserId();
+    //     String password = studentDto.getPassword();
+
+    //     Student prevStudent = studentRepo.findById(userId)
+    //             .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+    //     Admin admin = adminRepo.findById(adminId)
+    //             .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+    //     if (!prevStudent.getAdmin().getUserId().equals(adminId)) {
+    //         throw new CustomeException(ErrorCode.NOT_ALLOWED);
+    //     }
+
+    //     Student student = modelMapper.map(studentDto, Student.class);
+    //     student.setAttendance(prevStudent.getAttendance());
+    //     student.setRole(Role.STUDENT);
+    //     student.setAdmin(admin);
+    //     student.setPassword(passwordEncoder.encode(password));
+
+    //     adminMailService.sendStudentDetailsMail(studentDto, adminId, "updated");
+    //     studentRepo.save(student);
+    //     return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_UPDATED_SUCCESSFULLY"));
+    // }
+
+    // public ResponseEntity<?> deleteTeacherService(String userId, String adminId) {
+
+    //     Student student = studentRepo.findById(userId)
+    //             .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+    //     adminRepo.findById(adminId)
+    //             .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+    //     if (!student.getAdmin().getUserId().equals(adminId)) {
+    //         throw new CustomeException(ErrorCode.NOT_ALLOWED);
+    //     }
+    //     if (!student.getRole().equals(Role.STUDENT)) {
+    //         throw new CustomeException(ErrorCode.NOT_ALLOWED);
+    //     }
+    //     studentRepo.deleteById(userId);
+    //     return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));
+    // }
 }

@@ -1,10 +1,10 @@
 package com.capstoneproject.smartattendance.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,34 +16,34 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Student extends User {
-   @NotNull
+
+   @Column(nullable = false)
    private String name;
 
-   @NotNull
+   @Column(nullable = false)
    private String collegeName;
 
-   @NotNull
+   @Column(nullable = false)
    private String departmentName;
 
-   @NotNull
+   @Column(nullable = false)
    private String enrollmentNo;
 
-   @NotNull
+   @Column(nullable = false)
    private String sem;
 
-   @NotNull
+   @Column(nullable = false)
    private String email;
 
-   @NotNull
+   @Column(nullable = false)
    private String className;
 
-   @NotNull
+   @Column(nullable = false)
    private String batchName;
-
-   @NotNull
+   
+   @Column(nullable = false)
    private float attendance;
 
-   @NotNull
    @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "admin_user_id", nullable = false)
    private Admin admin;

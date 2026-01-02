@@ -1,12 +1,10 @@
 package com.capstoneproject.smartattendance.entity;
 
-import java.util.List;
-
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,17 +15,17 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Admin extends User {
-    
-    @Column(unique = true, nullable = false)
+public class Teacher extends User{
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
-    private String name;
-    
-    @Column(nullable = false)
     private String collegeName;
 
-    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
-    private List<Academic> academicDatas;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_user_id", nullable = false)
+    private Admin admin;    
 }
