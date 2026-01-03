@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.StudentDto;
-// import com.capstoneproject.smartattendance.dto.TeacherDto;
+import com.capstoneproject.smartattendance.dto.TeacherDto;
 import com.capstoneproject.smartattendance.service.AdminService;
 
 import jakarta.validation.Valid;
@@ -74,23 +74,23 @@ public class AdminController {
         return adminService.deleteStudentService(userId,adminId);
     }
 
-    // @PostMapping("/addTeacher")
-    // public ResponseEntity<?> addTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
-    //     String adminId = authentication.getName();
-    //     return adminService.addTeacherService(teacherDto,adminId);  
-    // }
+    @PostMapping("/addteacher")
+    public ResponseEntity<?> addTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.addTeacherService(teacherDto,adminId);  
+    }
 
-    // @PutMapping("/updatestudent")
-    // public ResponseEntity<?> updateTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
-    //     String adminId = authentication.getName();
-    //     return adminService.updateTeacherService(teacherDto,adminId);
-    // }
+    @PutMapping("/updateteacher")
+    public ResponseEntity<?> updateTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.updateTeacherService(teacherDto,adminId);
+    }
 
-    // @DeleteMapping("/deletestudent/{userId}")
-    // public ResponseEntity<?> deleteTeacher(@PathVariable String userId,Authentication authentication){
-    //     String adminId = authentication.getName();
-    //     return adminService.deleteTeacherService(userId,adminId);
-    // }
+    @DeleteMapping("/deleteteacher/{userId}")
+    public ResponseEntity<?> deleteTeacher(@PathVariable String userId,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.deleteTeacherService(userId,adminId);
+    }
     
 
 }

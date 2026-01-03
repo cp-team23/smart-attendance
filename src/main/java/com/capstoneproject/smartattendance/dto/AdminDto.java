@@ -16,15 +16,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AdminDto extends UserDto {
     
-    @NotNull
+    @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String name;
 
-    @NotNull
+    @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String email;
 
-    @NotNull
+    @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String collegeName;
 

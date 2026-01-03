@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.capstoneproject.smartattendance.dto.StudentDto;
+import com.capstoneproject.smartattendance.dto.TeacherDto;
 
 @Service
 public class AdminMailService {
@@ -13,7 +14,7 @@ public class AdminMailService {
 
     public void sendStudentDetailsMail(StudentDto studentDto, String adminId,String type) {
 
-        String subject = "Student Account Created – Smart Attendance System";
+        String subject = "Student Account "+type+" – Smart Attendance System";
 
         String body =
                 "Dear " + studentDto.getName() + ",\n\n" +
@@ -34,7 +35,7 @@ public class AdminMailService {
                 "Batch          : " + studentDto.getBatchName() + "\n\n" +
 
                 "================ MANAGED BY ==========================\n" +
-                "Created By     : " + adminId + "\n\n" +
+                type +" By     : " + adminId + "\n\n" +
 
                 "Please log in and change your password after first login.\n\n" +
                 "If you did not expect this email, please contact your administrator.\n\n" +
@@ -44,6 +45,38 @@ public class AdminMailService {
 
         mailSenderService.sendMail(
                 studentDto.getEmail(),
+                subject,
+                body
+        );
+    }
+
+    public void sendTeacherDetailsMail(TeacherDto teacherDto, String adminId, String type) {
+       String subject = "Teacher Account "+type+" – Smart Attendance System";
+
+        String body =
+                "Dear " + teacherDto.getName() + ",\n\n" +
+
+                "Your teacher account has been successfully "+ type +" in the Smart Attendance System.\n\n" +
+
+                "================ ACCOUNT CREDENTIALS ================\n" +
+                "User ID   : " + teacherDto.getUserId() + "\n" +
+                "Password  : " + teacherDto.getPassword() + "\n\n" +
+
+                "================ STUDENT DETAILS =====================\n" +
+                "Name           : " + teacherDto.getName() + "\n" +
+                "College        : " + teacherDto.getCollegeName() + "\n" +
+
+                "================ MANAGED BY ==========================\n" +
+                type +" By     : " + adminId + "\n\n" +
+
+                "Please log in and change your password after first login.\n\n" +
+                "If you did not expect this email, please contact your administrator.\n\n" +
+
+                "Best Regards,\n" +
+                "Smart Attendance Team";
+
+        mailSenderService.sendMail(
+                teacherDto.getEmail(),
                 subject,
                 body
         );

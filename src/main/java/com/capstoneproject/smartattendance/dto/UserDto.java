@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDto {
 
-    @NotNull
+    @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String UserId;
 
-    @NotNull
+    @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String password;
 
