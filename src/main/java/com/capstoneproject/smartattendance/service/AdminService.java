@@ -26,12 +26,16 @@ import com.capstoneproject.smartattendance.repository.AcademicRepo;
 import com.capstoneproject.smartattendance.repository.AdminRepo;
 import com.capstoneproject.smartattendance.repository.StudentRepo;
 import com.capstoneproject.smartattendance.repository.TeacherRepo;
+import com.capstoneproject.smartattendance.repository.UserRepo;
 import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class AdminService {
+
+    @Autowired
+    UserRepo userRepo;
 
     @Autowired
     StudentRepo studentRepo;
@@ -148,7 +152,10 @@ public class AdminService {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
 
-        studentRepo.findById(userId).orElseThrow(() -> new CustomeException(ErrorCode.USERID_NOT_AVAILABLE));
+       
+        if(userRepo.findById(userId).isPresent()){
+            throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
+        }
 
         Admin admin = adminRepo.findById(adminId).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -214,7 +221,9 @@ public class AdminService {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
-        teacherRepo.findById(userId).orElseThrow(() -> new CustomeException(ErrorCode.USERID_NOT_AVAILABLE));
+        if(userRepo.findById(userId).isPresent()){
+            throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
+        }
 
         Admin admin = adminRepo.findById(adminId).orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -269,4 +278,34 @@ public class AdminService {
         teacherRepo.deleteById(userId);
         return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_DELETED_SUCCESSFULLY"));
     }
+
+    public ResponseEntity<?> searchStudentService(String userId, String adminId) {
+        
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Student student = studentRepo.findByUserIdAndAdmin_UserId(userId, adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        
+        BasicDataDto basicDataDto = modelMapper.map(student,BasicDataDto.class); 
+
+        return ResponseEntity.ok(Map.of("response",basicDataDto));
+    }
+
+    public ResponseEntity<?> searchTeacherService(String userId, String adminId) {
+        
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Teacher teacher = teacherRepo.findByUserIdAndAdmin_UserId(userId, adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        
+        BasicDataDto basicDataDto = modelMapper.map(teacher,BasicDataDto.class); 
+
+        return ResponseEntity.ok(Map.of("response",basicDataDto));
+    }
+
+
 }

@@ -91,6 +91,16 @@ public class AdminController {
         String adminId = authentication.getName();
         return adminService.deleteTeacherService(userId,adminId);
     }
-    
 
+    @GetMapping("/searchstudent/{userId}")
+    public ResponseEntity<?> searchStudent(@PathVariable String userId,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.searchStudentService(userId,adminId);
+    }
+    
+    @GetMapping("/searchteacher/{userId}")
+    public ResponseEntity<?> searchTeacher(@PathVariable String userId,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.searchTeacherService(userId,adminId);
+    }
 }
