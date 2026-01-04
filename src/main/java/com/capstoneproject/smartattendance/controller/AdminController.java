@@ -103,4 +103,16 @@ public class AdminController {
         String adminId = authentication.getName();
         return adminService.searchTeacherService(userId,adminId);
     }
+
+    @GetMapping("/allstudent")
+    public ResponseEntity<?> getAllStudent(Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.getAllStudentService(adminId);
+    }
+    @GetMapping("/allteacher")
+    public ResponseEntity<?> getAllTeacher(Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.getAllteacherService(adminId);
+    }
+
 }

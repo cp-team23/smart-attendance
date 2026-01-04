@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
+import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.dto.TeacherDto;
@@ -61,25 +62,20 @@ public class AdminService {
     @Autowired
     OtpService otpService;
 
-    
-
-    
     public ResponseEntity<?> getAcademicDataService(String adminId) {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        List<AcademicDto> response =
-            academicRepo.findByAdminUserId(adminId)
-                    .stream()
-                    .map(a -> new AcademicDto(
-                            a.getBranch(),
-                            a.getSemester(),
-                            a.getClassName(),
-                            a.getBatch()
-                    ))
-                    .toList();
-        
-        return ResponseEntity.ok(Map.of("academicDatas",response));
+        List<AcademicDto> response = academicRepo.findByAdminUserId(adminId)
+                .stream()
+                .map(a -> new AcademicDto(
+                        a.getBranch(),
+                        a.getSemester(),
+                        a.getClassName(),
+                        a.getBatch()))
+                .toList();
+
+        return ResponseEntity.ok(Map.of("academicDatas", response));
     }
 
     public ResponseEntity<?> updateAcademicDataService(AdminDto adminDto, String adminId) {
@@ -152,8 +148,7 @@ public class AdminService {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
 
-       
-        if(userRepo.findById(userId).isPresent()){
+        if (userRepo.findById(userId).isPresent()) {
             throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
         }
 
@@ -221,7 +216,7 @@ public class AdminService {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
-        if(userRepo.findById(userId).isPresent()){
+        if (userRepo.findById(userId).isPresent()) {
             throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
         }
 
@@ -280,32 +275,58 @@ public class AdminService {
     }
 
     public ResponseEntity<?> searchStudentService(String userId, String adminId) {
-        
+
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = studentRepo.findByUserIdAndAdmin_UserId(userId, adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        
-        BasicDataDto basicDataDto = modelMapper.map(student,BasicDataDto.class); 
+        StudentResponseDto studentResponseDto = modelMapper.map(student, StudentResponseDto.class);
 
-        return ResponseEntity.ok(Map.of("response",basicDataDto));
+        return ResponseEntity.ok(Map.of("response", studentResponseDto));
     }
 
     public ResponseEntity<?> searchTeacherService(String userId, String adminId) {
-        
+
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Teacher teacher = teacherRepo.findByUserIdAndAdmin_UserId(userId, adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        
-        BasicDataDto basicDataDto = modelMapper.map(teacher,BasicDataDto.class); 
+        BasicDataDto basicDataDto = modelMapper.map(teacher, BasicDataDto.class);
 
-        return ResponseEntity.ok(Map.of("response",basicDataDto));
+        return ResponseEntity.ok(Map.of("response", basicDataDto));
     }
 
+    public ResponseEntity<?> getAllStudentService(String adminId) {
+
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        // List<Student> students = ;
+
+        List<StudentResponseDto> response = studentRepo.findByAdminUserId(adminId)
+                                        .stream()
+                                        .map(a->modelMapper.map(a,StudentResponseDto.class))
+                                        .toList();
+
+        return ResponseEntity.ok(Map.of("response", response));
+    }
+
+    public ResponseEntity<?> getAllteacherService(String adminId) {
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+
+        List<BasicDataDto> response = teacherRepo.findByAdminUserId(adminId)
+                                      .stream()
+                                      .map(a->modelMapper.map(a,BasicDataDto.class))
+                                      .toList();
+
+        return ResponseEntity.ok(Map.of("response", response));
+
+    }
 
 }
