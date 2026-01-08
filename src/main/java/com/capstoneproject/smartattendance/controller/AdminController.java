@@ -63,6 +63,11 @@ public class AdminController {
         String adminId = authentication.getName();
         return adminService.updateAdminService(adminDto,adminId);
     }
+    @PutMapping("/changepassword")
+    public ResponseEntity<?> changePassword(AdminDto adminDto,Authentication authentication){
+        String adminId = authentication.getName();
+        return adminService.changePasswordService(adminDto,adminId);
+    }
 
     @PostMapping("/addstudent")
     public ResponseEntity<?> addStudent(@Valid @RequestBody StudentDto studentDto,Authentication authentication){

@@ -31,7 +31,7 @@ public class AdminDto extends UserDto {
     
     private String confirmPassword;
 
-    private String currentPassword;
+    private String newPassword;
     
     private List<AcademicDto> academicDatas;
 
