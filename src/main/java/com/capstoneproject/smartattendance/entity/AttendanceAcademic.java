@@ -20,7 +20,7 @@ import lombok.Setter;
 public class AttendanceAcademic { 
     @Id
     @GeneratedValue
-    private Long id;
+    private Long AttendanceAcademicid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attendance_id", nullable = false)

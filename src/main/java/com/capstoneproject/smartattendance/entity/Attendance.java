@@ -29,7 +29,7 @@ public class Attendance {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID AttendanceId;
+    private UUID attendanceId;
 
     @Column(nullable = false)
     private LocalDate attendanceDate;

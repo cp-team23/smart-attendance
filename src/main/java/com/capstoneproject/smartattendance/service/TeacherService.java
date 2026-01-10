@@ -1,5 +1,6 @@
 package com.capstoneproject.smartattendance.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,9 @@ public class TeacherService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AdminService adminService;
 
     public ResponseEntity<?> getMyDetailsService(String teacherId) {
         Teacher teacher = teacherRepo.findById(teacherId)
@@ -199,5 +203,62 @@ public class TeacherService {
         return ResponseEntity.ok(Map.of("response",response));
     }
     
+    
+    public ResponseEntity<?> getAttendanceBySubjectNameService(String subjectName,String teacherId) {
+        
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
+
+        List<AttendanceResponseDto> response= attendances
+                            .stream()
+                            .filter(a -> a.getSubjectName().equals(subjectName))
+                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .toList();
+
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    public ResponseEntity<?> getAttendanceByDateService(LocalDate date,String teacherId) {
+        
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
+
+        List<AttendanceResponseDto> response= attendances
+                            .stream()
+                            .filter(a -> a.getAttendanceDate().equals(date))
+                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .toList();
+
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    public ResponseEntity<?> getAttendanceByDateAndSubjectNameService(String subjectName,LocalDate date,String teacherId) {
+        
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
+
+        List<AttendanceResponseDto> response= attendances
+                            .stream()
+                            .filter(a -> a.getSubjectName().equals(subjectName) && a.getAttendanceDate().equals(date))
+                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .toList();
+
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    public ResponseEntity<?> getAcademicDataService(String teacherId) {
+        Teacher teacher = teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+        return adminService.getAcademicDataService(teacher.getAdmin().getUserId()); // from admin service
+    }
+
+    // add student in attendance
+    // remove student in attendance
 
 }
