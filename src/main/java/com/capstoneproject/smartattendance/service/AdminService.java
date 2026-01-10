@@ -430,7 +430,7 @@ public class AdminService {
         if(newPassword==null || newPassword.isBlank()){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
-        if(newPassword.equals(confirmPassword)){
+        if(!newPassword.equals(confirmPassword)){
             throw new CustomeException(ErrorCode.BOTH_PASSWORD_SHOULD_BE_SAME);
         }
         Admin admin = adminRepo.findById(adminId).orElseThrow(()->new CustomeException(ErrorCode.USER_NOT_FOUND));

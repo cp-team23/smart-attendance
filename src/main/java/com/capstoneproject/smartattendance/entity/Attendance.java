@@ -2,6 +2,7 @@ package com.capstoneproject.smartattendance.entity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,13 +29,13 @@ public class Attendance {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID academicId;
+    private UUID AttendanceId;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate attendanceDate;
 
     @Column(nullable = false)
-    private LocalTime time;
+    private LocalTime attendanceTime;
 
     @Column(nullable = false)
     private String subjectName;
@@ -43,12 +44,16 @@ public class Attendance {
     private String verificationCode;
 
     @Column(nullable = false)
-    private String key;
+    private String attendanceKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Teacher teacher;
 
-    @OneToMany(mappedBy = "attendance", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AttendanceRecord> attendanceRecords;
+    private boolean running;
 
+    @OneToMany(mappedBy = "attendance", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AttendanceRecord> attendanceRecords = new ArrayList<>();
+
+    @OneToMany(mappedBy = "attendance",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<AttendanceAcademic> attendanceAcademics = new ArrayList<>();
 }

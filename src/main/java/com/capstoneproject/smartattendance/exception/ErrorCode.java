@@ -28,6 +28,8 @@ public enum ErrorCode {
     ACADEMIC_DETAILS_NOT_FOUND(HttpStatus.BAD_REQUEST),
     CANT_DELETE_THIS(HttpStatus.BAD_REQUEST),
 
+    ATTENDANCE_RECORD_NOT_FOUND(HttpStatus.BAD_REQUEST),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final HttpStatus status;

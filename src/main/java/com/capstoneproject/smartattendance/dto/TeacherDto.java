@@ -1,5 +1,6 @@
 package com.capstoneproject.smartattendance.dto;
 
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,4 +23,9 @@ public class TeacherDto extends UserDto {
    @Email(message = "IVALID_EMAIL")
    @NotBlank(message = "ALL_FIELD_REQUIRED")
    private String email;
+
+   private String confirmPassword;
+
+   private String newPassword;
+
 }

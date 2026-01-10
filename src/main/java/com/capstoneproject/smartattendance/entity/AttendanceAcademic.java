@@ -1,10 +1,7 @@
 package com.capstoneproject.smartattendance.entity;
 
-import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -20,20 +17,16 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttendanceRecord {
-
+public class AttendanceAcademic { 
     @Id
     @GeneratedValue
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attendance_id")
+    @JoinColumn(name = "attendance_id", nullable = false)
     private Attendance attendance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id")
-    private Student student;
-
-    @Enumerated(EnumType.STRING)
-    private AttendanceStatus status;
+    @JoinColumn(name = "academic_id", nullable = false)
+    private Academic academic;
 }

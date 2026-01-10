@@ -60,4 +60,6 @@ public class Academic {
     @OneToMany(mappedBy = "academic", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Student> students = new ArrayList<>();
 
+    @OneToMany(mappedBy = "academic")
+    private List<AttendanceAcademic> attendanceAcademics = new ArrayList<>();
 }
