@@ -24,7 +24,7 @@ public class AttendanceRecord {
 
     @Id
     @GeneratedValue
-    private Long AttendanceRecordid;
+    private Long AttendanceRecordId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attendance_id")

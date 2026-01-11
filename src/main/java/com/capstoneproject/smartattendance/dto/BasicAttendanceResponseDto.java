@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttendanceResponseDto {
+public class BasicAttendanceResponseDto {
     
     private UUID AttendanceId;
 

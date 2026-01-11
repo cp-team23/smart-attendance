@@ -29,9 +29,11 @@ public enum ErrorCode {
     CANT_DELETE_THIS(HttpStatus.BAD_REQUEST),
 
     ATTENDANCE_RECORD_NOT_FOUND(HttpStatus.BAD_REQUEST),
+    ACADEMIC_ALREADY_PRESENT(HttpStatus.BAD_REQUEST),
+    WRONG_ACADEMIC(HttpStatus.BAD_REQUEST),
+    ACADEMIC_NOT_PRESENT(HttpStatus.BAD_REQUEST),
 
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
-
     private final HttpStatus status;
 
     ErrorCode(HttpStatus status) {

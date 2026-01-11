@@ -12,9 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import com.capstoneproject.smartattendance.dto.AttendanceDto;
-import com.capstoneproject.smartattendance.dto.AttendanceResponseDto;
+import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.StartAttendanceResponseDto;
@@ -174,6 +173,70 @@ public class TeacherService {
         
         return ResponseEntity.ok(Map.of("message","ATTENDANCE_STOP_SUCCESSFULLY"));
     }
+    // add new academic
+    public ResponseEntity<?> addNewAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
+        teacherRepo.findById(teacherId)
+                            .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        Academic academic = academicRepo.findById(academicId)
+                    .orElseThrow(() ->new CustomeException(ErrorCode.ACADEMIC_DETAILS_NOT_FOUND));
+
+        if (!academic.getAdmin().getUserId().equals(attendance.getTeacher().getAdmin().getUserId())) {
+            throw new CustomeException(ErrorCode.WRONG_ACADEMIC);
+        }
+
+        boolean alreadyAdded =attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,academicId);
+        if (alreadyAdded) {
+            throw new CustomeException(ErrorCode.ACADEMIC_ALREADY_PRESENT);
+        }
+
+        AttendanceAcademic aa = new AttendanceAcademic();
+        aa.setAttendance(attendance);
+        aa.setAcademic(academic);
+        attendanceAcademicRepo.save(aa);
+
+        List<Student> students = studentRepo.findByAcademic_AcademicId(academicId);
+
+        for (Student student : students) {
+            boolean recordExists = attendanceRecordRepo.existsByAttendance_AttendanceIdAndStudent_UserId(attendanceId,student.getUserId());
+
+            if (!recordExists) {
+                AttendanceRecord record = new AttendanceRecord();
+                record.setAttendance(attendance);
+                record.setStudent(student);
+                record.setStatus(AttendanceStatus.ABSENT);
+                attendanceRecordRepo.save(record);
+            }
+        }
+        return ResponseEntity.ok(Map.of("message","ACADEMIC_ADDED_SUCCESSFULLY"));
+    }
+    // remove academic
+    public ResponseEntity<?> removeAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
+        teacherRepo.findById(teacherId)
+                            .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        Academic academic = academicRepo.findById(academicId)
+                    .orElseThrow(() ->new CustomeException(ErrorCode.ACADEMIC_DETAILS_NOT_FOUND));
+
+        if (!academic.getAdmin().getUserId().equals(attendance.getTeacher().getAdmin().getUserId())) {
+            throw new CustomeException(ErrorCode.WRONG_ACADEMIC);
+        }
+
+        boolean alreadyAdded =attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,academicId);
+        if (!alreadyAdded) {
+            throw new CustomeException(ErrorCode.ACADEMIC_NOT_PRESENT);
+        }
+        attendanceAcademicRepo.deleteByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,academicId);
+        attendanceRecordRepo.deleteByAttendance_AttendanceIdAndStudent_Academic_AcademicId(attendanceId,academicId);
+
+        return ResponseEntity.ok(Map.of("message","ACADEMIC_DELETED_SUCCESSFULLY"));
+    }
     // delete attendance
     public ResponseEntity<?> deleteAttendanceService(UUID attendanceId,String teacherId) {
         
@@ -188,65 +251,64 @@ public class TeacherService {
         return ResponseEntity.ok(Map.of("message","ATTENDANCE_DELETE_SUCCESSFULLY"));
     }
     // get all attendance
-    public ResponseEntity<?> getAttendanceService(String teacherId) {
+    public ResponseEntity<?> getAllAttendanceService(String teacherId) {
         
         teacherRepo.findById(teacherId)
                         .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
 
-        List<AttendanceResponseDto> response= attendances
+        List<BasicAttendanceResponseDto> response= attendances
                             .stream()
-                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
         return ResponseEntity.ok(Map.of("response",response));
     }
     
-    
-    public ResponseEntity<?> getAttendanceBySubjectNameService(String subjectName,String teacherId) {
+    public ResponseEntity<?> getAllAttendanceBySubjectNameService(String subjectName,String teacherId) {
         
         teacherRepo.findById(teacherId)
                         .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
 
-        List<AttendanceResponseDto> response= attendances
+        List<BasicAttendanceResponseDto> response= attendances
                             .stream()
                             .filter(a -> a.getSubjectName().equals(subjectName))
-                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
         return ResponseEntity.ok(Map.of("response",response));
     }
 
-    public ResponseEntity<?> getAttendanceByDateService(LocalDate date,String teacherId) {
+    public ResponseEntity<?> getAllAttendanceByDateService(LocalDate date,String teacherId) {
         
         teacherRepo.findById(teacherId)
                         .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
 
-        List<AttendanceResponseDto> response= attendances
+        List<BasicAttendanceResponseDto> response= attendances
                             .stream()
                             .filter(a -> a.getAttendanceDate().equals(date))
-                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
         return ResponseEntity.ok(Map.of("response",response));
     }
 
-    public ResponseEntity<?> getAttendanceByDateAndSubjectNameService(String subjectName,LocalDate date,String teacherId) {
+    public ResponseEntity<?> getAllttendanceByDateAndSubjectNameService(String subjectName,LocalDate date,String teacherId) {
         
         teacherRepo.findById(teacherId)
                         .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<Attendance> attendances = attendanceRepo.findByTeacher_UserId(teacherId);
 
-        List<AttendanceResponseDto> response= attendances
+        List<BasicAttendanceResponseDto> response= attendances
                             .stream()
                             .filter(a -> a.getSubjectName().equals(subjectName) && a.getAttendanceDate().equals(date))
-                            .map(a->modelMapper.map(a, AttendanceResponseDto.class))
+                            .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
         return ResponseEntity.ok(Map.of("response",response));
@@ -258,7 +320,40 @@ public class TeacherService {
         return adminService.getAcademicDataService(teacher.getAdmin().getUserId()); // from admin service
     }
 
-    // add student in attendance
-    // remove student in attendance
+    // mark presnt student in attendance
+    public ResponseEntity<?> markStudentPresentInAttendance(UUID attendanceId,String studentId,String teacherId){
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        AttendanceRecord attendanceRecord = attendanceRecordRepo
+            .findByAttendance_AttendanceIdAndStudent_StudentId(attendanceId, studentId)
+            .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        attendanceRecord.setStatus(AttendanceStatus.PRESENT);
+        attendanceRecordRepo.save(attendanceRecord);
+
+        return ResponseEntity.ok(Map.of("message","STUDENT_ADDED_SUCCESSFULLY"));
+
+    }
+    // mark absent student in attendance
+    public ResponseEntity<?> markStudentAbsentInAttendance(UUID attendanceId,String studentId,String teacherId){
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        AttendanceRecord attendanceRecord = attendanceRecordRepo
+            .findByAttendance_AttendanceIdAndStudent_StudentId(attendanceId, studentId)
+            .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        attendanceRecord.setStatus(AttendanceStatus.ABSENT);
+        attendanceRecordRepo.save(attendanceRecord);
+
+        return ResponseEntity.ok(Map.of("message","STUDENT_REMOVED_SUCCESSFULLY"));
+    }
 
 }
