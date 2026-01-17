@@ -6,20 +6,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.capstoneproject.smartattendance.entity.User;
-// import com.capstoneproject.smartattendance.exception.CustomeException;
-// import com.capstoneproject.smartattendance.exception.ErrorCode;
-import com.capstoneproject.smartattendance.repository.UserRepo;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtService jwtService;
 
     @Autowired
-    private UserRepo userRepo;
+    private StringRedisTemplate redisTemplate;
 
     @Override
     protected void doFilterInternal(
@@ -48,8 +42,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String userId;
+        String role;
         try {
             userId = jwtService.extractUsername(token);
+            role = jwtService.extractRole(token);
         } catch (Exception e) {
             clearJwtCookie(response);
             filterChain.doFilter(request, response);
@@ -61,8 +57,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        User user = userRepo.findById(userId).orElse(null);
-        if (user == null) {
+        String tokenHash = HashUtil.sha256(token);
+        String redisHash = redisTemplate.opsForValue().get("jwt:" + userId);
+        
+        if (redisHash == null) {
             clearJwtCookie(response);
             filterChain.doFilter(request, response);
             return;
@@ -74,17 +72,17 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String tokenHash = HashUtil.sha256(token);
-        if (!tokenHash.equals(user.getJwt())) {
+        if (!tokenHash.equals(redisHash)) {
             clearJwtCookie(response);
             filterChain.doFilter(request, response);
             return;
         }
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
-                        user.getUserId(),
+                        userId,
                         null,
                         authorities
                 );

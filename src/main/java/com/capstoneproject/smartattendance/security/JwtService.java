@@ -46,10 +46,9 @@ public class JwtService {
             return extractClaim(token, Claims::getSubject);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<String> extractRole(String token) {
+    public String extractRole(String token) {
             Claims claims = extractAllClaims(token);
-            return (List<String>) claims.get("role");
+            return (String)claims.get("role");
     }
 
     public String generateToken(String userId,Role role) {
@@ -60,7 +59,7 @@ public class JwtService {
                     .setClaims(claims)
                     .setSubject(userId)
                     .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 10))// 7 week
+                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))// 1 week
                     .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                     .compact();
     }

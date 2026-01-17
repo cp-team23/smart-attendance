@@ -171,7 +171,7 @@ registerBtn.addEventListener('click', async () => {
             alert("Registration Successful!");
             window.location.href = "/login";
         } else {
-
+            console.log(data.error)
             switch (data.error) {
                 case "USERID_NOT_AVAILABLE":
                     errorBoxUserId.textContent = "Please try different user id";

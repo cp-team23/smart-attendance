@@ -2,9 +2,11 @@ package com.capstoneproject.smartattendance.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,9 @@ public class AuthService {
     ModelMapper modelMapper;
 
     @Autowired
+    private StringRedisTemplate redisTemplate;    
+
+    @Autowired
     private AdminRepo adminRepo;
 
     @Autowired
@@ -44,6 +49,8 @@ public class AuthService {
 
     @Autowired
     private JwtService jwtService;
+
+    private static final long JWT_TTL = 60 * 60 * 24 * 7;
 
     // admin register service
     public ResponseEntity<?> adminRegister(AdminDto adminDto) {
@@ -109,7 +116,11 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user.getUserId(), user.getRole());
+        String tokenHash = HashUtil.sha256(token);
 
+        redisTemplate.opsForValue()
+                     .set("jwt:" + userId, tokenHash, JWT_TTL, TimeUnit.SECONDS);
+                     
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
         responseBody.put("username", user.getUserId());
@@ -122,13 +133,11 @@ public class AuthService {
         jwtCookie.setSecure(false);
         response.addCookie(jwtCookie);
 
-        user.setJwt(HashUtil.sha256(token));
-        userRepo.save(user);
         return ResponseEntity.ok(responseBody);
     }
 
     // all user logout service
-    public ResponseEntity<?> logoutService(HttpServletResponse response) {
+    public ResponseEntity<?> logoutService(HttpServletResponse response,String userId) {
 
         Cookie cookie = new Cookie("JWT", "");
         cookie.setPath("/");
@@ -137,7 +146,7 @@ public class AuthService {
         cookie.setSecure(false);
 
         response.addCookie(cookie);
-
+        redisTemplate.delete("jwt:" + userId);
         return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
     }
 

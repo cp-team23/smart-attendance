@@ -1,15 +1,12 @@
 package com.capstoneproject.smartattendance.service;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.capstoneproject.smartattendance.dto.OtpDto;
 import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.service.mail.AuthMailService;
@@ -18,46 +15,37 @@ import com.capstoneproject.smartattendance.service.mail.AuthMailService;
 public class OtpService {
 
     @Autowired
-    AuthMailService AuthMailService;
+    private StringRedisTemplate redisTemplate;
 
-    private final Map<String, OtpDto> otpStore = new ConcurrentHashMap<>();
+    @Autowired
+    private AuthMailService authMailService;
+
+    private static final long OTP_TTL_SECONDS = 120;
 
     public void createOtp(String email) {
 
-        long expiresTime = Instant.now().plusSeconds(2 * 60).toEpochMilli(); // 2 min
         int code = ThreadLocalRandom.current().nextInt(100000, 1_000_000);
         String otp = String.valueOf(code);
 
-        try {
-            AuthMailService.sendOtpMail(email, otp);
-            otpStore.put(email, new OtpDto(otp, expiresTime));
-        } catch (CustomeException e) {
-            throw new CustomeException(ErrorCode.INTERNAL_ERROR);
-        }
+        authMailService.sendOtpMail(email, otp);
+
+        redisTemplate.opsForValue()
+                .set("otp:" + email, otp, OTP_TTL_SECONDS, TimeUnit.SECONDS);
     }
 
     public void verifyOtp(String email, String otp) {
-        OtpDto otpDto = otpStore.get(email);
 
-        if (otpDto == null) {
-            throw new CustomeException(ErrorCode.NO_OTP_RECORD);
-        }
+        String key = "otp:" + email;
+        String savedOtp = redisTemplate.opsForValue().get(key);
 
-        if (Instant.now().toEpochMilli() > otpDto.getExpireTime()) {
-            otpStore.remove(email);
+        if (savedOtp == null) {
             throw new CustomeException(ErrorCode.OTP_EXPIRED);
         }
-        if (!otpDto.getOtp().equals(otp)) {
+
+        if (!savedOtp.equals(otp)) {
             throw new CustomeException(ErrorCode.INVALID_OTP);
         }
-        otpStore.remove(email);
+
+        redisTemplate.delete(key);
     }
-
-    @Scheduled(fixedRate = 5 * 60 * 1000) // every 5 minutes
-    public void cleanExpiredOtps() {
-        long now = System.currentTimeMillis();
-
-        otpStore.entrySet().removeIf(entry -> entry.getValue().getExpireTime() < now);
-    }
-
 }
