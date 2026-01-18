@@ -50,7 +50,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
      }
 
-     @PostMapping("/forgotpassword")
+     @PostMapping("/forgot-password")
      public ResponseEntity<?> forgotPassword(@Valid @RequestBody AdminDto adminDto){
            authService.forgotPasswordService(adminDto);
            return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));

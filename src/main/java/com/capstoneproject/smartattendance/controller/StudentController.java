@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +43,7 @@ public class StudentController {
 
     }
 
-    @GetMapping("/allattendance")
+    @GetMapping("/all-attendance")
     public ResponseEntity<?> getMyAllAttendance(Authentication authentication){
         String studentId = authentication.getName();
         List<StudentAttendanceResponseDto> response = studentService.getMyAllAttendanceService(studentId);
@@ -50,15 +51,14 @@ public class StudentController {
 
     }
 
-    @PostMapping("/changemyimage")
+    @PostMapping("/change-my-image")
     public ResponseEntity<?> changeMyImageReq(@RequestParam("image") MultipartFile image,Authentication authentication) throws IOException{
         String studentId = authentication.getName();
         studentService.changeMyImageReqService(image,studentId);
-        return ResponseEntity.ok(Map.of("message", "IMAGE_CHANGE_REQUEST_SEND_TO_ADMIN"));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "IMAGE_CHANGE_REQUEST_SEND_TO_ADMIN"));
     }
 
-    @DeleteMapping("/deletechangeimagerequest")
+    @DeleteMapping("/image-request")
     public ResponseEntity<?> deleteMyImageReq(Authentication authentication) throws IOException{
         String studentId = authentication.getName();
         studentService.deleteMyImageReqService(studentId);
@@ -66,13 +66,12 @@ public class StudentController {
 
     }
 
-    @PostMapping("/scanqrcode")
+    @PatchMapping("/scan-qr-code")
     public ResponseEntity<?> scanQRCode(@Valid @RequestBody QRDto scaQrDto,Authentication authentication,HttpServletRequest request){
         String studentId = authentication.getName();
         String ipAddress = IpUtil.getClientIp(request);
         studentService.scanQRCodeService(studentId,scaQrDto,ipAddress);
         return ResponseEntity.ok(Map.of("message", "QR_SCANNED_SUCCESSFULLY"));
-
     }
 
     

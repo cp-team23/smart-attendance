@@ -142,8 +142,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAcademicDataService(AcademicDto academicDto, String adminId) {
-        UUID academicId = academicDto.getAcademicId();
+    public void deleteAcademicDataService(UUID academicId, String adminId) {
         if (academicId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }

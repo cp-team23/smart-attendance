@@ -5,7 +5,7 @@ import org.springframework.security.core.Authentication;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +21,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PutMapping("/changepassword")
+    @PatchMapping("/change-password")
     public ResponseEntity<?> changePassword(UserDto userDto,Authentication authentication){
         String adminId = authentication.getName();
         userService.changePasswordService(userDto,adminId);

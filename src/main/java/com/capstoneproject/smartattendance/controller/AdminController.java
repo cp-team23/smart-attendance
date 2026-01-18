@@ -5,7 +5,9 @@ import org.springframework.security.core.Authentication;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +25,6 @@ import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.dto.TeacherDto;
-import com.capstoneproject.smartattendance.dto.UserDto;
 import com.capstoneproject.smartattendance.service.AdminService;
 
 import jakarta.validation.Valid;
@@ -45,34 +46,34 @@ public class AdminController {
 
     }
     
-    @PostMapping("/createacademicstructure")
+    @PostMapping("/academic-structure")
     public ResponseEntity<?> createAcademicStructure(@Valid @RequestBody AcademicDto academicDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.createAcademicDataService(academicDto,adminId);
-        return ResponseEntity.ok(Map.of("message", "CREATED_SUCCESSFULLY"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "CREATED_SUCCESSFULLY"));
     }
     
-    @PutMapping("/updateacademicstructure")
+    @PutMapping("/academic-structure")
     public ResponseEntity<?> updateAcademicStructure(@Valid @RequestBody AcademicDto academicDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.updateAcademicDataService(academicDto,adminId);
         return ResponseEntity.ok(Map.of("message", "UPDATED_SUCCESSFULLY"));
     }
-    @GetMapping("/getacademicstructure")
+    @GetMapping("/academic-structure")
     public ResponseEntity<?> getAcademicStructure(Authentication authentication){
         String adminId = authentication.getName();
         List<AcademicDto> response = adminService.getAcademicDataService(adminId);
         return ResponseEntity.ok(Map.of("response", response));
     }
-    @DeleteMapping("/deleteacademicstructure")
-    public ResponseEntity<?> deleteAcademicStructure(@RequestBody AcademicDto academicDto,Authentication authentication){
+    @DeleteMapping("/academic-structure/{academicId}")
+    public ResponseEntity<?> deleteAcademicStructure(@PathVariable UUID academicId,Authentication authentication){
         String adminId = authentication.getName();
-        adminService.deleteAcademicDataService(academicDto,adminId);
+        adminService.deleteAcademicDataService(academicId,adminId);
         return ResponseEntity.ok(Map.of("message", "DELETED_SUCCESSFULLY"));
 
     }
 
-    @PutMapping("/updateadmin")
+    @PutMapping("/admin/update")
     public ResponseEntity<?> updateAdmin(@Valid @RequestBody AdminDto adminDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.updateAdminService(adminDto,adminId);
@@ -80,64 +81,61 @@ public class AdminController {
 
     }
     
-    @PostMapping("/addstudent")
+    @PostMapping("/student")
     public ResponseEntity<?> addStudent(@Valid @RequestBody StudentDto studentDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.addStudentService(studentDto,adminId);  
-        return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_CREATED_SUCCESSFULLY"));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "STUDENT_ACCOUNT_CREATED_SUCCESSFULLY"));
     }
 
-    @PutMapping("/updatestudent")
+    @PutMapping("/student")
     public ResponseEntity<?> updatestudent(@Valid @RequestBody StudentDto studentDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.updateStudentService(studentDto,adminId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_UPDATED_SUCCESSFULLY"));
     }
 
-    @DeleteMapping("/deletestudent/{userId}")
+    @DeleteMapping("/student/{userId}")
     public ResponseEntity<?> deleteStudent(@PathVariable String userId,Authentication authentication){
         String adminId = authentication.getName();
         adminService.deleteStudentService(userId,adminId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));
     }
 
-    @GetMapping("/allimagechangerequest")
+    @GetMapping("/all-image-change-request")
     public ResponseEntity<?> getAllImageChangeRequest(Authentication authentication){
         String adminId = authentication.getName();
         List<StudentResponseDto> response = adminService.getAllImageChangeRequestService(adminId);
         return ResponseEntity.ok(Map.of("response", response));
 
     }
-    @PatchMapping("/approveimagechangerequest")
-    public ResponseEntity<?> approveImageChangeRequest(Authentication authentication,@RequestBody UserDto userDto) throws IOException{
+    @PatchMapping("/image-change-request/{userId}/approve")
+    public ResponseEntity<?> approveImageChangeRequest(Authentication authentication,@PathVariable String userId) throws IOException{
         String adminId = authentication.getName();
-        String userId = userDto.getUserId();
         adminService.approveImageChangeRequestService(adminId,userId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_IMAGE_CHANGED_SUCCESSFULLY"));
     }
-    @DeleteMapping("/rejectimagechangerequest/{userId}")
+    @DeleteMapping("/image-change-request/{userId}/reject")
     public ResponseEntity<?> rejectImageChangeRequest(Authentication authentication,@PathVariable String userId) throws IOException{
         String adminId = authentication.getName();
         adminService.rejectImageChangeRequestService(adminId,userId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_IMAGE_REQUEST_DELETED_SUCCESSFULLY"));
-
     }
-    @PostMapping("/addteacher")
+    @PostMapping("/teacher")
     public ResponseEntity<?> addTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.addTeacherService(teacherDto,adminId);
-         return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_CREATED_SUCCESSFULLY"));  
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "TEACHER_ACCOUNT_CREATED_SUCCESSFULLY"));
     }
 
-    @PutMapping("/updateteacher")
+    @PutMapping("/teacher")
     public ResponseEntity<?> updateTeacher(@Valid @RequestBody TeacherDto teacherDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.updateTeacherService(teacherDto,adminId);
         return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_UPDATED_SUCCESSFULLY"));
     }
 
-    @DeleteMapping("/deleteteacher/{userId}")
+    @DeleteMapping("/teacher/{userId}")
     public ResponseEntity<?> deleteTeacher(@PathVariable String userId,Authentication authentication){
         String adminId = authentication.getName();
         adminService.deleteTeacherService(userId,adminId);
@@ -160,13 +158,13 @@ public class AdminController {
 
     }
 
-    @GetMapping("/allstudent")
+    @GetMapping("/all-student")
     public ResponseEntity<?> getAllStudent(Authentication authentication){
         String adminId = authentication.getName();
         List<StudentResponseDto> response =adminService.getAllStudentService(adminId);
         return ResponseEntity.ok(Map.of("response", response));
     }
-    @GetMapping("/allteacher")
+    @GetMapping("/all-teacher")
     public ResponseEntity<?> getAllTeacher(Authentication authentication){
         String adminId = authentication.getName();
         List<BasicDataDto> response =adminService.getAllteacherService(adminId);
