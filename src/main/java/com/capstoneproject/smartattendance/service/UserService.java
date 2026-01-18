@@ -1,10 +1,7 @@
 package com.capstoneproject.smartattendance.service;
 
-import java.util.Map;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +11,17 @@ import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.repository.UserRepo;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    UserRepo userRepo;
+    
+    private final UserRepo userRepo;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-     public ResponseEntity<?> changePasswordService(UserDto userDto, String userId) {
+     public void  changePasswordService(UserDto userDto, String userId) {
         String password = userDto.getPassword();
         String newPassword = userDto.getNewPassword();
         String confirmPassword = userDto.getConfirmPassword();
@@ -41,6 +40,5 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
-        return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGED_SUCCESSFULLY"));
     }
 }

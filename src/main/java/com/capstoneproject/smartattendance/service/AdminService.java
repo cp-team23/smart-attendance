@@ -5,13 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,41 +37,34 @@ import com.capstoneproject.smartattendance.repository.UserRepo;
 import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-    @Autowired
-    UserRepo userRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    StudentRepo studentRepo;
+    private final StudentRepo studentRepo;
 
-    @Autowired
-    AdminRepo adminRepo;
+    private final AdminRepo adminRepo;
 
-    @Autowired
-    TeacherRepo teacherRepo;
+    private final TeacherRepo teacherRepo;
 
-    @Autowired
-    AcademicRepo academicRepo;
+    private final AcademicRepo academicRepo;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    AdminMailService adminMailService;
+    private final AdminMailService adminMailService;
 
-    @Autowired
-    OtpService otpService;
+    private final OtpService otpService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public ResponseEntity<?> getAcademicDataService(String adminId) {
+    public List<AcademicDto> getAcademicDataService(String adminId) {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -83,10 +73,10 @@ public class AdminService {
                 .map(a -> modelMapper.map(a, AcademicDto.class))
                 .toList();
 
-        return ResponseEntity.ok(Map.of("academicDatas", response));
+        return response;
     }
 
-    public ResponseEntity<?> createAcademicDataService(AcademicDto academicDto, String adminId) {
+    public void createAcademicDataService(AcademicDto academicDto, String adminId) {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -110,10 +100,9 @@ public class AdminService {
         admin.getAcademicDatas().add(academic);
         adminRepo.save(admin);  
 
-        return ResponseEntity.ok(Map.of("message", "CREATED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> updateAcademicDataService(AcademicDto academicDto, String adminId) {
+    public void updateAcademicDataService(AcademicDto academicDto, String adminId) {
         UUID academicId = academicDto.getAcademicId();
         if (academicId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
@@ -149,11 +138,10 @@ public class AdminService {
         admin.getAcademicDatas().add(academic);
 
         adminRepo.save(admin);
-        return ResponseEntity.ok(Map.of("message", "UPDATED_SUCCESSFULLY"));
     }
 
     @Transactional
-    public ResponseEntity<?> deleteAcademicDataService(AcademicDto academicDto, String adminId) {
+    public void deleteAcademicDataService(AcademicDto academicDto, String adminId) {
         UUID academicId = academicDto.getAcademicId();
         if (academicId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
@@ -168,17 +156,16 @@ public class AdminService {
             throw new CustomeException(ErrorCode.CANT_DELETE_THIS);
         }
         academicRepo.deleteById(academicId);
-        return ResponseEntity.ok(Map.of("message", "DELETED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> getMyDetailsService(String adminId) {
+    public BasicDataDto getMyDetailsService(String adminId) {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         BasicDataDto basicDataDto = modelMapper.map(admin, BasicDataDto.class);
-        return ResponseEntity.ok(Map.of("response",basicDataDto));
+        return basicDataDto;
     }
 
-    public ResponseEntity<?> updateAdminService(AdminDto adminDto, String adminId) {
+    public void updateAdminService(AdminDto adminDto, String adminId) {
         String collegeName = adminDto.getCollegeName();
         String name = adminDto.getName();
         String otp = adminDto.getOtp();
@@ -207,11 +194,9 @@ public class AdminService {
         admin.setName(name);
 
         adminRepo.save(admin);
-
-        return ResponseEntity.ok(Map.of("message", "UPDATED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> addStudentService(StudentDto studentDto,String adminId) {
+    public void addStudentService(StudentDto studentDto,String adminId) {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
         UUID academicId = studentDto.getAcademicId();
@@ -242,10 +227,9 @@ public class AdminService {
 
         adminMailService.sendStudentDetailsMail(student, adminId, "created");
         studentRepo.save(student);
-        return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_CREATED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> updateStudentService(StudentDto studentDto, String adminId) {
+    public void updateStudentService(StudentDto studentDto, String adminId) {
         String userId = studentDto.getUserId();
         UUID academicId = studentDto.getAcademicId();
         if (academicId == null) {
@@ -273,10 +257,9 @@ public class AdminService {
 
         adminMailService.sendStudentDetailsMail(student, adminId, "updated");
         studentRepo.save(student);
-        return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_UPDATED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> deleteStudentService(String userId, String adminId) {
+    public void deleteStudentService(String userId, String adminId) {
 
         Student student = studentRepo.findById(userId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -291,10 +274,9 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
         studentRepo.deleteById(userId);
-        return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> getAllImageChangeRequestService(String adminId){
+    public List<StudentResponseDto> getAllImageChangeRequestService(String adminId){
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -312,10 +294,10 @@ public class AdminService {
                                     return res;
                                 })
                                 .toList(); 
-        return ResponseEntity.ok(Map.of("response",response));   
+        return response;   
     }
 
-    public ResponseEntity<?> approveImageChangeRequestService(String adminId,String userId) throws IOException{
+    public void approveImageChangeRequestService(String adminId,String userId) throws IOException{
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -342,10 +324,9 @@ public class AdminService {
         student.setNewImage(null);
         studentRepo.save(student);
         
-        return ResponseEntity.ok(Map.of("message", "STUDENT_IMAGE_CHANGED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> rejectImageChangeRequestService(String adminId,String userId) throws IOException{
+    public void rejectImageChangeRequestService(String adminId,String userId) throws IOException{
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -367,12 +348,10 @@ public class AdminService {
         Files.deleteIfExists(newPath);
 
         student.setNewImage(null);
-        studentRepo.save(student);
-        
-        return ResponseEntity.ok(Map.of("message", "STUDENT_IMAGE_REQUEST_DELETED_SUCCESSFULLY"));
+        studentRepo.save(student);        
     }
 
-    public ResponseEntity<?> addTeacherService(TeacherDto teacherDto, String adminId) {
+    public void addTeacherService(TeacherDto teacherDto, String adminId) {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
@@ -391,10 +370,9 @@ public class AdminService {
 
         adminMailService.sendTeacherDetailsMail(teacher, adminId, "created");
         teacherRepo.save(teacher);
-        return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_CREATED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> updateTeacherService(TeacherDto teacherDto, String adminId) {
+    public void updateTeacherService(TeacherDto teacherDto, String adminId) {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
@@ -414,10 +392,10 @@ public class AdminService {
 
         adminMailService.sendTeacherDetailsMail(teacher, adminId, "updated");
         teacherRepo.save(teacher);
-        return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_UPDATED_SUCCESSFULLY"));
+        
     }
 
-    public ResponseEntity<?> deleteTeacherService(String userId, String adminId) {
+    public void deleteTeacherService(String userId, String adminId) {
 
         Teacher teacher = teacherRepo.findById(userId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -432,10 +410,9 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
         teacherRepo.deleteById(userId);
-        return ResponseEntity.ok(Map.of("message", "TEACHER_ACCOUNT_DELETED_SUCCESSFULLY"));
     }
 
-    public ResponseEntity<?> getStudentService(String userId, String adminId) {
+    public StudentResponseDto getStudentService(String userId, String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -454,10 +431,10 @@ public class AdminService {
         studentResponseDto.setClassName(academic.getClassName());
         studentResponseDto.setBatch(academic.getBatch());
 
-        return ResponseEntity.ok(Map.of("response", studentResponseDto));
+        return studentResponseDto;
     }
 
-    public ResponseEntity<?> getTeacherService(String userId, String adminId) {
+    public BasicDataDto getTeacherService(String userId, String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -470,10 +447,10 @@ public class AdminService {
 
         BasicDataDto basicDataDto = modelMapper.map(teacher, BasicDataDto.class);
 
-        return ResponseEntity.ok(Map.of("response", basicDataDto));
+        return basicDataDto;
     }
 
-    public ResponseEntity<?> getAllStudentService(String adminId) {
+    public List<StudentResponseDto> getAllStudentService(String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -492,10 +469,10 @@ public class AdminService {
                     })
                 .toList();
 
-        return ResponseEntity.ok(Map.of("response", response));
+        return response;
     }
 
-    public ResponseEntity<?> getAllteacherService(String adminId) {
+    public List<BasicDataDto> getAllteacherService(String adminId) {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -504,7 +481,7 @@ public class AdminService {
                 .map(a -> modelMapper.map(a, BasicDataDto.class))
                 .toList();
 
-        return ResponseEntity.ok(Map.of("response", response));
+        return response;
 
     }
 

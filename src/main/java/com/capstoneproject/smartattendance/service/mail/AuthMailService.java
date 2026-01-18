@@ -1,13 +1,14 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AuthMailService {
 
-    @Autowired
-    private MailSenderService mailSenderService;
+    private final MailSenderService mailSenderService;
 
     public void sendOtpMail(String email, String otp) {
 

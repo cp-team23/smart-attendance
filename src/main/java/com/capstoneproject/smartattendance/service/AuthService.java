@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.Role;
@@ -27,33 +27,27 @@ import com.capstoneproject.smartattendance.security.HashUtil;
 import com.capstoneproject.smartattendance.security.JwtService;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    OtpService otpService;
+    private final OtpService otpService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;    
+    private final StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private AdminRepo adminRepo;
+    private final AdminRepo adminRepo;
 
-    @Autowired
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     private static final long JWT_TTL = 60 * 60 * 24 * 7;
 
     // admin register service
-    public ResponseEntity<?> adminRegister(AdminDto adminDto) {
+    public void adminRegister(AdminDto adminDto) {
 
         String userId = adminDto.getUserId();
         String email = adminDto.getEmail().toLowerCase();
@@ -78,17 +72,15 @@ public class AuthService {
         Admin admin = modelMapper.map(adminDto, Admin.class);
         adminRepo.save(admin);
 
-        return ResponseEntity.ok(Map.of("message", "REGISTER_SUCCESSFULLY"));
     }
 
     // otp send service
-    public ResponseEntity<?> sendOtpService(String email) {
+    public void sendOtpService(String email) {
         try {
             if (email == null || email.isBlank()) {
                 throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
             }
             otpService.createOtp(email.toLowerCase());
-            return ResponseEntity.ok(Map.of("message", "OTP_SENT"));
         } catch (CustomeException e) {
             throw new CustomeException(ErrorCode.INTERNAL_ERROR);
         }
@@ -137,7 +129,7 @@ public class AuthService {
     }
 
     // all user logout service
-    public ResponseEntity<?> logoutService(HttpServletResponse response,String userId) {
+    public void logoutService(HttpServletResponse response,String userId) {
 
         Cookie cookie = new Cookie("JWT", "");
         cookie.setPath("/");
@@ -147,11 +139,10 @@ public class AuthService {
 
         response.addCookie(cookie);
         redisTemplate.delete("jwt:" + userId);
-        return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
     }
 
     // admin forgot password service
-    public ResponseEntity<?> forgotPasswordService(AdminDto adminDto) {
+    public void forgotPasswordService(AdminDto adminDto) {
 
         String userId = adminDto.getUserId();
         String email = adminDto.getEmail().toLowerCase();
@@ -177,8 +168,6 @@ public class AuthService {
 
         admin.setPassword(passwordEncoder.encode(password));
         adminRepo.save(admin);
-
-        return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));
     }
 
 }

@@ -3,7 +3,6 @@ package com.capstoneproject.smartattendance.service;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +10,16 @@ import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 import com.capstoneproject.smartattendance.service.mail.AuthMailService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class OtpService {
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+   
+    private final StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private AuthMailService authMailService;
+    private final AuthMailService authMailService;
 
     private static final long OTP_TTL_SECONDS = 120;
 

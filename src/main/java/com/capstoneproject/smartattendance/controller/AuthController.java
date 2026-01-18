@@ -1,6 +1,7 @@
 package com.capstoneproject.smartattendance.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,46 +12,49 @@ import org.springframework.web.bind.annotation.RestController;
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.UserDto;
 import com.capstoneproject.smartattendance.service.AuthService;
-import com.capstoneproject.smartattendance.service.OtpService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-     @Autowired
-     AuthService authService;
+     private final AuthService authService;
 
-     @Autowired 
-     OtpService otpService;
 
      @PostMapping("/login")
      public ResponseEntity<?> login(@Valid @RequestBody UserDto userDto,HttpServletResponse response){
-            return authService.loginService(userDto,response);
+           return authService.loginService(userDto,response);
      }
 
      @PostMapping("/register")
      public ResponseEntity<?> register(@Valid @RequestBody AdminDto adminDto){
-            return authService.adminRegister(adminDto);
+            authService.adminRegister(adminDto);
+            return ResponseEntity.ok(Map.of("message", "REGISTER_SUCCESSFULLY"));
      }
 
      @PostMapping("/sendotp")
      public ResponseEntity<?> sendOtp(@RequestBody AdminDto adminDto) {
             String email = adminDto.getEmail();
-            return authService.sendOtpService(email);
+            authService.sendOtpService(email);
+            return ResponseEntity.ok(Map.of("message", "OTP_SENT"));
      }
 
      @PostMapping("/logout")
      public ResponseEntity<?> login(HttpServletResponse response,Authentication authentication){
         String userId = authentication.getName();    
-        return authService.logoutService(response,userId);
+        authService.logoutService(response,userId);
+        return ResponseEntity.ok(Map.of("message", "LOGGED_OUT"));
      }
 
      @PostMapping("/forgotpassword")
      public ResponseEntity<?> forgotPassword(@Valid @RequestBody AdminDto adminDto){
-            return authService.forgotPasswordService(adminDto);
+           authService.forgotPasswordService(adminDto);
+           return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));
+
      }
 
 }

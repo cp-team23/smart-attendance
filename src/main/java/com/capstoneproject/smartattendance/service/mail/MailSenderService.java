@@ -1,6 +1,5 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -8,11 +7,14 @@ import org.springframework.stereotype.Service;
 import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class MailSenderService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    
+    private final JavaMailSender mailSender;
 
     public void sendMail(String to, String subject, String body) {
 

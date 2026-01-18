@@ -4,12 +4,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
@@ -37,42 +34,37 @@ import com.capstoneproject.smartattendance.repository.TeacherRepo;
 import com.capstoneproject.smartattendance.util.CryptoUtil;
 import com.capstoneproject.smartattendance.util.RandomStringUtil;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class TeacherService {
 
-    @Autowired
-    TeacherRepo teacherRepo;
+    private final TeacherRepo teacherRepo;
 
-    @Autowired
-    AcademicRepo academicRepo;
+    private final AcademicRepo academicRepo;
 
-    @Autowired
-    StudentRepo studentRepo;
+    private final StudentRepo studentRepo;
 
-    @Autowired
-    AttendanceRepo attendanceRepo;
+    private final AttendanceRepo attendanceRepo;
 
-    @Autowired
-    AttendanceAcademicRepo attendanceAcademicRepo;
+    private final AttendanceAcademicRepo attendanceAcademicRepo;
 
-    @Autowired
-    AttendanceRecordRepo attendanceRecordRepo;
+    private final AttendanceRecordRepo attendanceRecordRepo;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    AdminService adminService;
+    private final AdminService adminService;
 
-    public ResponseEntity<?> getMyDetailsService(String teacherId) {
+    public BasicDataDto getMyDetailsService(String teacherId) {
         Teacher teacher = teacherRepo.findById(teacherId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         BasicDataDto basicDataDto = modelMapper.map(teacher, BasicDataDto.class);
-        return ResponseEntity.ok(basicDataDto);
+        return basicDataDto;
     }
 
     // create attendance
-    public ResponseEntity<?> createAttendanceService(AttendanceDto attendanceDto, String teacherId) {
+    public UUID createAttendanceService(AttendanceDto attendanceDto, String teacherId) {
 
         Teacher teacher = teacherRepo.findById(teacherId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -117,12 +109,11 @@ public class TeacherService {
 
         attendanceAcademicRepo.saveAll(attendanceAcademics);
         attendanceRecordRepo.saveAll(attendanceRecords);
-
-        return ResponseEntity.ok(Map.of("attendanceId",attendace.getAttendanceId()));
+        return attendace.getAttendanceId();
     }
 
     // start attendance
-    public ResponseEntity<?> startAttendanceService(UUID attendanceId,String teacherId) {
+    public void startAttendanceService(UUID attendanceId,String teacherId) {
         if(attendanceId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -134,12 +125,10 @@ public class TeacherService {
 
         attendance.setRunning(true);
         attendanceRepo.save(attendance);
-
-        return ResponseEntity.ok(Map.of("message","ATTENDANCE_STARTED"));
     }
 
     // refresh attendance
-    public ResponseEntity<?> refreshQRCodeService(UUID attendanceId,String teacherId,int refreshTime) {
+    public QRDto refreshQRCodeService(UUID attendanceId,String teacherId,int refreshTime) {
         if(attendanceId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -157,12 +146,11 @@ public class TeacherService {
         response.setAttendanceId(attendanceId);
         response.setExpireTime(expireTime);
         response.setEncryptedCode(encryptedCode);
-
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
 
     // stop attendance
-    public ResponseEntity<?> stopAttendanceService(UUID attendanceId,String teacherId) {
+    public void stopAttendanceService(UUID attendanceId,String teacherId) {
         if(attendanceId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -174,11 +162,9 @@ public class TeacherService {
 
         attendance.setRunning(false);
         attendanceRepo.save(attendance);
-        
-        return ResponseEntity.ok(Map.of("message","ATTENDANCE_STOP_SUCCESSFULLY"));
     }
     // add new academic
-    public ResponseEntity<?> addNewAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
+    public void addNewAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
         if(attendanceId==null || academicId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -218,10 +204,9 @@ public class TeacherService {
                 attendanceRecordRepo.save(record);
             }
         }
-        return ResponseEntity.ok(Map.of("message","ACADEMIC_ADDED_SUCCESSFULLY"));
     }
     // remove academic
-    public ResponseEntity<?> removeAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
+    public void removeAcademicInAttendanceService(UUID attendanceId,UUID academicId,String teacherId){
         
         if(attendanceId==null || academicId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
@@ -247,10 +232,9 @@ public class TeacherService {
         attendanceAcademicRepo.deleteByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,academicId);
         attendanceRecordRepo.deleteByAttendance_AttendanceIdAndStudent_Academic_AcademicId(attendanceId,academicId);
 
-        return ResponseEntity.ok(Map.of("message","ACADEMIC_DELETED_SUCCESSFULLY"));
     }
     // delete attendance
-    public ResponseEntity<?> deleteAttendanceService(UUID attendanceId,String teacherId) {
+    public void deleteAttendanceService(UUID attendanceId,String teacherId) {
         
         if(attendanceId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
@@ -264,10 +248,9 @@ public class TeacherService {
 
         attendanceRepo.deleteById(attendanceId);
         
-        return ResponseEntity.ok(Map.of("message","ATTENDANCE_DELETE_SUCCESSFULLY"));
     }
     // get all attendance
-    public ResponseEntity<?> getAllAttendanceService(String teacherId) {
+    public List<BasicAttendanceResponseDto> getAllAttendanceService(String teacherId) {
         
         teacherRepo.findById(teacherId)
                         .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -278,10 +261,9 @@ public class TeacherService {
                             .stream()
                             .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
-
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
-    public ResponseEntity<?> getAttendancByAttendanceIdService(UUID attendanceId,String teacherId){
+    public  AtteandanceResponseDto getAttendancByAttendanceIdService(UUID attendanceId,String teacherId){
         if(attendanceId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -332,10 +314,10 @@ public class TeacherService {
                             aa.getAcademic(), AcademicDto.class))
                     .toList());
 
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
     
-    public ResponseEntity<?> getAllAttendanceBySubjectNameService(String subjectName,String teacherId) {
+    public List<BasicAttendanceResponseDto> getAllAttendanceBySubjectNameService(String subjectName,String teacherId) {
         
         if(subjectName==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
@@ -351,11 +333,10 @@ public class TeacherService {
                             .filter(a -> a.getSubjectName().equals(subjectName))
                             .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
-
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
 
-    public ResponseEntity<?> getAllAttendanceByDateService(LocalDate date,String teacherId) {
+    public List<BasicAttendanceResponseDto> getAllAttendanceByDateService(LocalDate date,String teacherId) {
         if(date==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -370,10 +351,10 @@ public class TeacherService {
                             .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
 
-    public ResponseEntity<?> getAllttendanceByDateAndSubjectNameService(String subjectName,LocalDate date,String teacherId) {
+    public List<BasicAttendanceResponseDto> getAllttendanceByDateAndSubjectNameService(String subjectName,LocalDate date,String teacherId) {
         if(subjectName==null || date==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -388,17 +369,17 @@ public class TeacherService {
                             .map(a->modelMapper.map(a, BasicAttendanceResponseDto.class))
                             .toList();
 
-        return ResponseEntity.ok(Map.of("response",response));
+        return response;
     }
 
-    public ResponseEntity<?> getAcademicDataService(String teacherId) {
+    public List<AcademicDto> getAcademicDataService(String teacherId) {
         Teacher teacher = teacherRepo.findById(teacherId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         return adminService.getAcademicDataService(teacher.getAdmin().getUserId()); // from admin service
     }
 
     // mark presnt student in attendance
-    public ResponseEntity<?> markStudentPresentInAttendanceService(UUID attendanceId,String studentId,String teacherId){
+    public void markStudentPresentInAttendanceService(UUID attendanceId,String studentId,String teacherId){
         if(attendanceId==null || studentId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -415,11 +396,9 @@ public class TeacherService {
         attendanceRecord.setStatus(AttendanceStatus.PRESENT);
         attendanceRecordRepo.save(attendanceRecord);
 
-        return ResponseEntity.ok(Map.of("message","STUDENT_ADDED_SUCCESSFULLY"));
-
     }
     // mark absent student in attendance
-    public ResponseEntity<?> markStudentAbsentInAttendanceService(UUID attendanceId,String studentId,String teacherId){
+    public void markStudentAbsentInAttendanceService(UUID attendanceId,String studentId,String teacherId){
         if(attendanceId==null || studentId==null){
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -436,8 +415,6 @@ public class TeacherService {
 
         attendanceRecord.setStatus(AttendanceStatus.ABSENT);
         attendanceRecordRepo.save(attendanceRecord);
-
-        return ResponseEntity.ok(Map.of("message","STUDENT_REMOVED_SUCCESSFULLY"));
     }
 
 }

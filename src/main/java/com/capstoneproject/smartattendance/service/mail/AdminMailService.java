@@ -1,17 +1,18 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 import com.capstoneproject.smartattendance.entity.Student;
 import com.capstoneproject.smartattendance.entity.Teacher;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AdminMailService {
 
-    @Autowired
-    private MailSenderService mailSenderService;
+    private final MailSenderService mailSenderService;
 
     public void sendStudentDetailsMail(Student student, String adminId,String type) {
 

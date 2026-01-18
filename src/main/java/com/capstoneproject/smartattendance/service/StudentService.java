@@ -7,15 +7,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,27 +29,26 @@ import com.capstoneproject.smartattendance.repository.AttendanceRecordRepo;
 import com.capstoneproject.smartattendance.repository.StudentRepo;
 import com.capstoneproject.smartattendance.util.CryptoUtil;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class StudentService {
-    // get my details
-    @Autowired
-    StudentRepo studentRepo;
+    
+    private final StudentRepo studentRepo;
 
-    @Autowired
-    AttendanceRecordRepo attendanceRecordRepo;
+    private final AttendanceRecordRepo attendanceRecordRepo;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     private static final long QR_TTL_SECONDS = 120;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public ResponseEntity<?> getMyDetailsService(String studentId) {
+    public StudentResponseDto getMyDetailsService(String studentId) {
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         StudentResponseDto response = modelMapper.map(student, StudentResponseDto.class);
@@ -62,11 +58,11 @@ public class StudentService {
         response.setSemester(academic.getSemester());
         response.setClassName(response.getClassName());
         response.setBatch(response.getBatch());
-        return ResponseEntity.ok(Map.of("response", response));
+        return response;
     }
 
     // change image req
-    public ResponseEntity<?> changeMyImageReqService(MultipartFile image, String studentId) throws IOException {
+    public void changeMyImageReqService(MultipartFile image, String studentId) throws IOException {
         if (image.isEmpty()) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
@@ -104,10 +100,9 @@ public class StudentService {
         student.setNewImage(fileName);
         studentRepo.save(student);
 
-        return ResponseEntity.ok(Map.of("message", "IMAGE_CHANGE_REQUEST_SEND_TO_ADMIN"));
     }
 
-    public ResponseEntity<?> deleteMyImageReqService(String studentId) throws IOException {
+    public void deleteMyImageReqService(String studentId) throws IOException {
 
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -123,11 +118,10 @@ public class StudentService {
         Path prevPath = uploadPath.resolve(prevFile).normalize();
         Files.deleteIfExists(prevPath);
 
-        return ResponseEntity.ok(Map.of("message", "IMAGE_CHANGE_REQUEST_DELETED"));
     }
 
     // scan qr code
-    public ResponseEntity<?> scanQRCodeService(String studentId, QRDto scanQRDto,String ipAddress) {
+    public void scanQRCodeService(String studentId, QRDto scanQRDto,String ipAddress) {
 
         Instant expireInstant = Instant.ofEpochMilli(scanQRDto.getExpireTime());
 
@@ -157,13 +151,12 @@ public class StudentService {
         redisTemplate.opsForValue()
                 .set("qr:" + studentId, value, QR_TTL_SECONDS, TimeUnit.SECONDS);
 
-        return ResponseEntity.ok(Map.of("message", "QR_SCANNED_SUCCESSFULLY"));
     }
     // match face
     
 
     // get all attendance
-    public ResponseEntity<?> getMyAllAttendanceService(String studentId) {
+    public List<StudentAttendanceResponseDto> getMyAllAttendanceService(String studentId) {
         List<AttendanceRecord> attendanceRecords = attendanceRecordRepo.findByStudent_UserId(studentId);
 
         List<StudentAttendanceResponseDto> response = attendanceRecords
@@ -179,8 +172,7 @@ public class StudentService {
                     return sard;
                 })
                 .toList();
-
-        return ResponseEntity.ok(Map.of("response", response));
+        return response;
     }
 
 }
