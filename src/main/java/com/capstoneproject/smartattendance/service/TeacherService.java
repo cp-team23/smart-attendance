@@ -1,5 +1,6 @@
 package com.capstoneproject.smartattendance.service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import com.capstoneproject.smartattendance.dto.AttendanceDto;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
-import com.capstoneproject.smartattendance.dto.StartAttendanceResponseDto;
+import com.capstoneproject.smartattendance.dto.QRDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Attendance;
@@ -33,6 +34,7 @@ import com.capstoneproject.smartattendance.repository.AttendanceRecordRepo;
 import com.capstoneproject.smartattendance.repository.AttendanceRepo;
 import com.capstoneproject.smartattendance.repository.StudentRepo;
 import com.capstoneproject.smartattendance.repository.TeacherRepo;
+import com.capstoneproject.smartattendance.util.CryptoUtil;
 import com.capstoneproject.smartattendance.util.RandomStringUtil;
 
 @Service
@@ -133,10 +135,32 @@ public class TeacherService {
         attendance.setRunning(true);
         attendanceRepo.save(attendance);
 
-        StartAttendanceResponseDto response = modelMapper.map(attendance,StartAttendanceResponseDto.class);
+        return ResponseEntity.ok(Map.of("message","ATTENDANCE_STARTED"));
+    }
+
+    // refresh attendance
+    public ResponseEntity<?> refreshQRCodeService(UUID attendanceId,String teacherId,int refreshTime) {
+        if(attendanceId==null){
+            throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
+        }
+        teacherRepo.findById(teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+        
+        long expireTime = Instant.now().plusSeconds(refreshTime).toEpochMilli();
+        String key = attendance.getAttendanceKey() + expireTime;
+        String encryptedCode = CryptoUtil.encrypt(attendance.getVerificationCode(),key);
+
+        QRDto response = new QRDto();
+        response.setAttendanceId(attendanceId);
+        response.setExpireTime(expireTime);
+        response.setEncryptedCode(encryptedCode);
 
         return ResponseEntity.ok(Map.of("response",response));
     }
+
     // stop attendance
     public ResponseEntity<?> stopAttendanceService(UUID attendanceId,String teacherId) {
         if(attendanceId==null){

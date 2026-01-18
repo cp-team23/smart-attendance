@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AttendanceDto;
+import com.capstoneproject.smartattendance.dto.QRDto;
 import com.capstoneproject.smartattendance.service.TeacherService;
 
 import jakarta.validation.Valid;
@@ -54,6 +55,12 @@ public class TeacherController {
     public ResponseEntity<?> addNewAcademicInAttendance(@RequestBody UUID attendanceId,@RequestBody UUID academicId,Authentication authentication){
         String taecherId = authentication.getName();
         return teacherService.addNewAcademicInAttendanceService(attendanceId,academicId,taecherId);
+    }
+
+    @GetMapping("/refreshqrcode")
+    public ResponseEntity<?> refreshQRCode(@Valid @RequestBody QRDto qrDto,Authentication authentication){
+        String teacherId = authentication.getName();
+        return teacherService.refreshQRCodeService(qrDto.getAttendanceId(), teacherId,qrDto.getRefreshTime());
     }
 
     @DeleteMapping("/removeacademininattendance")

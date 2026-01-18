@@ -39,6 +39,9 @@ public enum ErrorCode {
     INVALID_FILE_NAME(HttpStatus.BAD_REQUEST),
     NO_REQUEST_FOUND(HttpStatus.BAD_REQUEST),
 
+    QR_EXPIRED(HttpStatus.BAD_REQUEST),
+    WRONG_DATA(HttpStatus.BAD_REQUEST),
+
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
     private final HttpStatus status;
 
