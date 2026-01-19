@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.QRDto;
 import com.capstoneproject.smartattendance.dto.StudentAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
@@ -35,16 +36,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class StudentService {
-    
+
     private final StudentRepo studentRepo;
 
     private final AttendanceRecordRepo attendanceRecordRepo;
 
-     private final AttendanceAcademicRepo attendanceAcademicRepo;
+    private final AttendanceAcademicRepo attendanceAcademicRepo;
 
     private final ModelMapper modelMapper;
 
     private final StringRedisTemplate redisTemplate;
+
+    private final FaceMatchService faceMatchService;
 
     private static final long QR_TTL_SECONDS = 120;
 
@@ -53,7 +56,6 @@ public class StudentService {
 
     @Value("${app.file.base-url}")
     private String fileBaseUrl;
-
 
     public StudentResponseDto getMyDetailsService(String studentId) {
         Student student = studentRepo.findById(studentId)
@@ -83,9 +85,9 @@ public class StudentService {
         }
 
         String contentType = image.getContentType();
-        if (contentType == null ||  !(contentType.equals("image/png")
-                                    || contentType.equals("image/jpeg")
-                                    || contentType.equals("image/jpg"))) {
+        if (contentType == null || !(contentType.equals("image/png")
+                || contentType.equals("image/jpeg")
+                || contentType.equals("image/jpg"))) {
             throw new CustomeException(ErrorCode.INVALID_FILE_TYPE);
         }
 
@@ -94,11 +96,11 @@ public class StudentService {
             throw new CustomeException(ErrorCode.INVALID_FILE_NAME);
         }
         String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        
+
         if (!(extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg"))) {
             throw new CustomeException(ErrorCode.INVALID_FILE_TYPE);
         }
-        
+
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
@@ -136,7 +138,7 @@ public class StudentService {
     }
 
     // scan qr code
-    public void scanQRCodeService(String studentId, QRDto scanQRDto,String ipAddress) {
+    public void scanQRCodeService(String studentId, QRDto scanQRDto, String ipAddress) {
 
         Instant expireInstant = Instant.ofEpochMilli(scanQRDto.getExpireTime());
 
@@ -154,12 +156,13 @@ public class StudentService {
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        boolean exist = attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,student.getAcademic().getAcademicId());
+        boolean exist = attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,
+                student.getAcademic().getAcademicId());
 
-        if(!exist){
+        if (!exist || attendanceRecord.getAttendance().isRunning()==false) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if(student.getCurImage()=="defaultimage.jpg"){
+        if (student.getCurImage() == "defaultimage.jpg") {
             throw new CustomeException(ErrorCode.IMAGE_NOT_FOUND);
         }
 
@@ -167,7 +170,7 @@ public class StudentService {
         String attendanceKey = attendanceRecord.getAttendance().getAttendanceKey();
         String key = attendanceKey + expireTime;
 
-        String decryptedCode = CryptoUtil.decrypt(encryptedCode,key);
+        String decryptedCode = CryptoUtil.decrypt(encryptedCode, key);
 
         if (decryptedCode == null || !verificationCode.equals(decryptedCode)) {
             throw new CustomeException(ErrorCode.INVALID_QR_DATA);
@@ -179,8 +182,71 @@ public class StudentService {
                 .set("qr:" + studentId, value, QR_TTL_SECONDS, TimeUnit.SECONDS);
 
     }
+
     // match face
-    
+    public void scanFaceService(UUID attendanceId, String studentId, String ipAddress, MultipartFile liveImage) throws IOException {
+        if(liveImage.isEmpty() || attendanceId==null){
+            throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
+        }
+
+        String value = redisTemplate.opsForValue().get("qr:" + studentId);
+        
+        if (value == null) {
+            throw new CustomeException(ErrorCode.QR_EXPIRED);
+        }
+
+        if (liveImage.getSize() > 5 * 1024 * 1024) {
+            throw new CustomeException(ErrorCode.FILE_SIZE_EXCEEDED);
+        }
+
+        String contentType = liveImage.getContentType();
+        if (contentType == null || !(contentType.equals("image/png")
+                || contentType.equals("image/jpeg")
+                || contentType.equals("image/jpg"))) {
+            throw new CustomeException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        AttendanceRecord attendanceRecord = attendanceRecordRepo.findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, studentId)
+                            .orElseThrow(()-> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        Student student = studentRepo.findById(studentId)
+                            .orElseThrow(()-> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        String[] parts = value.split("\\|");
+
+        if (parts.length != 2) {
+            throw new CustomeException(ErrorCode.INVALID_QR_DATA);
+        }
+
+        String qrAttendanceIdStr = parts[0];
+        String qrIpAddress = parts[1];
+        UUID qrAttendanceId;
+
+        try {
+            qrAttendanceId = UUID.fromString(qrAttendanceIdStr);
+        } catch (IllegalArgumentException e) {
+            throw new CustomeException(ErrorCode.INVALID_QR_DATA);
+        }
+        
+        if(!attendanceId.equals(qrAttendanceId) || !ipAddress.equals(qrIpAddress)){
+            throw new CustomeException(ErrorCode.SCAN_QR_AGAIN);
+        }
+
+        Path path = Paths.get(uploadDir).resolve(student.getCurImage()).normalize();
+
+        byte[] dbImage = Files.readAllBytes(path);
+        byte[] liveImageBytes = liveImage.getBytes();
+
+        boolean matched = faceMatchService.matchFaces(dbImage, liveImageBytes);
+
+        if (!matched) {
+            throw new CustomeException(ErrorCode.FACE_NOT_MATCHED);
+        }
+
+        attendanceRecord.setStatus(AttendanceStatus.PRESENT);
+        attendanceRecordRepo.save(attendanceRecord);
+        redisTemplate.delete("qr:" + studentId);
+    }
 
     // get all attendance
     public List<StudentAttendanceResponseDto> getMyAllAttendanceService(String studentId) {

@@ -3,6 +3,7 @@ package com.capstoneproject.smartattendance.controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,6 +74,17 @@ public class StudentController {
         String ipAddress = IpUtil.getClientIp(request);
         studentService.scanQRCodeService(studentId,scaQrDto,ipAddress);
         return ResponseEntity.ok(Map.of("message", "QR_SCANNED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/scan-face/{attendanceId}")
+    public ResponseEntity<?> scanFace(Authentication authentication,HttpServletRequest request,
+                                     @PathVariable UUID attendanceId,@RequestParam("image") MultipartFile image
+    ) throws IOException{
+        
+        String studentId = authentication.getName();
+        String ipAddress = IpUtil.getClientIp(request);
+        studentService.scanFaceService(attendanceId,studentId,ipAddress,image);
+        return ResponseEntity.ok(Map.of("message", "ATTENDANCE_MARKED_SUCCESSFULLY"));
     }
 
     

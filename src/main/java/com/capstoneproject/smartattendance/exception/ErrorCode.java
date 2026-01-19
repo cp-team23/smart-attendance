@@ -39,10 +39,13 @@ public enum ErrorCode {
     // FILE / IMAGE
     IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR),
     IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST),
+    FACE_NOT_MATCHED(HttpStatus.BAD_REQUEST),
 
     // QR
     QR_EXPIRED(HttpStatus.BAD_REQUEST),
     INVALID_QR_DATA(HttpStatus.BAD_REQUEST),
+    SCAN_QR_AGAIN(HttpStatus.BAD_REQUEST),
+
 
     //GENERAL
     NO_REQUEST_FOUND(HttpStatus.BAD_REQUEST),
