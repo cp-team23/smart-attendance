@@ -96,7 +96,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/student/{userId}")
-    public ResponseEntity<?> deleteStudent(@PathVariable String userId,Authentication authentication){
+    public ResponseEntity<?> deleteStudent(@PathVariable String userId,Authentication authentication) throws IOException{
         String adminId = authentication.getName();
         adminService.deleteStudentService(userId,adminId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_DELETED_SUCCESSFULLY"));

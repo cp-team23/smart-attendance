@@ -12,8 +12,8 @@ import com.capstoneproject.smartattendance.entity.Attendance;
 @Repository
 public interface AttendanceRepo extends JpaRepository<Attendance,UUID> {
 
-    Optional<Attendance> findByAttendanceIdAndTeacher_UserId(UUID attendanceId,String teacherId);
+    Optional<Attendance> findByAttendanceIdAndTeacher_UserId(UUID attendanceId,String userId);
 
-    List<Attendance> findByTeacher_UserId(String teacherId);
+    List<Attendance> findByTeacher_UserId(String userId);
 
 }

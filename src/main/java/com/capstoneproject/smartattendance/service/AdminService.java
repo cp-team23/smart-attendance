@@ -62,6 +62,10 @@ public class AdminService {
 
     private final OtpService otpService;
 
+    @Value("${app.file.base-url}")
+    private String fileBaseUrl;
+
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -260,7 +264,7 @@ public class AdminService {
         studentRepo.save(student);
     }
 
-    public void deleteStudentService(String userId, String adminId) {
+    public void deleteStudentService(String userId, String adminId) throws IOException {
 
         Student student = studentRepo.findById(userId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -273,6 +277,15 @@ public class AdminService {
         }
         if (!student.getRole().equals(Role.STUDENT)) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Files.createDirectories(uploadPath);
+
+        if(student.getCurImage()!=null && student.getCurImage()!="defaultimage.jpg"){
+            String curFile = student.getCurImage();
+            Path curPath = uploadPath.resolve(curFile).normalize();
+            Files.deleteIfExists(curPath);
         }
         studentRepo.deleteById(userId);
     }
@@ -292,6 +305,8 @@ public class AdminService {
                                     res.setSemester(s.getAcademic().getBranch());
                                     res.setClassName(s.getAcademic().getClassName());
                                     res.setBatch(s.getAcademic().getBatch());
+                                    res.setCurImage(fileBaseUrl + res.getCurImage());
+                                    res.setNewImage(fileBaseUrl + res.getNewImage());
                                     return res;
                                 })
                                 .toList(); 
@@ -431,6 +446,9 @@ public class AdminService {
         studentResponseDto.setSemester(academic.getSemester());
         studentResponseDto.setClassName(academic.getClassName());
         studentResponseDto.setBatch(academic.getBatch());
+        studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
+        studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+                        
 
         return studentResponseDto;
     }
@@ -465,7 +483,8 @@ public class AdminService {
                         studentResponseDto.setSemester(a.getAcademic().getSemester());
                         studentResponseDto.setClassName(a.getAcademic().getClassName());
                         studentResponseDto.setBatch(a.getAcademic().getBatch());
-
+                        studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
+                        studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
                         return studentResponseDto;
                     })
                 .toList();

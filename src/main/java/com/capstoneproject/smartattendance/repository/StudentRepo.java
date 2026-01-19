@@ -14,10 +14,10 @@ public interface StudentRepo extends JpaRepository<Student,String> {
 
     Optional<Student> findByUserIdAndAdmin_UserId(String userId, String adminId);
 
-    List<Student> findByAdminUserId(String adminId);
+    List<Student> findByAdminUserId(String userId);
 
     List<Student> findByAcademic_AcademicId(UUID academicId);
 
-    List<Student> findByNewImageIsNotNullAndAdmin_UserId(String adminId);
+    List<Student> findByNewImageIsNotNullAndAdmin_UserId(String userId);
     
 }
