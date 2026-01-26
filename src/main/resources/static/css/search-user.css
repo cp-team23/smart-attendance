@@ -1,0 +1,79 @@
+.search-div{
+    height:9%;
+    width:72%;
+    margin-left:4%;
+    margin-top:0.3%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap:1%;
+}
+
+.search-bar-div{
+    height:100%;
+    width:70%;
+    display: flex;
+    justify-content:start;
+    align-items: center;
+    gap: 2%;
+}
+
+input{
+    height:40%;
+    width:75%;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size:15px;
+    padding-left:20px;
+    font-weight: 500;
+    box-shadow:0 10px 24px rgba(0,0,0,.12);
+    border:2px solid var(--dark);
+}
+
+#searchBtn{
+    height:85%;
+    width:8%;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+img{
+    height:60%;
+}
+.role-btns{
+    height:100%;
+    width:25%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.role-btns button {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 5px;
+  border: 1px solid var(--dark);
+  background: var(--light);
+  color: var(--dark);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+
+.role-btns button.active {
+  background-color: var(--dark);
+  color: var(--light);
+  border-color: var(--dark);
+}
+
+.contentbody{
+    height:80%;
+    width:45%;
+    margin-top:2%;
+    margin-left:4%;
+    background: var(--dark);
+}

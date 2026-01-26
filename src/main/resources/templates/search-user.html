@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/body-border.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/search-user.css">
+
+
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-right">
+            <img src="/assets/images/website-logo.png">
+            <h1>Smart Attendance</h1>
+        </div>
+        <div>
+            <button class="lightBtn" id="gotoDashboard">Dashboard</button>
+        </div>
+    </div>
+
+    <div class="border">
+        <div class="border-msg-bg">
+            <div class="border-msg" id="borderMsg">
+                Search Student
+            </div>
+        </div>
+        <div class="search-div">
+            <div class="search-bar-div">
+                <input type="text" id="searchBar" placeholder="Enter Student Enrollment Number">
+                <button id="searchBtn" class="darkBtn"><img src="/assets/icons/search.svg"></button>
+            </div>
+            <div class="role-btns">
+                <button id="studentBtn" class="active">Student</button>
+                <button id="teacherBtn" >Teacher</button>
+            </div>
+        </div>
+        <div class="contentbody">
+            
+        </div>
+    </div>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/search-user.js"></script>
+    
+
+
+</body>
+
+</html>

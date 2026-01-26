@@ -47,6 +47,10 @@ public class PageController {
         model.addAttribute("teacherId",teacherId);
         return "update-teacher"; 
     }
+    @GetMapping({"/admin/search-user"})
+    public String searchUserPage() {
+        return "search-user"; 
+    }
 }
 
 
