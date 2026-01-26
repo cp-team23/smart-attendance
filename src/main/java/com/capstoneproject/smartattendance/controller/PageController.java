@@ -24,12 +24,16 @@ public class PageController {
         return "forgot-password"; 
     }
     @GetMapping({"/admin/academic"})
-    public String academic() {
+    public String academicPage() {
         return "admin-academic"; 
     }
     @GetMapping({"/admin/student/add"})
-    public String addStudent() {
+    public String addStudentPage() {
         return "add-student"; 
+    }
+    @GetMapping({"/admin/teacher/add"})
+    public String addTeacherPage() {
+        return "add-teacher"; 
     }
 }
 

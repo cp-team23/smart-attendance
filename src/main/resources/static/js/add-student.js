@@ -216,6 +216,9 @@ addStudentBtn.onclick = async () => {
     } if (!userData.email) {
         showSnackbar("Please enter student email id", "warning");
         return;
+    } if (!userData.enrollmentNo) {
+        showSnackbar("Please enter student enrollment No", "warning");
+        return;
     } if (!userData.password) {
         showSnackbar("Please enter password", "warning");
         return;
@@ -239,7 +242,10 @@ addStudentBtn.onclick = async () => {
             console.log(data.error)
             switch (data.error) {
                 case "USERID_NOT_AVAILABLE":
-                    showSnackbar("Please try different user id", "warning");
+                    showSnackbar("Please try different student id", "warning");
+                    break;
+                case "ENROLLMENT_NOT_AVAILABLE":
+                    showSnackbar("Enrollment no not available", "warning");
                     break;
                 default:
                     showSnackbar("Something went wrong. Try again", "warning");

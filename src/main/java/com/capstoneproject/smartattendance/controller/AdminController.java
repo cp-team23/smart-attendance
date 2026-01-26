@@ -143,10 +143,10 @@ public class AdminController {
 
     }
 
-    @GetMapping("/student/{userId}")
-    public ResponseEntity<?> getStudent(@PathVariable String userId,Authentication authentication){
+    @GetMapping("/student/{enrollmentNo}")
+    public ResponseEntity<?> getStudent(@PathVariable String enrollmentNo,Authentication authentication){
         String adminId = authentication.getName();
-        StudentResponseDto studentResponseDto =  adminService.getStudentService(userId,adminId);
+        StudentResponseDto studentResponseDto =  adminService.getStudentService(enrollmentNo,adminId);
         return ResponseEntity.ok(Map.of("response", studentResponseDto));
     }
     
@@ -158,10 +158,10 @@ public class AdminController {
 
     }
 
-    @GetMapping("/all-student")
-    public ResponseEntity<?> getAllStudent(Authentication authentication){
+    @GetMapping("/all-student/{academicId}")
+    public ResponseEntity<?> getAllStudent(@PathVariable UUID academicId,Authentication authentication){
         String adminId = authentication.getName();
-        List<StudentResponseDto> response =adminService.getAllStudentService(adminId);
+        List<StudentResponseDto> response =adminService.getAllStudentService(academicId,adminId);
         return ResponseEntity.ok(Map.of("response", response));
     }
     @GetMapping("/all-teacher")

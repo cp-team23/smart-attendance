@@ -228,6 +228,10 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
 
+        boolean flag = studentRepo.existsByCollegeNameAndEnrollmentNo(admin.getCollegeName(),studentDto.getEnrollmentNo());
+        if(flag){
+            throw new CustomeException(ErrorCode.ENROLLMENT_NOT_AVAILABLE);
+        }
         Student student = modelMapper.map(studentDto, Student.class);
 
         student.setRole(Role.STUDENT);
@@ -435,14 +439,14 @@ public class AdminService {
         teacherRepo.deleteById(userId);
     }
 
-    public StudentResponseDto getStudentService(String userId, String adminId) {
+    public StudentResponseDto getStudentService(String enrollmentNo, String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = admin.getStudents()
                 .stream()
-                .filter(a -> a.getUserId().equals(userId))
+                .filter(a -> a.getEnrollmentNo().equals(enrollmentNo))
                 .findFirst()
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         Academic academic = student.getAcademic();
@@ -476,13 +480,14 @@ public class AdminService {
         return basicDataDto;
     }
 
-    public List<StudentResponseDto> getAllStudentService(String adminId) {
+    public List<StudentResponseDto> getAllStudentService(UUID academicId,String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<StudentResponseDto> response = admin.getStudents()
                 .stream()
+                .filter(a->a.getAcademic().getAcademicId().equals(academicId))
                 .map(a -> {
                         StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
                         studentResponseDto.setYear(a.getAcademic().getYear());

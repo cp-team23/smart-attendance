@@ -19,5 +19,7 @@ public interface StudentRepo extends JpaRepository<Student,String> {
     List<Student> findByAcademic_AcademicId(UUID academicId);
 
     List<Student> findByNewImageIsNotNullAndAdmin_UserId(String userId);
+
+    boolean existsByCollegeNameAndEnrollmentNo(String collegeName, String enrollmentNo);
     
 }
