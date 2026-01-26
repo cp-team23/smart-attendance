@@ -1,0 +1,61 @@
+
+input{
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.options {
+  width:100%;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 1px solid var(--grey);
+  border-radius: 5px;
+  display: none;
+  position: absolute;
+  background: var(--light);
+  max-height: 130px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.options li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.options li:hover {
+  background:var(--midLight);
+}
+
+.academic-dit-div{
+
+    height:50px;
+    width:80%;
+    margin-left:30px;
+    margin-top:5px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap:2%;
+}
+
+.contentbody{
+    height:85%;
+    width:98%;
+    padding-right:20%;
+    margin-top: 1.5%;
+    margin-left: 2%;
+    overflow-y:auto;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    row-gap: 20px;
+    box-sizing: border-box; 
+}
+
+
+.contentbody::-webkit-scrollbar {
+    width: 6px;
+}
+.contentbody::-webkit-scrollbar-thumb {
+    background:var(--dark);
+    border-radius: 5px;
+}

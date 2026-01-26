@@ -51,6 +51,7 @@ async function loadData() {
                     </div>
                 </div>
                 <div class="card-btn">
+                    <button class="darkBtn all-student">All students</button>
                     <button class="darkBtn update-btn">Update</button>
                     <button class="darkBtn delete-btn">Delete</button>
                 </div>
@@ -197,7 +198,7 @@ contentBody.addEventListener("click", function (e) {
             updateBtn=null;
             card.classList.remove("selected");
         }else{
-            academicId = card.dataset.id,
+            academicId = card.dataset.id;
             year.value      = card.dataset.year;
             branch.value    = card.dataset.branch;
             sem.value       = card.dataset.semester;
@@ -213,7 +214,6 @@ contentBody.addEventListener("click", function (e) {
                 updateBtn.innerHTML = "Update";
             }
             updateBtn = e.target;
-            console.log(academicId);
         }
 
     }
@@ -231,6 +231,14 @@ contentBody.addEventListener("click", function (e) {
             onConfirm: () => deleteAcademic(cardId),
         });
 
+    }
+
+    if (e.target.classList.contains("all-student")) {
+        e.stopPropagation();
+
+        const card = e.target.closest(".card");
+        academicId = card.dataset.id;
+        window.location.href = "all-student/"+academicId;
     }
 
 });

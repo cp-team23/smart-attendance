@@ -1,0 +1,21 @@
+.contentbody{
+    height:95%;
+    width:98%;
+    padding-right:20%;
+    margin-top: .5%;
+    margin-left: 2%;
+    overflow-y:auto;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    row-gap: 20px;
+    box-sizing: border-box; 
+}
+
+
+.contentbody::-webkit-scrollbar {
+    width: 6px;
+}
+.contentbody::-webkit-scrollbar-thumb {
+    background:var(--dark);
+    border-radius: 5px;
+}

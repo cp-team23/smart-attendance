@@ -1,5 +1,7 @@
 package com.capstoneproject.smartattendance.controller;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +52,22 @@ public class PageController {
     @GetMapping({"/admin/search-user"})
     public String searchUserPage() {
         return "search-user"; 
+    }
+
+    @GetMapping({"/admin/student-image-requests"})
+    public String userImageChangePage() {
+        return "student-image-request"; 
+    }
+
+    @GetMapping({"/admin/all-students/{academicId}"})
+    public String allStudentPage(@PathVariable UUID academicId,Model model) {
+        model.addAttribute("academicId",academicId);
+        return "all-student"; 
+    }
+
+    @GetMapping({"/admin/all-teachers"})
+    public String allTeacherPage() {
+        return "all-teacher"; 
     }
 }
 

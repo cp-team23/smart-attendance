@@ -1,12 +1,7 @@
 const app = document.getElementById("app");
-const enrollmentNo = app.dataset.enrollmentNo;
+let academicId = app.dataset.academicId;
 
-const userId = document.getElementById("userId");
-const nameInput = document.getElementById("name");
-const enrollment = document.getElementById("enrollment");
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const updateStudentBtn = document.getElementById("updateStudentBtn");
+
 
 const yearInput = document.getElementById("yearInput");
 const yearOptionsBox = document.getElementById("yearOption");
@@ -29,45 +24,11 @@ let branch = [];
 let sem = [];
 let className = [];
 let batch = [];
-let orgUserId;
-let academicId = null;
-async function loadStudent() {
-    try{
-        const res = await fetch("/api/admin/student/" + enrollmentNo);
-        const data = await res.json();
-        if(!res.ok){
-            showSnackbar("User not found","warning");
-            return ;
-        }
 
-        const student = data.response;
-        userId.value = student.userId;
-        orgUserId = student.userId;
-        nameInput.value = student.name;
-        enrollment.value = student.enrollmentNo;
-        email.value = student.email;
-        yearInput.value = student.year;
-        yearInput.classList.add("filled");
-        yearOptionsBox.style.display = "none";
-        branchInput.value = student.branch;
-        branchInput.classList.add("filled");
-        branchOptionsBox.style.display = "none";
-        semInput.value = student.semester;
-        semInput.classList.add("filled");
-        semOptionsBox.style.display = "none";
-        classInput.value = student.className;
-        classInput.classList.add("filled");
-        classOptionsBox.style.display = "none";
-        batchInput.value = student.batch;
-        batchInput.classList.add("filled");
-        batchOptionsBox.style.display = "none";
-    }catch{
-        showSnackbar("Something went wrong. Try again","error");
-    }
 
-}
-loadStudent();
-
+function showData(student){
+    console.log(student);
+} 
 
 
 async function loadData() {
@@ -93,6 +54,13 @@ function setBatch() {
             batchInput.value = item;
             batchInput.classList.add("filled");
             batchOptionsBox.style.display = "none";
+
+            allData.forEach(element => {
+                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
+                    academicId = element.academicId;
+                }
+            });
+            loadStudent(academicId);
         };
         batchOptionsBox.appendChild(li);
     });
@@ -222,7 +190,7 @@ semInput.onclick = () => {
 
 classInput.onclick = () => {
     batch = [];
-     allData.forEach(element => {
+    allData.forEach(element => {
                 if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
                     className.push(element.className);
                 }
@@ -244,79 +212,36 @@ batchInput.onclick = () => {
         batchOptionsBox.style.display === "block" ? "none" : "block";
 };
 
-updateStudentBtn.onclick = async () => {
-     allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
-                    academicId = element.academicId;
-                }
-            });
-    const userData = {
-        userId: userId.value.trim(),
-        name: nameInput.value.trim(),
-        email: email.value.trim(),
-        enrollmentNo: enrollment.value.trim(),
-        password: password.value.trim(),
-        academicId:academicId
-    };
-
-    if (!userData.userId) {
-        showSnackbar("Please enter student id", "warning");
-        return;
-    }
-    if(userData.userId!==orgUserId){
-        showSnackbar("Don't change student id", "warning");
-        return;
-    }
-    if (!userData.name) {
-        showSnackbar("Please enter student name", "warning");
-        return;
-    } if (!userData.email) {
-        showSnackbar("Please enter student email id", "warning");
-        return;
-    } if (!userData.enrollmentNo) {
-        showSnackbar("Please enter student enrollment No", "warning");
-        return;
-    } if (!userData.password) {
-        showSnackbar("Please enter password", "warning");
-        return;
-    }
-
-    updateStudentBtn.textContent = "Updating...";
-    updateStudentBtn.disabled = true;
-
-    try {
-        const response = await fetch('/api/admin/student', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            showSnackbar("Student updated successfull", "success");
-        } else {
-            console.log(data.error)
-            switch (data.error) {
-                case "USER_NOT_FOUND":
-                    showSnackbar("User not found", "warning");
-                    break;
-                case "ENROLLMENT_NOT_AVAILABLE":
-                    showSnackbar("Enrollment no not available", "warning");
-                    break;
-                default:
-                    showSnackbar("Something went wrong. Try again", "warning");
+async function loadStudent(academicId){
+ try{
+        const res = await fetch("/api/admin/all-student/" +academicId);
+        const data = await res.json();
+        if(res.ok){
+            if(data.response.length === 0){
+                showSnackbar("Student Not found.", "success");
+            }else{
+                yearInput.value = data.response[0].year;
+                yearInput.classList.add("filled");
+                branchInput.value = data.response[0].branch;
+                branchInput.classList.add("filled");
+                semInput.value = data.response[0].semester;
+                semInput.classList.add("filled");
+                classInput.value = data.response[0].className;
+                classInput.classList.add("filled");
+                batchInput.value = data.response[0].batch;
+                batchInput.classList.add("filled");
+                showData(data.response);
             }
         }
+        else{
+            showSnackbar("Something went wrong. Try again","warning");
+            return ;  
 
-    } catch (err) {
-        showSnackbar("Something went wrong. Try again", "error");
+        }
+    }catch{
+        showSnackbar("Something went wrong. Try again","error");
     }
+}
 
-    updateStudentBtn.textContent = "Update Student";
-    updateStudentBtn.disabled = false;
-    loadStudent();
-};
-
-
+loadStudent(academicId);
 
