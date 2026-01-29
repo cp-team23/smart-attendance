@@ -1,0 +1,113 @@
+.student-card{
+    height:250px;
+    width:100%;
+    border-radius:10px;
+    border:1px solid var(--grey);
+    box-shadow:0 10px 24px rgba(0,0,0,0.06);
+    display: flex;
+    justify-content:start;
+    align-items:start;
+}
+
+.student-card-img-2{
+    width:50%;
+    display:flex;
+    justify-content: space-evenly;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+.student-card-img-2>div>.img{
+    height:140px;
+    width:140px;
+    border-radius: 50%;
+}
+.student-card-img-2>div>div{
+   display: flex;
+   justify-content: center;
+}
+
+.imgtext{
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+    color:#5f5a5a;
+}
+.student-card-info{
+    font-size: 14px;
+    padding-top:4%;
+    height:100%;
+    width:50%;
+    padding-right:5%;
+}
+
+.student-card-data{
+    height: 60%;
+   
+}
+
+.student-card-data-header{
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.en-no{
+    margin-top:10px;
+}
+.userid{
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: auto;
+    margin-bottom: auto;
+
+}
+.year{
+    height:20px;
+    width:60px;
+    padding:5px;
+    background:var(--midDark);
+    color:var(--light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius:10px;
+}
+
+.data{
+    display:inline-block;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey);
+    border-radius:5px;
+    padding: 5px;
+    padding-left:10px;
+    padding-right: 10px;
+    margin-right:2px;
+    margin-bottom:3px;
+}
+
+.branch-sem,.class-batch{
+    display: flex;
+}
+
+.student-card-btn{
+    height:20%;
+    display: flex;
+    justify-content:end;
+    align-items:end;
+}
+
+.update-btn {
+    height:30px;
+    width:70px;
+    background: var(--dark);
+    color: var(--light);
+}
+
+.delete-btn {
+    height:30px;
+    width:70px;
+    background:var(--error);
+    color:var(--light);
+    
+}

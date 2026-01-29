@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
@@ -50,7 +51,8 @@ public class PageController {
         return "update-teacher"; 
     }
     @GetMapping({"/admin/search-user"})
-    public String searchUserPage() {
+    public String searchUserPage(@RequestParam String role,Model model) {
+        model.addAttribute("role",role);
         return "search-user"; 
     }
 
@@ -64,11 +66,20 @@ public class PageController {
         model.addAttribute("academicId",academicId);
         return "all-student"; 
     }
+    @GetMapping({"/admin/all-students"})
+    public String allStudentDirectPage() {
+        return "all-student"; 
+    }
 
     @GetMapping({"/admin/all-teachers"})
     public String allTeacherPage() {
         return "all-teacher"; 
     }
+    @GetMapping({"/admin/update"})
+    public String updateAdminPage() {
+        return "update-admin"; 
+    }
+
 }
 
 

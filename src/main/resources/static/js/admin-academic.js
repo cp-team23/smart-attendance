@@ -10,6 +10,8 @@ const addAcademicTitle = document.getElementById("addAcademicTitle");
 let updateBtn = null;
 let deleteBtn = null;
 let academicId = null;
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
+
 
 const API_URL = "/api/admin/academic-structure"; // change to your backend
 
@@ -18,10 +20,11 @@ async function loadData() {
     const data = await res.json();
     
     contentBody.innerHTML="";
-    const list = data.response; 
+    const list = data.response;
+    let html = ""; 
     list.forEach(element => {
-        contentBody.innerHTML += `<div class="card" data-id="${element.academicId}" data-year="${element.year}"
-                data-branch="${element.branch}" data-semester="${element.semester}" data-class="${element.className}"
+        html+= `<div class="card" data-id="${element.academicId}" data-year="${element.year}"
+                data-branch="${element.branch}" data-semester="${element.semester}" data-class-name="${element.className}"
                 data-batch="${element.batch}">
                 <div class="card-top">
                     <div class="branch">
@@ -59,6 +62,8 @@ async function loadData() {
 
             </div>`
     });
+
+    contentBody.innerHTML=html;
     
 }
 
@@ -166,9 +171,9 @@ async function deleteAcademic(academicId) {
         if (response.ok) {
             showSnackbar("Academic deleted successfully", "success");
             loadData();
-        } else if(result.error="CANT_DELETE_ACADEMIC"){
+        } else if(result.error==="CANT_DELETE_ACADEMIC"){
             showSnackbar("Delete failed: students are assigned to this academic.", "error");
-        }else if(result.error="ACADEMIC_NOT_FOUND"){
+        }else if(result.error==="ACADEMIC_NOT_FOUND"){
             showSnackbar("Something went wrong", "error");
         }
 
@@ -202,7 +207,7 @@ contentBody.addEventListener("click", function (e) {
             year.value      = card.dataset.year;
             branch.value    = card.dataset.branch;
             sem.value       = card.dataset.semester;
-            className.value = card.dataset.class;
+            className.value = card.dataset.className;
             batch.value     = card.dataset.batch;
             e.target.innerText = "Cancle"
             addBtn.innerHTML = "Update";
@@ -238,7 +243,7 @@ contentBody.addEventListener("click", function (e) {
 
         const card = e.target.closest(".card");
         academicId = card.dataset.id;
-        window.location.href = "all-student/"+academicId;
+        window.location.href = "all-students/"+academicId;
     }
 
 });

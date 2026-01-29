@@ -6,15 +6,16 @@ html, body {
 
 
 .border {
-  height: 86vh;
-  width: calc(100vw - 24px); 
+  height: 88vh;
+  width: calc(99vw - 24px); 
   border-radius: 8px;
   margin: 12px;
-  padding-top:1%;
+  padding-left:1%;
   background:var(--light);
   border:1px solid var(--grey);
   box-shadow:0 10px 30px rgba(0,0,0,0.06);
   position: relative;
+  z-index: 6;
 }
 
 .border-msg-bg{
@@ -31,7 +32,7 @@ html, body {
   color: #fff;
   font-size: 16px;
   font-weight: 500;
-  z-index:9;
+  z-index:2000;
 }
 
 .border-msg {

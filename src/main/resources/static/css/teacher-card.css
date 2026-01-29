@@ -1,0 +1,49 @@
+.teacher-card{
+    height:150px;
+    width:60%;
+    padding:2%;
+    border-radius:10px;
+    border:1px solid var(--grey);
+    box-shadow:0 10px 24px rgba(0,0,0,0.06);
+}
+
+
+.teacher-card-data{
+    height:75%;
+}
+.teacher-card-btn{
+    height:18%;
+    display: flex;
+    justify-content: end;
+}
+
+.teacher-data{
+    display:block;
+    justify-content:start;
+    align-items: center;
+    width:fit-content;
+    font-size:17px;
+    font-weight:500;
+    background: var(--grey);
+    border-radius:5px;
+    padding: 5px;
+    padding-left:10px;
+    padding-right: 10px;
+    margin-right:2px;
+    margin-bottom:3px;
+}
+
+.update-btn {
+    height:30px;
+    width:70px;
+    background: var(--dark);
+    color: var(--light);
+}
+
+.delete-btn {
+    height:30px;
+    width:70px;
+    background:var(--error);
+    color:var(--light);
+    
+}

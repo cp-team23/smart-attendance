@@ -23,6 +23,10 @@ const classOptionsBox = document.getElementById("classOption");
 const batchInput = document.getElementById("batchInput");
 const batchOptionsBox = document.getElementById("batchOption");
 
+
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
+
+
 let allData = [];
 let year = [];
 let branch = [];

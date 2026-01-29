@@ -8,10 +8,15 @@
 
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/pop-up-box.css">
     <link rel="stylesheet" href="/css/body-border.css">
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/student-card-main.css">
+    <link rel="stylesheet" href="/css/teacher-card.css">
     <link rel="stylesheet" href="/css/search-user.css">
+
+
 
 
 </head>
@@ -40,16 +45,37 @@
             </div>
             <div class="role-btns">
                 <button id="studentBtn" class="active">Student</button>
-                <button id="teacherBtn" >Teacher</button>
+                <button id="teacherBtn">Teacher</button>
             </div>
         </div>
         <div class="contentbody">
-            
+
+
+
         </div>
-    </div>
-    <script src="/js/snackbar.js"></script>
-    <script src="/js/search-user.js"></script>
-    
+
+
+        <div id="globalModal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h3 id="modalTitle">Title</h3>
+                <p id="modalMessage">Message</p>
+
+                <div class="modal-actions">
+                    <button id="modalCancel" class="btn cancel">Cancel</button>
+                    <button id="modalConfirm" class="btn danger">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="app"
+            th:data-role="${role}">
+        </div>
+
+        <script src="/js/snackbar.js"></script>
+        <script src="/js/search-user.js"></script>
+        <script src="/js/pop-up-box.js"></script>
+
+
 
 
 </body>

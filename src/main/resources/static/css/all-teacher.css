@@ -1,0 +1,25 @@
+.contentbody{
+    height:100%;
+    width:80%;
+    margin-top: 3%;
+    margin-left:1%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap:20px;
+    column-gap:20px;
+    overflow-y:auto;
+    padding-right:19%;
+}
+
+.teacher-card {
+    width: 90%;
+    margin: 0;
+}
+
+.contentbody::-webkit-scrollbar {
+    width: 6px;
+}
+.contentbody::-webkit-scrollbar-thumb {
+    background:var(--dark);
+    border-radius: 5px;
+}

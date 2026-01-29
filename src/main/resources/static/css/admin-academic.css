@@ -41,6 +41,7 @@
     margin: 1% 2%;
     height: 75%;
     padding-right:30%;
+    padding-top: 2%;
     overflow-y:auto;
     align-content: start; 
     display: grid;

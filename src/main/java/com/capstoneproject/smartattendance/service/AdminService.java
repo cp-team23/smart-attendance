@@ -38,7 +38,6 @@ import com.capstoneproject.smartattendance.repository.UserRepo;
 
 import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -68,7 +67,6 @@ public class AdminService {
     @Value("${app.file.base-url}")
     private String fileBaseUrl;
 
-
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -78,15 +76,16 @@ public class AdminService {
 
         List<AcademicDto> response = admin.getAcademicDatas()
                 .stream()
-                .map(a ->{
-                        AcademicDto res = modelMapper.map(a, AcademicDto.class);
-                        res.setStudentCount(a.getStudents().size());
-                        return res;
-                    })
+                .map(a -> {
+                    AcademicDto res = modelMapper.map(a, AcademicDto.class);
+                    res.setStudentCount(a.getStudents().size());
+                    return res;
+                })
                 .toList();
 
         return response;
     }
+
     @Transactional
     public void createAcademicDataService(AcademicDto academicDto, String adminId) {
         Admin admin = adminRepo.findById(adminId)
@@ -94,14 +93,13 @@ public class AdminService {
 
         Academic academic = modelMapper.map(academicDto, Academic.class);
 
-        boolean exists = admin.getAcademicDatas().stream().anyMatch(a ->
-            a.getYear().equalsIgnoreCase(academicDto.getYear()) &&
-            a.getBranch().equalsIgnoreCase(academicDto.getBranch()) &&
-            a.getSemester().equalsIgnoreCase(academicDto.getSemester()) &&
-            a.getClassName().equalsIgnoreCase(academicDto.getClassName()) &&
-            a.getBatch().equalsIgnoreCase(academicDto.getBatch())&&
-            a.getAdmin().getUserId().equals(adminId)
-        );
+        boolean exists = admin.getAcademicDatas().stream()
+                .anyMatch(a -> a.getYear().equalsIgnoreCase(academicDto.getYear()) &&
+                        a.getBranch().equalsIgnoreCase(academicDto.getBranch()) &&
+                        a.getSemester().equalsIgnoreCase(academicDto.getSemester()) &&
+                        a.getClassName().equalsIgnoreCase(academicDto.getClassName()) &&
+                        a.getBatch().equalsIgnoreCase(academicDto.getBatch()) &&
+                        a.getAdmin().getUserId().equals(adminId));
 
         if (exists) {
             throw new CustomeException(ErrorCode.ACADEMIC_ALREADY_PRESENT);
@@ -110,9 +108,10 @@ public class AdminService {
         academic.setAdmin(admin);
 
         admin.getAcademicDatas().add(academic);
-        adminRepo.save(admin);  
+        adminRepo.save(admin);
 
     }
+
     @Transactional
     public void updateAcademicDataService(AcademicDto academicDto, String adminId) {
         UUID academicId = academicDto.getAcademicId();
@@ -134,14 +133,12 @@ public class AdminService {
         academic.setClassName(academicDto.getClassName());
         academic.setBatch(academicDto.getBatch());
 
-        boolean exists = admin.getAcademicDatas().stream().anyMatch(a ->
-            !a.getAcademicId().equals(academicId) &&
-            a.getYear().equalsIgnoreCase(academicDto.getYear()) &&
-            a.getBranch().equalsIgnoreCase(academicDto.getBranch()) &&
-            a.getSemester().equalsIgnoreCase(academicDto.getSemester()) &&
-            a.getClassName().equalsIgnoreCase(academicDto.getClassName()) &&
-            a.getBatch().equalsIgnoreCase(academicDto.getBatch())
-        );
+        boolean exists = admin.getAcademicDatas().stream().anyMatch(a -> !a.getAcademicId().equals(academicId) &&
+                a.getYear().equalsIgnoreCase(academicDto.getYear()) &&
+                a.getBranch().equalsIgnoreCase(academicDto.getBranch()) &&
+                a.getSemester().equalsIgnoreCase(academicDto.getSemester()) &&
+                a.getClassName().equalsIgnoreCase(academicDto.getClassName()) &&
+                a.getBatch().equalsIgnoreCase(academicDto.getBatch()));
 
         if (exists) {
             throw new CustomeException(ErrorCode.ACADEMIC_ALREADY_PRESENT);
@@ -182,11 +179,11 @@ public class AdminService {
         String otp = adminDto.getOtp();
         String email = adminDto.getEmail();
         String password = adminDto.getPassword();
-        
+
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
-        
-        if(!passwordEncoder.matches(password,admin.getPassword())){
+
+        if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new CustomeException(ErrorCode.WRONG_PASSWORD);
         }
 
@@ -199,15 +196,20 @@ public class AdminService {
         }
         if (!collegeName.equals(admin.getCollegeName())) {
             admin.setCollegeName(collegeName);
-            admin.setStudents(admin.getStudents().stream().peek(a -> a.setCollegeName(collegeName)).toList());
-            admin.setTeachers(admin.getTeachers().stream().peek(a -> a.setCollegeName(collegeName)).toList());
+            if (admin.getStudents() != null) {
+                admin.getStudents().forEach(s -> s.setCollegeName(collegeName));
+            }
+
+            if (admin.getTeachers() != null) {
+                admin.getTeachers().forEach(t -> t.setCollegeName(collegeName));
+            }
         }
         admin.setName(name);
 
         adminRepo.save(admin);
     }
 
-    public void addStudentService(StudentDto studentDto,String adminId) {
+    public void addStudentService(StudentDto studentDto, String adminId) {
         String userId = studentDto.getUserId();
         String password = studentDto.getPassword();
         UUID academicId = studentDto.getAcademicId();
@@ -228,8 +230,9 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
 
-        boolean flag = studentRepo.existsByCollegeNameAndEnrollmentNo(admin.getCollegeName(),studentDto.getEnrollmentNo());
-        if(flag){
+        boolean flag = studentRepo.existsByCollegeNameAndEnrollmentNo(admin.getCollegeName(),
+                studentDto.getEnrollmentNo());
+        if (flag) {
             throw new CustomeException(ErrorCode.ENROLLMENT_NOT_AVAILABLE);
         }
         Student student = modelMapper.map(studentDto, Student.class);
@@ -241,7 +244,7 @@ public class AdminService {
         student.setCurImage("defaultimage.jpg");
         student.setPassword(passwordEncoder.encode(password));
 
-        adminMailService.sendStudentDetailsMail(student, adminId,studentDto.getPassword(), "created");
+        adminMailService.sendStudentDetailsMail(student, adminId, studentDto.getPassword(), "created");
         studentRepo.save(student);
     }
 
@@ -271,7 +274,7 @@ public class AdminService {
         student.setAcademic(academic);
         student.setPassword(passwordEncoder.encode(studentDto.getPassword()));
 
-        adminMailService.sendStudentDetailsMail(student, adminId,studentDto.getPassword(), "updated");
+        adminMailService.sendStudentDetailsMail(student, adminId, studentDto.getPassword(), "updated");
         studentRepo.save(student);
     }
 
@@ -293,38 +296,43 @@ public class AdminService {
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
-        if(student.getCurImage()!=null && student.getCurImage()!="defaultimage.jpg"){
+        if (student.getCurImage() != null && !student.getCurImage().equals("defaultimage.jpg")) {
             String curFile = student.getCurImage();
+            Path curPath = uploadPath.resolve(curFile).normalize();
+            Files.deleteIfExists(curPath);
+        }
+        if (student.getNewImage() != null) {
+            String curFile = student.getNewImage();
             Path curPath = uploadPath.resolve(curFile).normalize();
             Files.deleteIfExists(curPath);
         }
         studentRepo.deleteById(userId);
     }
 
-    public List<StudentResponseDto> getAllImageChangeRequestService(String adminId){
+    public List<StudentResponseDto> getAllImageChangeRequestService(String adminId) {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<Student> students = studentRepo.findByNewImageIsNotNullAndAdmin_UserId(adminId);
 
         List<StudentResponseDto> response = students
-                                .stream()
-                                .map(s -> {
-                                    StudentResponseDto res = modelMapper.map(s, StudentResponseDto.class);
-                                    res.setYear(s.getAcademic().getYear());
-                                    res.setBranch(s.getAcademic().getBranch());
-                                    res.setSemester(s.getAcademic().getBranch());
-                                    res.setClassName(s.getAcademic().getClassName());
-                                    res.setBatch(s.getAcademic().getBatch());
-                                    res.setCurImage(fileBaseUrl + res.getCurImage());
-                                    res.setNewImage(fileBaseUrl + res.getNewImage());
-                                    return res;
-                                })
-                                .toList(); 
-        return response;   
+                .stream()
+                .map(s -> {
+                    StudentResponseDto res = modelMapper.map(s, StudentResponseDto.class);
+                    res.setYear(s.getAcademic().getYear());
+                    res.setBranch(s.getAcademic().getBranch());
+                    res.setSemester(s.getAcademic().getSemester());
+                    res.setClassName(s.getAcademic().getClassName());
+                    res.setBatch(s.getAcademic().getBatch());
+                    res.setCurImage(fileBaseUrl + res.getCurImage());
+                    res.setNewImage(fileBaseUrl + res.getNewImage());
+                    return res;
+                })
+                .toList();
+        return response;
     }
 
-    public void approveImageChangeRequestService(String adminId,String userId) throws IOException{
+    public void approveImageChangeRequestService(String adminId, String userId) throws IOException {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -334,26 +342,26 @@ public class AdminService {
         if (!student.getAdmin().getUserId().equals(adminId)) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if(student.getNewImage()==null){
+        if (student.getNewImage() == null) {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
-        if(student.getCurImage()!=null && student.getCurImage()!="defaultimage.jpg"){
+        if (student.getCurImage() != null && !student.getCurImage().equals("defaultimage.jpg")) {
             String curFile = student.getCurImage();
             Path curPath = uploadPath.resolve(curFile).normalize();
             Files.deleteIfExists(curPath);
         }
-        
+
         student.setCurImage(student.getNewImage());
         student.setNewImage(null);
         studentRepo.save(student);
-        
+
     }
 
-    public void rejectImageChangeRequestService(String adminId,String userId) throws IOException{
+    public void rejectImageChangeRequestService(String adminId, String userId) throws IOException {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -363,7 +371,7 @@ public class AdminService {
         if (!student.getAdmin().getUserId().equals(adminId)) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if(student.getNewImage()==null){
+        if (student.getNewImage() == null) {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
@@ -375,7 +383,7 @@ public class AdminService {
         Files.deleteIfExists(newPath);
 
         student.setNewImage(null);
-        studentRepo.save(student);        
+        studentRepo.save(student);
     }
 
     public void addTeacherService(TeacherDto teacherDto, String adminId) {
@@ -395,7 +403,7 @@ public class AdminService {
         teacher.setCollegeName(admin.getCollegeName());
         teacher.setPassword(passwordEncoder.encode(password));
 
-        adminMailService.sendTeacherDetailsMail(teacher, adminId,teacherDto.getPassword(), "created");
+        adminMailService.sendTeacherDetailsMail(teacher, adminId, teacherDto.getPassword(), "created");
         teacherRepo.save(teacher);
     }
 
@@ -417,9 +425,9 @@ public class AdminService {
         teacher.setAdmin(admin);
         teacher.setPassword(passwordEncoder.encode(password));
 
-        adminMailService.sendTeacherDetailsMail(teacher, adminId,teacherDto.getPassword(),"updated");
+        adminMailService.sendTeacherDetailsMail(teacher, adminId, teacherDto.getPassword(), "updated");
         teacherRepo.save(teacher);
-        
+
     }
 
     public void deleteTeacherService(String userId, String adminId) {
@@ -459,7 +467,6 @@ public class AdminService {
         studentResponseDto.setBatch(academic.getBatch());
         studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
         studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
-                        
 
         return studentResponseDto;
     }
@@ -480,25 +487,25 @@ public class AdminService {
         return basicDataDto;
     }
 
-    public List<StudentResponseDto> getAllStudentService(UUID academicId,String adminId) {
+    public List<StudentResponseDto> getAllStudentService(UUID academicId, String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         List<StudentResponseDto> response = admin.getStudents()
                 .stream()
-                .filter(a->a.getAcademic().getAcademicId().equals(academicId))
+                .filter(a -> a.getAcademic().getAcademicId().equals(academicId))
                 .map(a -> {
-                        StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
-                        studentResponseDto.setYear(a.getAcademic().getYear());
-                        studentResponseDto.setBranch(a.getAcademic().getBranch());
-                        studentResponseDto.setSemester(a.getAcademic().getSemester());
-                        studentResponseDto.setClassName(a.getAcademic().getClassName());
-                        studentResponseDto.setBatch(a.getAcademic().getBatch());
-                        studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
-                        studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
-                        return studentResponseDto;
-                    })
+                    StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
+                    studentResponseDto.setYear(a.getAcademic().getYear());
+                    studentResponseDto.setBranch(a.getAcademic().getBranch());
+                    studentResponseDto.setSemester(a.getAcademic().getSemester());
+                    studentResponseDto.setClassName(a.getAcademic().getClassName());
+                    studentResponseDto.setBatch(a.getAcademic().getBatch());
+                    studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
+                    studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+                    return studentResponseDto;
+                })
                 .toList();
 
         return response;
@@ -518,16 +525,16 @@ public class AdminService {
     }
 
     @Transactional
-    public void deleteAllAttendanceService(String adminId,String otp){
+    public void deleteAllAttendanceService(String adminId, String otp) {
         if (otp == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
-        Admin admin  = adminRepo.findById(adminId)
+        Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
-        otpService.verifyOtp(admin.getEmail(),otp);
+        otpService.verifyOtp(admin.getEmail(), otp);
 
-        for (Teacher teacher : admin.getTeachers()){
+        for (Teacher teacher : admin.getTeachers()) {
             attendanceRepo.deleteByTeacher(teacher);
-        }         
+        }
     }
 }

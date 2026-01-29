@@ -71,7 +71,7 @@ async function login() {
     const loginData = {
         userId: userIdValue,
         password: passwordValue,
-        role: (role || "").toUpperCase(),
+        role:(role || "").toUpperCase(),
     };
 
     try {
@@ -96,7 +96,7 @@ async function login() {
 
             setTimeout(() => {
                 if (data.role === 'ADMIN') {
-                    window.location.href = "/admin/academic";
+                    window.location.href = "/admin/dashboard";
                 }else if(data.role === 'TEACHER'){
                     window.location.href = "/teacher/dashboard";
                 }

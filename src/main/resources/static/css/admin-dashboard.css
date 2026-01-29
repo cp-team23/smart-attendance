@@ -1,0 +1,137 @@
+body{
+    min-height: 100vh;
+}
+#menuBtn{
+    height:50px;
+    width:50px;
+    margin-right:10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--dark);
+    border: 0;
+}
+#menuImg{
+    height:40px;
+    width:40px;
+}
+
+#menuBody{
+    height:100vh;
+    width:100vw;
+    background: #1b263b88;
+    position: absolute;
+    z-index:10;
+    display:flex;
+    justify-content:flex-end;
+}
+
+#menu{
+    position: fixed;
+    height: 90vh;
+    width:25%;
+    background: var(--light);
+    padding:20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.key{
+    width:fit-content;
+    text-align: start;
+}
+table {
+    border-collapse: separate;
+    border-spacing: 10px 10px; 
+}
+ th {
+    background: var(--grey);
+    border: 1px solid var(--grey);
+    border-radius:5px;
+}
+
+td{
+    border: 0.1px solid var(--grey);
+    border-radius:5px;
+}
+
+.data{
+    padding:3px;
+}
+
+.menu-data{
+    height:23%;
+}
+.darkBtn{
+    width:100%;
+    margin-top:15px;
+}
+.menu-btn{
+    margin-top:80%;
+    display:grid;
+    grid-template-columns: repeat(1, 1fr);
+    justify-content: center;
+    align-items: center;
+}
+
+
+.contentbody{
+    margin-top:8vh;
+    margin-left: 5vw;
+    height:78vh;
+    width:91vw;
+    display:flex ;
+    justify-content: center;
+    align-items: center;
+}
+
+.card{
+    width:100%;
+    height:98%;
+    padding-right: 15%;
+    display: grid;
+    overflow-y: auto;
+    grid-template-columns: repeat(4, auto);
+    row-gap:80px;
+}
+
+.card::-webkit-scrollbar {
+    width: 6px;
+}
+.card::-webkit-scrollbar-thumb {
+    background:var(--dark);
+    border-radius: 5px;
+}
+
+.page-box{
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(1, auto);
+    margin-left: auto;
+    margin-right: auto;
+    padding-top:30px;
+    padding-right:30px;
+    padding-bottom:15px;
+    padding-left: 30px;
+    border-radius:10px;
+    border:1px solid var(--grey);
+    box-shadow:0 10px 24px rgba(0,0,0,0.06);
+}
+.page-box>img{
+    height:90px;
+    width:90px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid var(--grey);
+    border-radius:10px;
+    padding:20px;
+}
+
+.page-box>.darkBtn{
+    margin-top:30px;
+    margin-left: -15%;
+    width:130%;
+}
+
+
+

@@ -1,5 +1,5 @@
 const app = document.getElementById("app");
-let academicId = app.dataset.academicId;
+let academicId = app.dataset.academicId || null;
 
 
 
@@ -18,6 +18,11 @@ const classOptionsBox = document.getElementById("classOption");
 const batchInput = document.getElementById("batchInput");
 const batchOptionsBox = document.getElementById("batchOption");
 
+const contentbody = document.querySelector(".contentbody");
+
+document.getElementById("gotoDashboard").addEventListener("click", () => window.location.href = "/admin/dashboard");
+
+
 let allData = [];
 let year = [];
 let branch = [];
@@ -26,9 +31,40 @@ let className = [];
 let batch = [];
 
 
-function showData(student){
-    console.log(student);
-} 
+function showData(student) {
+    let html = "";
+    student.forEach(element => {
+        html += `<div class="student-card student-card-1" data-id="${element.userId}" data-en="${element.enrollmentNo}">
+                <div class="student-card-img-1">
+                    <img class="img" src="${element.curImage}">
+                </div>
+                <div class="student-card-info student-card-info-1">
+                    <div class="student-card-data">
+                        <div class="student-card-data-header">
+                            <div class="userid">${element.userId}</div>
+                            <div class="year">${element.year}</div>
+                        </div>
+                        <div class="en-no data">${element.enrollmentNo}</div>
+                        <div class="email data">${element.email}</div>
+                        <div class="branch-sem">
+                            <div class="branch data">${element.branch}</div>
+                            <div class="sem data">${element.semester}</div>
+                        </div>
+                        <div class="class-batch">
+                            <div class="class-name data">${element.className}</div>
+                            <div class="batch data">${element.batch}</div>
+                        </div>
+                    </div>
+                    <div class="student-card-btn">
+                        <button class="darkBtn delete-btn">Delete</button>
+                        <button class="darkBtn update-btn">Update</button>
+                    </div>
+                </div>
+           </div>`;
+    });
+
+    contentbody.innerHTML = html;
+}
 
 
 async function loadData() {
@@ -58,9 +94,9 @@ function setBatch() {
             allData.forEach(element => {
                 if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
                     academicId = element.academicId;
+                    loadStudent(academicId);
                 }
             });
-            loadStudent(academicId);
         };
         batchOptionsBox.appendChild(li);
     });
@@ -104,7 +140,7 @@ function setBranch() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
-             if(item!==branchInput.value){
+            if (item !== branchInput.value) {
                 semInput.value = "";
                 semInput.classList.remove("filled");
                 semOptionsBox.style.display = "none";
@@ -129,7 +165,7 @@ function setYear() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
-            if(item!==yearInput.value){
+            if (item !== yearInput.value) {
                 branchInput.value = "";
                 branchInput.classList.remove("filled");
                 branchOptionsBox.style.display = "none";
@@ -153,10 +189,6 @@ function setYear() {
 
 }
 
-loadData().then(() => {
-    setYear();
-});
-
 yearInput.onclick = () => {
     branch = [];
     yearOptionsBox.style.display =
@@ -166,9 +198,9 @@ yearInput.onclick = () => {
 branchInput.onclick = () => {
     sem = [];
     allData.forEach(element => {
-                if (yearInput.value == element.year && !branch.includes(element.branch)) {
-                    branch.push(element.branch);
-                }
+        if (yearInput.value == element.year && !branch.includes(element.branch)) {
+            branch.push(element.branch);
+        }
     });
     setBranch();
     branchOptionsBox.style.display =
@@ -178,10 +210,10 @@ branchInput.onclick = () => {
 
 semInput.onclick = () => {
     className = [];
-     allData.forEach(element => {
-                if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
-                    sem.push(element.semester);
-                }
+    allData.forEach(element => {
+        if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
+            sem.push(element.semester);
+        }
     });
     setSem();
     semOptionsBox.style.display =
@@ -191,9 +223,9 @@ semInput.onclick = () => {
 classInput.onclick = () => {
     batch = [];
     allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
-                    className.push(element.className);
-                }
+        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
+            className.push(element.className);
+        }
     });
     setClass();
     classOptionsBox.style.display =
@@ -201,7 +233,7 @@ classInput.onclick = () => {
 };
 
 batchInput.onclick = () => {
-    
+
     allData.forEach(element => {
         if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && !batch.includes(element.batch)) {
             batch.push(element.batch);
@@ -212,14 +244,15 @@ batchInput.onclick = () => {
         batchOptionsBox.style.display === "block" ? "none" : "block";
 };
 
-async function loadStudent(academicId){
- try{
-        const res = await fetch("/api/admin/all-student/" +academicId);
+async function loadStudent(academicId) {
+    try {
+        const res = await fetch("/api/admin/all-student/" + academicId);
         const data = await res.json();
-        if(res.ok){
-            if(data.response.length === 0){
+        if (res.ok) {
+            if (data.response.length === 0) {
                 showSnackbar("Student Not found.", "success");
-            }else{
+            } else {
+                console.log("hello");
                 yearInput.value = data.response[0].year;
                 yearInput.classList.add("filled");
                 branchInput.value = data.response[0].branch;
@@ -230,18 +263,69 @@ async function loadStudent(academicId){
                 classInput.classList.add("filled");
                 batchInput.value = data.response[0].batch;
                 batchInput.classList.add("filled");
-                showData(data.response);
             }
+            showData(data.response);
         }
-        else{
-            showSnackbar("Something went wrong. Try again","warning");
-            return ;  
+        else {
+            showSnackbar("Something went wrong. Try again", "warning");
+            return;
 
         }
-    }catch{
-        showSnackbar("Something went wrong. Try again","error");
+    } catch (e) {
+        showSnackbar("Something went wrong. Try again", "error");
     }
 }
 
-loadStudent(academicId);
+
+async function update(cardId) {
+    window.location.href = "/admin/student/" + cardId;
+}
+
+async function deleteStudent(cardId) {
+    await fetch(`/api/admin/student/${cardId}`, {
+        method: "DELETE"
+    });
+    loadStudent(academicId);
+}
+
+
+contentbody.addEventListener("click", function (e) {
+
+    if (e.target.classList.contains("update-btn")) {
+        e.stopPropagation();
+        const card = e.target.closest(".student-card");
+        const cardId = card.dataset.en;
+        update(cardId);
+    }
+
+    if (e.target.classList.contains("delete-btn")) {
+        const card = e.target.closest(".student-card");
+        const cardId = card.dataset.id;
+
+        openModal({
+            title: "Delete Student?",
+            message: "This action cannot be undone.",
+            confirmText: "Delete",
+            onConfirm: () => deleteStudent(cardId)
+        });
+    }
+
+
+});
+
+loadData().then(() => {
+    setYear();
+    if (academicId !== null) {
+        loadStudent(academicId);
+    }
+    else if (allData.length > 0) {
+        for (let element of allData) {
+            if(element.studentCount>0){
+                academicId = element.academicId;
+                break;
+            }
+        }
+        loadStudent(academicId);
+    }
+});
 

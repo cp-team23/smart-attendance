@@ -177,15 +177,19 @@ registerBtn.addEventListener('click', async () => {
             console.log(data.error)
             switch (data.error) {
                 case "USERID_NOT_AVAILABLE":
+                    errorBoxUserId.style.display = "block";
                     errorBoxUserId.textContent = "Please try different user id";
                     break;
                 case "EMAIL_NOT_AVAILABLE":
+                    errorBoxEmail.style.display = "block";
                     errorBoxEmail.textContent = "Please try different email";
                     break;
                 case "OTP_EXPIRED":
+                    errorBoxOtp.style.display = "block";
                     errorBoxOtp.textContent = "OTP expired! please send again";
                     break;
                 case "OTP_INVALID":
+                    errorBoxOtp.style.display = "block";
                     errorBoxOtp.textContent = "Wrong OTP";
                     break;
                 default:

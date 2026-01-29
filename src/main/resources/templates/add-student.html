@@ -7,6 +7,7 @@
     <title>Document</title>
 
     <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/pop-up-box.css">
     <link rel="stylesheet" href="/css/basic.css">
     <link rel="stylesheet" href="/css/body-border.css">
     <link rel="stylesheet" href="/css/properties.css">
@@ -97,7 +98,23 @@
             </form>
         </div>
     </div>
+
+
+    <div id="globalModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="modalTitle">Title</h3>
+            <p id="modalMessage">Message</p>
+
+            <div class="modal-actions">
+                <button id="modalCancel" class="btn cancel">Cancel</button>
+                <button id="modalConfirm" class="btn danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    
     <script src="/js/snackbar.js"></script>
+    <script src="/js/pop-up-box.js"></script>
     <script src="/js/password-toggle.js"></script>
     <script src="/js/add-student.js"></script>
 

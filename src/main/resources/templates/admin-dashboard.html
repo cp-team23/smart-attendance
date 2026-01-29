@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/pop-up-box.css">
+    <link rel="stylesheet" href="/css/body-border.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+
+
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-right">
+            <img src="/assets/images/website-logo.png">
+            <h1>Smart Attendance</h1>
+        </div>
+        <div>
+            <button id="menuBtn"><img id="menuImg" src="/assets/icons/menu.svg"></button>
+        </div>
+    </div>
+    <div id="menuBody" style="display:none;">
+        <div id="menu">
+            <div class="menu-data">
+                <table class="menu-data-table">
+                    <tr>
+                        <th class="key"><div class="data">Admin ID</div></th>
+                        <td id="userId"><div class="data"></div></td>
+                    </tr>
+
+                   
+                    <tr>
+                        <th class="key"><div class="data">Name</div></th>
+                        <td id="name"><div class="data"></div></td>
+                    </tr>
+
+                   
+                    <tr>
+                        <th class="key"><div class="data">Email</div></th>
+                        <td id="email"><div class="data"></div></td>
+                    </tr>
+
+                    
+                    <tr>
+                        <th class="key"><div class="data">College name</div></th>
+                        <td id="collegeName"><div class="data"></div></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="menu-btn">
+                <button class="darkBtn" id="updateDetails">Update Details</button>
+                <button class="darkBtn" id="changePass">Change Password</button>
+                <button class="darkBtn" id="logout">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="border">
+        <div class="border-msg-bg">
+            <div class="border-msg" id="borderMsg">
+                Admin Dashboard
+            </div>
+        </div>
+        <div class="contentbody">
+           
+            <div class="card">
+
+                
+                    <div class="page-box"><img src="/assets/icons/adduser.png"><button id="addstudent" class="darkBtn">Add Student</button></div>
+                    <div class="page-box"><img src="/assets/icons/updateuser.png"><button id="updatestudent" class="darkBtn">Update Student</button></div>
+                    <div class="page-box"><img src="/assets/icons/deleteuser.png"><button id="deletestudent" class="darkBtn">Delete Student</button></div>
+                    <div class="page-box"><img src="/assets/icons/alluser.png"><button id="allstudent" class="darkBtn">All Students</button></div>
+                    <div class="page-box"><img src="/assets/icons/adduser.png"><button id="addteacher" class="darkBtn">Add Teacher</button></div>
+                    <div class="page-box"><img src="/assets/icons/updateuser.png"><button id="updateteacher" class="darkBtn">Update Teacher</button></div>
+                    <div class="page-box"><img src="/assets/icons/deleteuser.png"><button id="deleteteacher" class="darkBtn">Delete Teacher</button></div>
+                    <div class="page-box"><img src="/assets/icons/alluser.png"><button id="allteacher" class="darkBtn">All Teachers</button></div>
+                    <div class="page-box"><img src="/assets/icons/searchuser.png"><button id="searchuser" class="darkBtn">Search User</button></div>
+                    <div class="page-box"><img src="/assets/icons/classroom.png"><button id="academicstruct" class="darkBtn">Academic Structure</button></div>
+                    <div class="page-box"><img src="/assets/icons/imagechange.png"><button id="imagechange" class="darkBtn">Image Change</button></div>
+                    
+
+                    <div></div>
+                    <div></div>
+
+            </div>
+        
+        </div>
+    </div>
+
+
+
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+
+
+
+</body>
+
+</html>
+
+
+       

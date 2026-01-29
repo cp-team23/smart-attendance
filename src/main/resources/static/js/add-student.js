@@ -25,6 +25,9 @@ const classOptionsBox = document.getElementById("classOption");
 const batchInput = document.getElementById("batchInput");
 const batchOptionsBox = document.getElementById("batchOption");
 
+
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
+ 
 let allData = [];
 let year = [];
 let branch = [];
@@ -105,7 +108,7 @@ function setSem() {
             semOptionsBox.style.display = "none";
 
             allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && item === element.semester && !sem.includes(element.className)) {
+                if (yearInput.value === element.year && branchInput.value === element.branch && item === element.semester && !className.includes(element.className)) {
                     className.push(element.className);
                 }
             });
@@ -205,6 +208,12 @@ addStudentBtn.onclick = async () => {
         password: password.value.trim(),
         academicId:academicId
     };
+
+    if (!academicId) {
+        showSnackbar("Please select Year, Branch, Sem, Class & Batch", "warning");
+        return;
+    }
+
 
     if (!userData.userId) {
         showSnackbar("Please enter student id", "warning");

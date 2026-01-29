@@ -1,0 +1,42 @@
+.contentbody{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:95%;
+    width:100%;
+}
+
+.errorbox {
+  font-size: 10px;
+  color: var(--error);
+  margin-top: 3px;
+  margin-left: 3px;
+}
+
+form {
+    width:20%;
+}
+.send-otp{
+    display: flex;
+    justify-content: space-between;
+    align-items:end;
+    display: none;
+    width:100%;
+}
+.send-otp>.field{
+    width:50%;
+}
+
+#otpBtn{
+    height: 40px;
+    margin-left: 10%;
+    margin-right: 0;
+    width:40%;
+}
+
+.actions{
+    margin-top:8%;
+    display: flex;
+    justify-content: center;
+}
+

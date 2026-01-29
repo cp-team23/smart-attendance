@@ -7,6 +7,10 @@ const email = document.getElementById("email");
 const password = document.getElementById("password");
 const updateTeacherBtn = document.getElementById("updateTeacherBtn");
 
+
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
+
+
 let orgUserId;
 
 async function loadTeacher() {

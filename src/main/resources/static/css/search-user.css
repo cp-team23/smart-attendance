@@ -2,7 +2,7 @@
     height:9%;
     width:72%;
     margin-left:4%;
-    margin-top:0.3%;
+    margin-top:1%;
     display: flex;
     justify-content: start;
     align-items: center;
@@ -75,5 +75,8 @@ img{
     width:45%;
     margin-top:2%;
     margin-left:4%;
-    background: var(--dark);
+}
+
+.student-card{
+    width:80%;
 }

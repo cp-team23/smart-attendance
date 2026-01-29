@@ -3,8 +3,10 @@ const nameInput = document.getElementById("name");
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
 
-const addTeachertBtn = document.getElementById("addTeacherBtn");
+
+const addTeacherBtn = document.getElementById("addTeacherBtn");
 
 addTeacherBtn.onclick = async () => {
     const userData = {

@@ -7,12 +7,11 @@
     <title>Document</title>
 
     <link rel="stylesheet" href="/css/header.css">
-    <link rel="stylesheet" href="/css/pop-up-box.css">
     <link rel="stylesheet" href="/css/basic.css">
     <link rel="stylesheet" href="/css/body-border.css">
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
-    <link rel="stylesheet" href="/css/adduser.css">
+    <link rel="stylesheet" href="/css/update-admin.css">
 
 
 </head>
@@ -31,7 +30,7 @@
     <div class="border">
         <div class="border-msg-bg">
             <div class="border-msg">
-                Add Teacher
+                Update Student
             </div>
         </div>
 
@@ -39,43 +38,51 @@
             <form>
                 <div class="field">
                     <input type="text" id="userId" required />
-                    <label>Enter teacher id</label>
-                </div>
-                <div class="field">
-                    <input type="text" id="name" required />
-                    <label>Enter teacher name</label>
-                </div>
-                <div class="field">
-                    <input type="text" id="email" required />
-                    <label>Enter teacher email id</label>
+                    <label>Enter admin id</label>
                 </div>
 
                 <div class="field">
-                    <input type="text" id="password" required />
+                    <input type="text" id="name" required />
+                    <label>Enter your name</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="email" required />
+                    <label>Enter email id</label>
+                </div>
+
+                <div class="send-otp" id="sendOtpBox">
+                    <div class="field">
+                        <input type="text" id="otp" class="otpClass" required />
+                        <label>Enter OTP</label>
+                    </div>
+                    <button type="button" id="otpBtn" class="darkBtn otpBtnClass">Send OTP</button>
+                </div>
+                <div id="errorBoxOtp" class="errorbox" style="display:none;"></div>
+
+                <div class="field">
+                    <input type="text" id="collegeName" class="otpClass" required />
+                    <label>Enter college name</label>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="password" required />
                     <label>Enter password</label>
                 </div>
-                <button type="button" class="darkBtn" id="addTeacherBtn">Add Teacher</button>
+
+
+                <div class="actions">
+                    <button type="button" class="darkBtn mainBtn" id="update">Update</button>
+                </div>
+
             </form>
         </div>
     </div>
-
-    <div id="globalModal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <h3 id="modalTitle">Title</h3>
-            <p id="modalMessage">Message</p>
-
-            <div class="modal-actions">
-                <button id="modalCancel" class="btn cancel">Cancel</button>
-                <button id="modalConfirm" class="btn danger">Confirm</button>
-            </div>
-        </div>
+    <div id="app" th:data-enrollment-no="${enrollmentNo}">
     </div>
-
-    
     <script src="/js/snackbar.js"></script>
-    <script src="/js/pop-up-box.js"></script>
     <script src="/js/password-toggle.js"></script>
-    <script src="/js/add-teacher.js"></script>
+    <script src="/js/update-admin.js"></script>
 
 
 </body>

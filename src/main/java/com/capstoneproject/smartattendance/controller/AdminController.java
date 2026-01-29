@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 
 
 @RestController
-@RequestMapping("api/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
      
@@ -73,7 +73,7 @@ public class AdminController {
 
     }
 
-    @PutMapping("/admin/update")
+    @PostMapping("/update")
     public ResponseEntity<?> updateAdmin(@Valid @RequestBody AdminDto adminDto,Authentication authentication){
         String adminId = authentication.getName();
         adminService.updateAdminService(adminDto,adminId);

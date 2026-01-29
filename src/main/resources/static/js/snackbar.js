@@ -25,3 +25,4 @@ function showSnackbar(message, type = "success") {
     setTimeout(() => snack.remove(), 300);
   }, 3000);
 }
+
