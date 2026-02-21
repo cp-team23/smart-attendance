@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StudentResponseDto{
 
-    private String UserId;
+    private String userId;
     private String name;
     private String email;
     private String collegeName;

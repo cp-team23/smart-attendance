@@ -4,17 +4,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
+import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
+import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.dto.Role;
@@ -23,6 +28,7 @@ import com.capstoneproject.smartattendance.dto.TeacherDto;
 
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Admin;
+import com.capstoneproject.smartattendance.entity.Attendance;
 import com.capstoneproject.smartattendance.entity.Teacher;
 import com.capstoneproject.smartattendance.entity.Student;
 
@@ -34,7 +40,6 @@ import com.capstoneproject.smartattendance.repository.AdminRepo;
 import com.capstoneproject.smartattendance.repository.AttendanceRepo;
 import com.capstoneproject.smartattendance.repository.StudentRepo;
 import com.capstoneproject.smartattendance.repository.TeacherRepo;
-import com.capstoneproject.smartattendance.repository.UserRepo;
 
 import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
@@ -44,7 +49,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final UserRepo userRepo;
 
     private final StudentRepo studentRepo;
 
@@ -63,6 +67,10 @@ public class AdminService {
     private final OtpService otpService;
 
     private final AttendanceRepo attendanceRepo;
+
+    private final TeacherService teacherService;
+
+    private final StringRedisTemplate redisTemplate;
 
     @Value("${app.file.base-url}")
     private String fileBaseUrl;
@@ -216,7 +224,8 @@ public class AdminService {
         if (academicId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
-        if (userRepo.findById(userId).isPresent()) {
+        Optional<Student> studentOpt = studentRepo.findById(userId);
+        if(studentOpt.isPresent()){
             throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
         }
 
@@ -230,8 +239,7 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
 
-        boolean flag = studentRepo.existsByCollegeNameAndEnrollmentNo(admin.getCollegeName(),
-                studentDto.getEnrollmentNo());
+        boolean flag = studentRepo.existsByAdminAndEnrollmentNo(admin,studentDto.getEnrollmentNo());
         if (flag) {
             throw new CustomeException(ErrorCode.ENROLLMENT_NOT_AVAILABLE);
         }
@@ -254,7 +262,7 @@ public class AdminService {
         if (academicId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
-        Student student = studentRepo.findById(userId)
+        Student student = studentRepo.findByUserIdAndIsDeleted(userId,false)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
@@ -293,27 +301,30 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
+        // Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        // Files.createDirectories(uploadPath);
 
-        if (student.getCurImage() != null && !student.getCurImage().equals("defaultimage.jpg")) {
-            String curFile = student.getCurImage();
-            Path curPath = uploadPath.resolve(curFile).normalize();
-            Files.deleteIfExists(curPath);
-        }
-        if (student.getNewImage() != null) {
-            String curFile = student.getNewImage();
-            Path curPath = uploadPath.resolve(curFile).normalize();
-            Files.deleteIfExists(curPath);
-        }
-        studentRepo.deleteById(userId);
+        // if (student.getCurImage() != null && !student.getCurImage().equals("defaultimage.jpg")) {
+        //     String curFile = student.getCurImage();
+        //     Path curPath = uploadPath.resolve(curFile).normalize();
+        //     Files.deleteIfExists(curPath);
+        // }
+        // if (student.getNewImage() != null) {
+        //     String curFile = student.getNewImage();
+        //     Path curPath = uploadPath.resolve(curFile).normalize();
+        //     Files.deleteIfExists(curPath);
+        // }
+        redisTemplate.delete("jwt:" + userId);
+        student.setDeleted(true);
+        student.setDeletedDate(LocalDate.now());
+        studentRepo.save(student);
     }
 
     public List<StudentResponseDto> getAllImageChangeRequestService(String adminId) {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        List<Student> students = studentRepo.findByNewImageIsNotNullAndAdmin_UserId(adminId);
+        List<Student> students = studentRepo.findByIsDeletedAndNewImageIsNotNullAndAdmin_UserId(false,adminId);
 
         List<StudentResponseDto> response = students
                 .stream()
@@ -390,7 +401,8 @@ public class AdminService {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
-        if (userRepo.findById(userId).isPresent()) {
+        Optional<Teacher> teacherOpt = teacherRepo.findById(userId);
+        if(teacherOpt.isPresent()) {
             throw new CustomeException(ErrorCode.USERID_NOT_AVAILABLE);
         }
 
@@ -411,8 +423,9 @@ public class AdminService {
         String userId = teacherDto.getUserId();
         String password = teacherDto.getPassword();
 
-        Teacher teacher = teacherRepo.findById(userId)
+        Teacher teacher = teacherRepo.findByUserIdAndIsDeleted(userId,false)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -444,7 +457,10 @@ public class AdminService {
         if (!teacher.getRole().equals(Role.TEACHER)) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        teacherRepo.deleteById(userId);
+        redisTemplate.delete("jwt:" + userId);
+        teacher.setDeleted(true);
+        teacher.setDeletedDate(LocalDate.now());
+        teacherRepo.save(teacher);
     }
 
     public StudentResponseDto getStudentService(String enrollmentNo, String adminId) {
@@ -452,11 +468,9 @@ public class AdminService {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        Student student = admin.getStudents()
-                .stream()
-                .filter(a -> a.getEnrollmentNo().equals(enrollmentNo))
-                .findFirst()
+        Student student = studentRepo.findByAdminAndEnrollmentNoAndIsDeletedFalseAndDeletedDateIsNull(admin,enrollmentNo)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+    
         Academic academic = student.getAcademic();
         StudentResponseDto studentResponseDto = modelMapper.map(student, StudentResponseDto.class);
 
@@ -476,12 +490,7 @@ public class AdminService {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        Teacher teacher = admin.getTeachers()
-                .stream()
-                .filter(a -> a.getUserId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
-
+        Teacher teacher = teacherRepo.findByAdminAndUserIdAndIsDeletedFalseAndDeletedDateIsNull(admin,userId);
         BasicDataDto basicDataDto = modelMapper.map(teacher, BasicDataDto.class);
 
         return basicDataDto;
@@ -495,6 +504,7 @@ public class AdminService {
         List<StudentResponseDto> response = admin.getStudents()
                 .stream()
                 .filter(a -> a.getAcademic().getAcademicId().equals(academicId))
+                .filter(a -> !a.isDeleted())
                 .map(a -> {
                     StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
                     studentResponseDto.setYear(a.getAcademic().getYear());
@@ -517,6 +527,7 @@ public class AdminService {
 
         List<BasicDataDto> response = admin.getTeachers()
                 .stream()
+                .filter(a -> !a.isDeleted())
                 .map(a -> modelMapper.map(a, BasicDataDto.class))
                 .toList();
 
@@ -524,6 +535,104 @@ public class AdminService {
 
     }
 
+    public List<BasicAttendanceResponseDto> getAllAttendanceService(String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = attendanceRepo.findByTeacher_Admin_UserIdOrderByAttendanceDateDescAttendanceTimeDesc(adminId);
+
+        List<BasicAttendanceResponseDto> response= attendances
+                            .stream()
+                            .filter(a -> !a.isDeleted())
+                            .map(a->{
+                                BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+                                temp.setTeacherName(a.getTeacher().getName());
+                                return temp;
+                            })
+                            .toList();
+        return response;
+    }
+
+    public  AtteandanceResponseDto getAttendancByAttendanceIdService(UUID attendanceId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+
+        return teacherService.getAttendancByAttendanceIdService(attendanceId,attendance.getTeacher().getUserId());        
+    }
+
+    @Transactional
+    public void addNewAcademicInAttendanceService(UUID attendanceId,UUID academicId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+
+        teacherService.addNewAcademicInAttendanceService(attendanceId, academicId,attendance.getTeacher().getUserId());
+    }
+
+    @Transactional
+    public void removeAcademicInAttendanceService(UUID attendanceId,UUID academicId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+
+        teacherService.removeAcademicInAttendanceService(attendanceId, academicId,attendance.getTeacher().getUserId());
+    }
+
+    public void deleteAttendanceService(UUID attendanceId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+
+        attendance.setDeleted(true);
+        attendance.setDeletedDate(LocalDate.now());
+        attendanceRepo.save(attendance);
+    }
+
+    public void markStudentPresentInAttendanceService(UUID attendanceId,String studentId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+        teacherService.markStudentPresentInAttendanceService(attendanceId,studentId,attendance.getTeacher().getUserId());
+    }
+
+    public void markStudentAbsentInAttendanceService(UUID attendanceId,String studentId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId).orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+        teacherService.markStudentAbsentInAttendanceService(attendanceId,studentId,attendance.getTeacher().getUserId());
+    }
+    
     @Transactional
     public void deleteAllAttendanceService(String adminId, String otp) {
         if (otp == null) {
@@ -533,8 +642,108 @@ public class AdminService {
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
         otpService.verifyOtp(admin.getEmail(), otp);
 
-        for (Teacher teacher : admin.getTeachers()) {
-            attendanceRepo.deleteByTeacher(teacher);
+        List<Attendance> attendanceList = attendanceRepo.findByTeacher_Admin_UserId(adminId);
+        for(Attendance attendance : attendanceList){
+            attendance.setDeleted(true);
+            attendance.setDeletedDate(LocalDate.now());
+            attendanceRepo.save(attendance);
         }
     }
+
+    public List<StudentResponseDto> allDeletedStudentService(String adminId){
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<StudentResponseDto> response = admin.getStudents()
+                .stream()
+                .filter(a -> a.isDeleted())
+                .map(a -> {
+                    StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
+                    studentResponseDto.setYear(a.getAcademic().getYear());
+                    studentResponseDto.setBranch(a.getAcademic().getBranch());
+                    studentResponseDto.setSemester(a.getAcademic().getSemester());
+                    studentResponseDto.setClassName(a.getAcademic().getClassName());
+                    studentResponseDto.setBatch(a.getAcademic().getBatch());
+                    studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
+                    studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+                    return studentResponseDto;
+                })
+                .toList();
+
+        return response;
+    }
+
+    public void restoreStudentService(String studentId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Student student = studentRepo.findByUserIdAndAdmin_UserId(studentId, adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        student.setDeleted(false);
+        student.setDeletedDate(null);
+        studentRepo.save(student);
+    }
+
+
+    public List<BasicDataDto> allDeletedTeacherService(String adminId) {
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<BasicDataDto> response = admin.getTeachers()
+                .stream()
+                .filter(a -> a.isDeleted())
+                .map(a -> modelMapper.map(a, BasicDataDto.class))
+                .toList();
+
+        return response;
+
+    }
+
+    public void restoreTeacherService(String teacherId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Teacher teacher = teacherRepo.findByUserIdAndAdmin_UserId(teacherId,adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        teacher.setDeleted(false);
+        teacher.setDeletedDate(null);
+        teacherRepo.save(teacher);
+    }
+
+    public List<BasicAttendanceResponseDto> getDeletedAttendance(String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = attendanceRepo.findByTeacher_Admin_UserIdOrderByAttendanceDateDescAttendanceTimeDesc(adminId);
+
+        List<BasicAttendanceResponseDto> response= attendances
+                            .stream()
+                            .filter(a -> a.isDeleted())
+                            .map(a->{
+                                BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+                                temp.setTeacherName(a.getTeacher().getName());
+                                return temp;
+                            })
+                            .toList();
+        return response;
+    }
+
+    public void restoreAttendanceService(UUID attendanceId,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findById(attendanceId)
+                            .orElseThrow(()-> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+        attendance.setDeleted(false);
+        attendance.setDeletedDate(null);
+        attendanceRepo.save(attendance);
+    }
+
+    
 }

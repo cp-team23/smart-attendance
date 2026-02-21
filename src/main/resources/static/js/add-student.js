@@ -50,6 +50,7 @@ async function loadData() {
     });
 }
 
+
 function setBatch() {
     batchOptionsBox.innerHTML = "";
 
@@ -60,13 +61,6 @@ function setBatch() {
             batchInput.value = item;
             batchInput.classList.add("filled");
             batchOptionsBox.style.display = "none";
-
-            allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
-                    academicId = element.academicId;
-                }
-            });
-
         };
         batchOptionsBox.appendChild(li);
     });
@@ -80,17 +74,14 @@ function setClass() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+            if(item!==classInput.value){
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             classInput.value = item;
             classInput.classList.add("filled");
             classOptionsBox.style.display = "none";
-
-            allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && item === element.className && !batch.includes(element.batch)) {
-                    batch.push(element.batch);
-                }
-            });
-
-            setBatch();
         };
         classOptionsBox.appendChild(li);
     });
@@ -103,17 +94,17 @@ function setSem() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+             if(item!==semInput.value){
+                classInput.value = "";
+                classInput.classList.remove("filled");
+                classOptionsBox.style.display = "none";
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             semInput.value = item;
             semInput.classList.add("filled");
             semOptionsBox.style.display = "none";
-
-            allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && item === element.semester && !className.includes(element.className)) {
-                    className.push(element.className);
-                }
-            });
-
-            setClass();
         };
         semOptionsBox.appendChild(li);
     });
@@ -126,17 +117,20 @@ function setBranch() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+             if(item!==branchInput.value){
+                semInput.value = "";
+                semInput.classList.remove("filled");
+                semOptionsBox.style.display = "none";
+                classInput.value = "";
+                classInput.classList.remove("filled");
+                classOptionsBox.style.display = "none";
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             branchInput.value = item;
             branchInput.classList.add("filled");
             branchOptionsBox.style.display = "none";
-
-            allData.forEach(element => {
-                if (yearInput.value == element.year && item === element.branch && !sem.includes(element.semester)) {
-                    sem.push(element.semester);
-                }
-            });
-
-            setSem();
         };
         branchOptionsBox.appendChild(li);
     });
@@ -148,16 +142,24 @@ function setYear() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+            if(item!==yearInput.value){
+                branchInput.value = "";
+                branchInput.classList.remove("filled");
+                branchOptionsBox.style.display = "none";
+                semInput.value = "";
+                semInput.classList.remove("filled");
+                semOptionsBox.style.display = "none";
+                classInput.value = "";
+                classInput.classList.remove("filled");
+                classOptionsBox.style.display = "none";
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             yearInput.value = item;
             yearInput.classList.add("filled");
             yearOptionsBox.style.display = "none";
 
-            allData.forEach(element => {
-                if (item == element.year && !branch.includes(element.branch)) {
-                    branch.push(element.branch);
-                }
-            });
-            setBranch();
         };
         yearOptionsBox.appendChild(li);
     });
@@ -166,7 +168,6 @@ function setYear() {
 
 loadData().then(() => {
     setYear();
-
 });
 
 yearInput.onclick = () => {
@@ -177,6 +178,12 @@ yearInput.onclick = () => {
 
 branchInput.onclick = () => {
     sem = [];
+    allData.forEach(element => {
+                if (yearInput.value == element.year && !branch.includes(element.branch)) {
+                    branch.push(element.branch);
+                }
+    });
+    setBranch();
     branchOptionsBox.style.display =
         branchOptionsBox.style.display === "block" ? "none" : "block";
 };
@@ -184,22 +191,49 @@ branchInput.onclick = () => {
 
 semInput.onclick = () => {
     className = [];
+     allData.forEach(element => {
+                if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
+                    sem.push(element.semester);
+                }
+    });
+    setSem();
     semOptionsBox.style.display =
         semOptionsBox.style.display === "block" ? "none" : "block";
 };
 
 classInput.onclick = () => {
     batch = [];
+     allData.forEach(element => {
+                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
+                    className.push(element.className);
+                }
+    });
+    setClass();
     classOptionsBox.style.display =
         classOptionsBox.style.display === "block" ? "none" : "block";
 };
 
 batchInput.onclick = () => {
+    
+    allData.forEach(element => {
+        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && !batch.includes(element.batch)) {
+            batch.push(element.batch);
+        }
+    });
+    setBatch();
     batchOptionsBox.style.display =
         batchOptionsBox.style.display === "block" ? "none" : "block";
 };
 
+
+
 addStudentBtn.onclick = async () => {
+
+     allData.forEach(element => {
+                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
+                    academicId = element.academicId;
+                }
+            });
     const userData = {
         userId: userId.value.trim(),
         name: nameInput.value.trim(),

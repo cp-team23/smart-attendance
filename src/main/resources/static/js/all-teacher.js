@@ -7,7 +7,7 @@ function showData(data) {
     data.forEach(element => {
         html += ` <div class="teacher-card" data-id="${element.userId}">
                 <div class="teacher-card-data">
-                    <div class="teacherid teacher-data">Taecher Id : ${element.userId}</div>
+                    <div class="teacherid teacher-data">Teacher Id : ${element.userId}</div>
                     <div class="name teacher-data">Name : ${element.name}</div>
                     <div class="email teacher-data">Email : ${element.email}</div>
                 </div>

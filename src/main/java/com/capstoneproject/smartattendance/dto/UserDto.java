@@ -15,7 +15,7 @@ public class UserDto {
 
     @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")
-    private String UserId;
+    private String userId;
 
     @NotNull(message = "ALL_FIELD_REQUIRED")
     @NotBlank(message = "ALL_FIELD_REQUIRED")

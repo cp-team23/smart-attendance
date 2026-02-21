@@ -102,7 +102,7 @@ public class AuthService {
         User user = userRepo.findByUserId(userId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getRole().equals(role)) {
+        if (!user.getRole().equals(role) || user.isDeleted()) {
             throw new CustomeException(ErrorCode.USER_NOT_FOUND);
         }
 

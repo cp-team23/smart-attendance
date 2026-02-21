@@ -110,6 +110,11 @@ function setClass() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+             if(item!==classInput.value){
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             classInput.value = item;
             classInput.classList.add("filled");
             classOptionsBox.style.display = "none";
@@ -125,6 +130,14 @@ function setSem() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
+            if(item!==semInput.value){
+                classInput.value = "";
+                classInput.classList.remove("filled");
+                classOptionsBox.style.display = "none";
+                batchInput.value = "";
+                batchInput.classList.remove("filled");
+                batchOptionsBox.style.display = "none";
+            }
             semInput.value = item;
             semInput.classList.add("filled");
             semOptionsBox.style.display = "none";

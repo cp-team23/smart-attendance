@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
+import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
+import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
@@ -171,10 +173,106 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("response", response));
     }
 
-    @DeleteMapping("/allattendance")
+    @DeleteMapping("/all-attendance")
     public ResponseEntity<?> deleteAllAttendance(Authentication authentication,@RequestBody String otp){
         String adminId = authentication.getName();
         adminService.deleteAllAttendanceService(adminId,otp);
         return ResponseEntity.ok(Map.of("message","ALL_ATTENDANCE_DELETED_SUCCESSFULLY"));
     }
+
+    @GetMapping("/all-attendance")
+    public ResponseEntity<?> getAllAttendance(Authentication authentication){
+        String adminId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = adminService.getAllAttendanceService(adminId);
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    @GetMapping("/attendance/{attendanceId}")
+    public ResponseEntity<?> getAllAttendance(Authentication authentication,@PathVariable UUID attendanceId){
+        String adminId = authentication.getName();
+        AtteandanceResponseDto response = adminService.getAttendancByAttendanceIdService(attendanceId,adminId);
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    @PostMapping("/academic-in-attendance/{attendanceId}/{academicId}")
+    public ResponseEntity<?> addNewAcademicInAttendance(@PathVariable UUID attendanceId,@PathVariable UUID academicId,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.addNewAcademicInAttendanceService(attendanceId,academicId,adminId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "ACADEMIC_ADDED_SUCCESSFULLY"));
+
+    }
+
+    @DeleteMapping("/academic-in-attendance/{attendanceId}/{academicId}")
+    public ResponseEntity<?> removeNewAcademicInAttendance(@PathVariable UUID attendanceId,@PathVariable UUID academicId,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.removeAcademicInAttendanceService(attendanceId,academicId,adminId);
+        return ResponseEntity.ok(Map.of("message","ACADEMIC_DELETED_SUCCESSFULLY"));
+
+    }
+
+    @DeleteMapping("/attendance/{attendanceId}")
+    public ResponseEntity<?> deleteAttendanceById(@PathVariable UUID attendanceId,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.deleteAttendanceService(attendanceId,adminId);
+        return ResponseEntity.ok(Map.of("message","DELETED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/student-in-attendance/{attendanceId}/{studentId}/add")
+    public ResponseEntity<?> markStudentPresentInAttendance(@PathVariable UUID attendanceId,@PathVariable String studentId,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.markStudentPresentInAttendanceService(attendanceId,studentId,adminId);
+        return ResponseEntity.ok(Map.of("message","STUDENT_ADDED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/student-in-attendance/{attendanceId}/{studentId}/remove")
+    public ResponseEntity<?> markStudentAbsentInAttendance(@PathVariable UUID attendanceId,@PathVariable String studentId,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.markStudentAbsentInAttendanceService(attendanceId,studentId,adminId);
+        return ResponseEntity.ok(Map.of("message","STUDENT_REMOVED_SUCCESSFULLY"));
+
+    }
+
+
+    @GetMapping("/all-deleted-student")
+    public ResponseEntity<?> getAllDeletedStudent(Authentication authentication){
+        String adminId = authentication.getName();
+        List<StudentResponseDto> response = adminService.allDeletedStudentService(adminId);
+        return ResponseEntity.ok(Map.of("response",response));
+
+    }
+    @GetMapping("/all-deleted-teacher")
+    public ResponseEntity<?> getAllDeletedTeacher(Authentication authentication){
+        String adminId = authentication.getName();
+        List<BasicDataDto> response = adminService.allDeletedTeacherService(adminId);
+        return ResponseEntity.ok(Map.of("response",response));
+
+    }
+    @GetMapping("/all-deleted-attendance")
+    public ResponseEntity<?> getAllDeletedAttendance(Authentication authentication){
+        String adminId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = adminService.getAllAttendanceService(adminId);
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    @PatchMapping("/student/restore/{studentId}")
+    public ResponseEntity<?> restoreStudent(Authentication authentication,@PathVariable String studentId){
+        String adminId = authentication.getName();
+        adminService.restoreStudentService(studentId,adminId);
+        return ResponseEntity.ok(Map.of("response","RESTORED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/teacher/restore/{teacherId}")
+    public ResponseEntity<?> restoreTeacher(Authentication authentication,@PathVariable String teacherId){
+        String adminId = authentication.getName();
+        adminService.restoreTeacherService(teacherId,adminId);
+        return ResponseEntity.ok(Map.of("response","RESTORED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/attendance/restore/{attendanceId}")
+    public ResponseEntity<?> restoreAttendance(Authentication authentication,@PathVariable UUID attendanceId){
+        String adminId = authentication.getName();
+        adminService.restoreAttendanceService(attendanceId,adminId);
+        return ResponseEntity.ok(Map.of("response","RESTORED_SUCCESSFULLY"));
+    }
+
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.capstoneproject.smartattendance.dto.AcademicDto;
+// import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceDto;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
@@ -38,36 +38,36 @@ public class TeacherController {
 
     @GetMapping("/my")
     public ResponseEntity<?> getMyDetails(Authentication authentication){
-        String taecherId = authentication.getName();
-        BasicDataDto basicDataDto = teacherService.getMyDetailsService(taecherId);
+        String teacherId = authentication.getName();
+        BasicDataDto basicDataDto = teacherService.getMyDetailsService(teacherId);
         return ResponseEntity.ok(basicDataDto);
     }
 
     @PostMapping("/attendance")
     public ResponseEntity<?> createAttandance(@Valid @RequestBody AttendanceDto attendanceDto,Authentication authentication){
-        String taecherId = authentication.getName();
-        UUID attendaceId = teacherService.createAttendanceService(attendanceDto, taecherId);
+        String teacherId = authentication.getName();
+        UUID attendaceId = teacherService.createAttendanceService(attendanceDto, teacherId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("attendanceId", attendaceId));
     }
 
     @PatchMapping("/start-attendance")
     public ResponseEntity<?> startAttandance(@RequestBody UUID attendanceId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.startAttendanceService(attendanceId, taecherId);
+        String teacherId = authentication.getName();
+        teacherService.startAttendanceService(attendanceId, teacherId);
         return ResponseEntity.ok(Map.of("message","ATTENDANCE_STARTED"));
     }
     @PatchMapping("/stop-attendance")
     public ResponseEntity<?> stopAttandance(@RequestBody UUID attendanceId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.stopAttendanceService(attendanceId, taecherId);
+        String teacherId = authentication.getName();
+        teacherService.stopAttendanceService(attendanceId, teacherId);
         return ResponseEntity.ok(Map.of("message","ATTENDANCE_STOP_SUCCESSFULLY"));
 
     }
 
     @PostMapping("/academic-in-attendance/{attendanceId}/{academicId}")
     public ResponseEntity<?> addNewAcademicInAttendance(@PathVariable UUID attendanceId,@PathVariable UUID academicId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.addNewAcademicInAttendanceService(attendanceId,academicId,taecherId);
+        String teacherId = authentication.getName();
+        teacherService.addNewAcademicInAttendanceService(attendanceId,academicId,teacherId);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "ACADEMIC_ADDED_SUCCESSFULLY"));
 
     }
@@ -82,71 +82,85 @@ public class TeacherController {
 
     @DeleteMapping("/academic-in-attendance/{attendanceId}/{academicId}")
     public ResponseEntity<?> removeNewAcademicInAttendance(@PathVariable UUID attendanceId,@PathVariable UUID academicId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.removeAcademicInAttendanceService(attendanceId,academicId,taecherId);
+        String teacherId = authentication.getName();
+        teacherService.removeAcademicInAttendanceService(attendanceId,academicId,teacherId);
         return ResponseEntity.ok(Map.of("message","ACADEMIC_DELETED_SUCCESSFULLY"));
 
     }
     @DeleteMapping("/attendance/{attendanceId}")
     public ResponseEntity<?> removeNewAcademicInAttendance(@PathVariable UUID attendanceId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.deleteAttendanceService(attendanceId,taecherId);
+        String teacherId = authentication.getName();
+        teacherService.deleteAttendanceService(attendanceId,teacherId);
         return ResponseEntity.ok(Map.of("message","ATTENDANCE_DELETE_SUCCESSFULLY"));
     }
     @GetMapping("/all-attendance")
     public ResponseEntity<?> getAllAttendance(Authentication authentication){
-        String taecherId = authentication.getName();
-        List<BasicAttendanceResponseDto> response = teacherService.getAllAttendanceService(taecherId);
+        String teacherId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = teacherService.getAllAttendanceService(teacherId);
         return ResponseEntity.ok(Map.of("response",response));
 
     }
     @GetMapping("/attendance-by-id")
     public ResponseEntity<?> getAttendanceByAttendanceId(@RequestBody UUID attendanceId,Authentication authentication){
-        String taecherId = authentication.getName();
-        AtteandanceResponseDto response = teacherService.getAttendancByAttendanceIdService(attendanceId,taecherId);
+        String teacherId = authentication.getName();
+        AtteandanceResponseDto response = teacherService.getAttendancByAttendanceIdService(attendanceId,teacherId);
         return ResponseEntity.ok(Map.of("response",response));
     }
     @GetMapping("/all-attendance-by-subject")
     public ResponseEntity<?> getAttendanceBySubject(@RequestBody String subjectName,Authentication authentication){
-        String taecherId = authentication.getName();
-        List<BasicAttendanceResponseDto> response = teacherService.getAllAttendanceBySubjectNameService(subjectName,taecherId);
+        String teacherId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = teacherService.getAllAttendanceBySubjectNameService(subjectName,teacherId);
         return ResponseEntity.ok(Map.of("response",response));
 
     }
     @GetMapping("/all-attendance-by-date")
     public ResponseEntity<?> getAttendanceByDate(@RequestBody LocalDate attendanceDate,Authentication authentication){
-        String taecherId = authentication.getName();
-        List<BasicAttendanceResponseDto> response =teacherService.getAllAttendanceByDateService(attendanceDate,taecherId);
+        String teacherId = authentication.getName();
+        List<BasicAttendanceResponseDto> response =teacherService.getAllAttendanceByDateService(attendanceDate,teacherId);
         return ResponseEntity.ok(Map.of("response",response));
 
     }
     @GetMapping("/all-attendance-by-date-and-subject")
     public ResponseEntity<?> getAttendanceByDateAndSubject(@RequestBody LocalDate attendanceDate,@RequestBody String subjectName,Authentication authentication){
-        String taecherId = authentication.getName();
-        List<BasicAttendanceResponseDto> response = teacherService.getAllttendanceByDateAndSubjectNameService(subjectName,attendanceDate,taecherId);
+        String teacherId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = teacherService.getAllttendanceByDateAndSubjectNameService(subjectName,attendanceDate,teacherId);
         return ResponseEntity.ok(Map.of("response",response));
 
     }
 
     @PatchMapping("/student-in-attendance/{attendanceId}/{studentId}/add")
     public ResponseEntity<?> markStudentPresentInAttendance(@PathVariable UUID attendanceId,@PathVariable String studentId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.markStudentPresentInAttendanceService(attendanceId,studentId,taecherId);
+        String teacherId = authentication.getName();
+        teacherService.markStudentPresentInAttendanceService(attendanceId,studentId,teacherId);
         return ResponseEntity.ok(Map.of("message","STUDENT_ADDED_SUCCESSFULLY"));
     }
 
     @PatchMapping("/student-in-attendance/{attendanceId}/{studentId}/remove")
     public ResponseEntity<?> markStudentAbsentInAttendance(@PathVariable UUID attendanceId,@PathVariable String studentId,Authentication authentication){
-        String taecherId = authentication.getName();
-        teacherService.markStudentAbsentInAttendanceService(attendanceId,studentId,taecherId);
+        String teacherId = authentication.getName();
+        teacherService.markStudentAbsentInAttendanceService(attendanceId,studentId,teacherId);
         return ResponseEntity.ok(Map.of("message","STUDENT_REMOVED_SUCCESSFULLY"));
 
     }
 
-    @GetMapping("/academic-structure")
-    public ResponseEntity<?> getAcademicStructure(Authentication authentication){
-        String adminId = authentication.getName();
-        List<AcademicDto> response = teacherService.getAcademicDataService(adminId);
-        return ResponseEntity.ok(Map.of("response", response));
+    // @GetMapping("/academic-structure")
+    // public ResponseEntity<?> getAcademicStructure(Authentication authentication){
+    //     String adminId = authentication.getName();
+    //     List<AcademicDto> response = teacherService.getAcademicDataService(adminId);
+    //     return ResponseEntity.ok(Map.of("response", response));
+    // }
+
+    @GetMapping("/all-deleted-attendance")
+    public ResponseEntity<?> getAllDeletedAttendance(Authentication authentication){
+        String teacherId = authentication.getName();
+        List<BasicAttendanceResponseDto> response = teacherService.getAllAttendanceService(teacherId);
+        return ResponseEntity.ok(Map.of("response",response));
+    }
+
+    @PatchMapping("/attendance/restore/{attendanceId}")
+    public ResponseEntity<?> restoreAttendance(Authentication authentication,@PathVariable UUID attendanceId){
+        String teacherId = authentication.getName();
+       teacherService.restoreAttendanceService(attendanceId,teacherId);
+        return ResponseEntity.ok(Map.of("response","RESTORED_SUCCESSFULLY"));
     }
 }

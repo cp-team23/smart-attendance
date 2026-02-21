@@ -23,4 +23,9 @@ public interface AttendanceRepo extends JpaRepository<Attendance,UUID> {
     @Transactional
     void deleteByTeacher(Teacher teacher);
 
+    List<Attendance> findByTeacher_Admin_UserId(String adminId);
+
+    List<Attendance> findByTeacher_Admin_UserIdOrderByAttendanceDateDescAttendanceTimeDesc(String adminId);
+
+
 }

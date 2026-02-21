@@ -1,7 +1,11 @@
 package com.capstoneproject.smartattendance.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +16,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PageController {
 
-    @GetMapping({"/","/login"})
+    @GetMapping({"/"})
+    public String landingPage(Authentication authentication) {
+        if(authentication==null){
+            return "login";
+        }
+        List<GrantedAuthority> authorities =new ArrayList<>(authentication.getAuthorities());
+        boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if(isAdmin){
+            return "admin-dashboard"; 
+        }
+        return "teacher-dashboard";
+    }
+
+    @GetMapping({"/login"})
     public String loginPage() {
         return "login"; 
     }

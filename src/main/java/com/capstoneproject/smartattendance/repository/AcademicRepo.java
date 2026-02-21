@@ -8,12 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import com.capstoneproject.smartattendance.entity.Academic;
 
-import jakarta.transaction.Transactional;
 
 @Repository
 public interface AcademicRepo extends JpaRepository<Academic,UUID> {
 
-    @Transactional
-    void deleteByAdminUserId(String userId);
     List<Academic> findByAdminUserId(String userId);
 }

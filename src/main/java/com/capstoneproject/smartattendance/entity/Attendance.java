@@ -51,6 +51,10 @@ public class Attendance {
 
     private boolean running;
 
+    private boolean isDeleted;
+
+    private LocalDate deletedDate;
+
     @OneToMany(mappedBy = "attendance", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AttendanceRecord> attendanceRecords = new ArrayList<>();
 

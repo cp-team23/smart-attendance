@@ -65,8 +65,8 @@ public class StudentService {
         response.setYear(academic.getYear());
         response.setBranch(academic.getBranch());
         response.setSemester(academic.getSemester());
-        response.setClassName(response.getClassName());
-        response.setBatch(response.getBatch());
+        response.setClassName(academic.getClassName());
+        response.setBatch(academic.getBatch());
         response.setCurImage(fileBaseUrl + response.getCurImage());
         response.setNewImage(fileBaseUrl + response.getNewImage());
         return response;
@@ -128,12 +128,17 @@ public class StudentService {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
+        
+
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
         String prevFile = student.getNewImage();
         Path prevPath = uploadPath.resolve(prevFile).normalize();
         Files.deleteIfExists(prevPath);
+
+        student.setNewImage(null);
+        studentRepo.save(student);
 
     }
 
@@ -153,6 +158,12 @@ public class StudentService {
                 .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
 
+        if(attendanceRecord.getAttendance().isDeleted()){
+            throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
+        }
+        if(attendanceRecord.getStatus().equals(AttendanceStatus.PRESENT)){
+            throw new CustomeException(ErrorCode.ATTENDANCE_ALREADY_MARKED);
+        }
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -162,7 +173,7 @@ public class StudentService {
         if (!exist || attendanceRecord.getAttendance().isRunning()==false) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if (student.getCurImage() == "defaultimage.jpg") {
+        if (student.getCurImage().equals("defaultimage.jpg")) {
             throw new CustomeException(ErrorCode.IMAGE_NOT_FOUND);
         }
 
@@ -254,9 +265,11 @@ public class StudentService {
 
         List<StudentAttendanceResponseDto> response = attendanceRecords
                 .stream()
+                .filter(ar -> !ar.getAttendance().isDeleted())
                 .map(ar -> {
                     Attendance attendance = ar.getAttendance();
                     StudentAttendanceResponseDto sard = new StudentAttendanceResponseDto();
+                    sard.setTeacherName(attendance.getTeacher().getName());
                     sard.setAttendanceId(attendance.getAttendanceId());
                     sard.setAttendanceDate(attendance.getAttendanceDate());
                     sard.setAttendanceTime(attendance.getAttendanceTime());

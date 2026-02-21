@@ -13,13 +13,13 @@ document.getElementById("gotoDashboard").addEventListener("click",()=>window.loc
 
 
 const app = document.getElementById("app");
-const role = app.dataset.role;
+let role = app.dataset.role;
 
 function setRole(selectedRole) {
     [teacherBtn, studentBtn].forEach(btn =>
         btn.classList.remove('active')
     );
-
+    role = selectedRole;
     if (selectedRole === 'teacher') {
         borderMsg.innerHTML = "Search Teacher";
         teacherBtn.classList.add('active');
@@ -51,7 +51,7 @@ function showTeacher(data){
 
 }
 function showStudent(data){
-    contentbody.innerHTML=`<div class="student-card student-card-1" data-en="${data.enrollmentNo}">
+    contentbody.innerHTML=`<div class="student-card student-card-1" data-en="${data.enrollmentNo}" data-id="${data.userId}">
                 <div class="student-card-img-1">
                     <img class="img" src="/assets/images/defaultimage.jpg">
                 </div>
@@ -127,7 +127,7 @@ async function updateTeacher(cardId) {
     window.location.href="/admin/teacher/"+cardId;
 }
 
-async function deleteStudent(cardId) {
+async function deleteTeacher(cardId) {
     await fetch(`/api/admin/teacher/${cardId}`, {
         method: "DELETE"
     });
@@ -149,7 +149,13 @@ contentbody.addEventListener("click", function (e) {
 
         const card = e.target.closest(".teacher-card");
         const cardId = card.dataset.id;
-        deleteTeacher(cardId);
+        openModal({
+            title: "Delete Student?",
+            message: "This action cannot be undone.",
+            confirmText: "Delete",
+            onConfirm: () => deleteTeacher(cardId)
+        });
+        
        
     }
 
@@ -182,7 +188,12 @@ contentbody.addEventListener("click", function (e) {
 
         const card = e.target.closest(".student-card");
         const cardId = card.dataset.id;
-        deleteStudent(cardId);
+        openModal({
+            title: "Delete Student?",
+            message: "This action cannot be undone.",
+            confirmText: "Delete",
+            onConfirm: () => deleteStudent(cardId)
+        });
        
     }
 

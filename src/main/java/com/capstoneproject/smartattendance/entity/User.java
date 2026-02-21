@@ -1,5 +1,7 @@
 package com.capstoneproject.smartattendance.entity;
 
+import java.time.LocalDate;
+
 import com.capstoneproject.smartattendance.dto.Role;
 
 import jakarta.persistence.Entity;
@@ -23,5 +25,9 @@ public class User {
 
     @Enumerated(EnumType.STRING) 
     private Role role;
+
+    
+    private boolean isDeleted;
+    private LocalDate deletedDate;
     
 }

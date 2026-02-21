@@ -19,4 +19,5 @@ public class StudentAttendanceResponseDto {
     private LocalTime attendanceTime;
     private String subjectName;
     private AttendanceStatus status;
+    private String teacherName;
 }

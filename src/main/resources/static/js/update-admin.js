@@ -12,6 +12,7 @@ const updateBtn = document.getElementById("update")
 const errorBoxOtp = document.getElementById('errorBoxOtp');
 const otpBtn = document.getElementById('otpBtn');
 
+document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
 
 
 let interval = null;

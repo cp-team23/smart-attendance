@@ -24,4 +24,6 @@ public class BasicAttendanceResponseDto {
     private String subjectName;
 
     private boolean running;
+
+    private String teacherName;
 }

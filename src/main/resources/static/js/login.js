@@ -100,7 +100,7 @@ async function login() {
                 }else if(data.role === 'TEACHER'){
                     window.location.href = "/teacher/dashboard";
                 }
-            }, 1000);
+            }, 200);
             
         } else {
             if (data.error === "USER_NOT_FOUND") {
