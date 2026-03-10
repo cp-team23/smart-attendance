@@ -1,119 +1,201 @@
-const searchInput  = document.getElementById("searchBar");
-const searchBtn = document.getElementById("searchBtn");
+const teacherBtn = document.getElementById('teacherBtn');
+const studentBtn = document.getElementById('studentBtn');
+const cardsContainer = document.getElementById('cardsContainer');
+const searchInput = document.getElementById("searchInput");
 
-const studentBtn = document.getElementById("studentBtn");
-const teacherBtn = document.getElementById("teacherBtn");
+let role = 'student';
 
-const borderMsg = document.getElementById("borderMsg");
+let deleteBtn = null;
+let updateBtn = null;
 
-const contentbody = document.querySelector(".contentbody");
+/* =========================
+   ROLE SWITCHING
+========================= */
 
-document.getElementById("gotoDashboard").addEventListener("click",()=>window.location.href = "/admin/dashboard");
+function setRole(newRole) {
 
+    role = newRole;
 
-
-const app = document.getElementById("app");
-let role = app.dataset.role;
-
-function setRole(selectedRole) {
     [teacherBtn, studentBtn].forEach(btn =>
         btn.classList.remove('active')
     );
-    role = selectedRole;
-    if (selectedRole === 'teacher') {
-        borderMsg.innerHTML = "Search Teacher";
+
+    if (role === 'teacher') {
         teacherBtn.classList.add('active');
+        searchInput.placeholder = "Enter Teacher Id";
     } else {
-        borderMsg.innerHTML = "Search Student";
         studentBtn.classList.add('active');
+        searchInput.placeholder = "Enter Student Enrollment No";
+    }
+
+    // Reset UI when switching role
+    cardsContainer.innerHTML = "";
+    searchInput.value = "";
+}
+
+
+/* =========================
+   SHOW STUDENT CARD
+========================= */
+
+function showStudent(student) {
+
+    cardsContainer.innerHTML = `
+        <div class="user-card">
+
+            <div class="user-image">
+                <img src="${student.curImage}" alt="Profile Image">
+            </div>
+
+            <div class="user-details">
+                <h2>${student.name}</h2>
+                <div class="user-college">${student.collegeName}</div>
+
+                <div class="details-grid">
+                    <div class="label">User ID</div>
+                    <div class="value">${student.userId}</div>
+
+                    <div class="label">Email</div>
+                    <div class="value">${student.email}</div>
+
+                    <div class="label">Enrollment No</div>
+                    <div class="value">${student.enrollmentNo}</div>
+
+                    <div class="label">Year</div>
+                    <div class="value">${student.year}</div>
+
+                    <div class="label">Branch</div>
+                    <div class="value">${student.branch}</div>
+
+                    <div class="label">Semester</div>
+                    <div class="value">${student.semester}</div>
+
+                    <div class="label">Class</div>
+                    <div class="value">${student.className}</div>
+
+                    <div class="label">Batch</div>
+                    <div class="value">${student.batch}</div>
+                </div>
+
+                <div class="card-buttons">
+                    <button class="update-btn" id="updateBtn">Edit</button>
+                    <button class="delete-btn" id="deleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    deleteBtn = document.getElementById("deleteBtn");
+    updateBtn = document.getElementById("updateBtn");
+
+    deleteBtn.addEventListener("click", () =>
+        deleteStudent(student.userId).then(() => cardsContainer.innerHTML = "" )
+    );
+
+    updateBtn.addEventListener("click", () => {
+        window.location.href =
+            "/admin/user/update/student/" + student.enrollmentNo;
+    });
+}
+
+
+/* =========================
+   SHOW TEACHER CARD
+========================= */
+
+function showTeacher(teacher) {
+
+    cardsContainer.innerHTML = `
+        <div class="teacher-card">
+
+            <h2>${teacher.name}</h2>
+            <div class="teacher-college">${teacher.collegeName}</div>
+
+            <div class="teacher-details">
+                <div class="teacher-label">User ID</div>
+                <div class="teacher-value">${teacher.userId}</div>
+
+                <div class="teacher-label">Email</div>
+                <div class="teacher-value">${teacher.email}</div>
+            </div>
+
+            <div class="teacher-buttons">
+                <button class="update-btn" id="updateBtn">Edit</button>
+                <button class="delete-btn" id="deleteBtn">Delete</button>
+            </div>
+
+        </div>
+    `;
+
+    deleteBtn = document.getElementById("deleteBtn");
+    updateBtn = document.getElementById("updateBtn");
+
+    deleteBtn.addEventListener("click", () =>
+        deleteTeacher(teacher.userId).then(() => cardsContainer.innerHTML = "" )
+    );
+
+    updateBtn.addEventListener("click", () => {
+        window.location.href =
+            "/admin/user/update/teacher/" + teacher.userId;
+    });
+}
+
+
+/* =========================
+   SEARCH USER
+========================= */
+
+async function searchUser() {
+
+    const value = searchInput.value.trim();
+    if (!value) return;
+
+    const API_URL =
+        role === 'teacher'
+            ? '/api/admin/teacher/'
+            : '/api/admin/student/';
+
+    try {
+
+        searchInput.disabled = true;
+
+        const res = await fetch(API_URL + value);
+        const data = await res.json();
+
+        if (!res.ok) {
+
+            if (data.error === "USER_NOT_FOUND") {
+                showSnackbar("User not found", "warning");
+            } else {
+                showSnackbar("Something went wrong", "error");
+            }
+
+            return;
+        }
+
+        if (role === 'teacher') {
+            showTeacher(data.response);
+        } else {
+            showStudent(data.response);
+        }
+
+    } catch (err) {
+
+        console.log(err);
+        showSnackbar("Something went wrong. Try again", "error");
+
+    } finally {
+        searchInput.disabled = false;
     }
 }
 
-console.log(role);
-setRole(role);
+
+/* =========================
+   EVENTS
+========================= */
 
 teacherBtn.addEventListener('click', () => setRole('teacher'));
 studentBtn.addEventListener('click', () => setRole('student'));
-
-function showTeacher(data){
-    
-    contentbody.innerHTML=` <div class="teacher-card" data-id="${data.userId}">
-                <div class="teacher-card-data">
-                    <div class="teacherid teacher-data">Taecher Id : ${data.userId}</div>
-                    <div class="name teacher-data">Name : ${data.name}</div>
-                    <div class="email teacher-data">Email : ${data.email}</div>
-                </div>
-                <div class="teacher-card-btn">
-                    <button class="darkBtn delete-btn">Delete</button>
-                    <button class="darkBtn update-btn">Update</button>
-                </div>
-            </div>`;
-
-}
-function showStudent(data){
-    contentbody.innerHTML=`<div class="student-card student-card-1" data-en="${data.enrollmentNo}" data-id="${data.userId}">
-                <div class="student-card-img-1">
-                    <img class="img" src="/assets/images/defaultimage.jpg">
-                </div>
-                <div class="student-card-info student-card-info-1">
-                    <div class="student-card-data">
-                        <div class="student-card-data-header">
-                            <div class="userid">${data.userId}</div>
-                            <div class="year">${data.year}</div>
-                        </div>
-                        <div class="en-no data">${data.enrollmentNo}</div>
-                        <div class="email data">${data.email}</div>
-                        <div class="branch-sem">
-                            <div class="branch data">${data.branch}</div>
-                            <div class="sem data">${data.semester}</div>
-                        </div>
-                        <div class="class-batch">
-                            <div class="class-name data">${data.className}</div>
-                            <div class="batch data">${data.batch}</div>
-                        </div>
-                    </div>
-                    <div class="student-card-btn">
-                        <button class="darkBtn delete-btn">Delete</button>
-                        <button class="darkBtn update-btn">Update</button>
-                    </div>
-                </div>
-           </div>
-        </div>`;
-}
-
-
-async function searchUser() {
-    const value = searchInput.value.trim();
-    if (!value) return;
-    contentbody.innerHTML="";
-    const API_URL = role === 'teacher'? '/api/admin/teacher/': '/api/admin/student/';
-
-    try {
-        const res = await fetch(API_URL + value);
-        const data = await res.json();
-        if (res.ok){
-
-            if(role==='teacher'){
-                showTeacher(data.response)
-            }else{
-                showStudent(data.response);
-            }
-        };
-        if(data.error==="USER_NOT_FOUND"){
-            showSnackbar("User not found", "warning");
-        }
-        
-        
-
-        // append in content body
-    } catch (err) {
-        console.log(err);
-        showSnackbar("Something went wrong. Try again", "error");
-    }
-}
-
-searchUser();
-searchBtn.addEventListener('click', searchUser);
 
 searchInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
@@ -122,79 +204,8 @@ searchInput.addEventListener('keydown', e => {
 });
 
 
+/* =========================
+   DEFAULT INIT
+========================= */
 
-async function updateTeacher(cardId) {
-    window.location.href="/admin/teacher/"+cardId;
-}
-
-async function deleteTeacher(cardId) {
-    await fetch(`/api/admin/teacher/${cardId}`, {
-        method: "DELETE"
-    });
-    loadStudent(academicId);
-}
-
-
-contentbody.addEventListener("click", function (e) {
-
-    if (e.target.classList.contains("update-btn")) {
-        e.stopPropagation();
-        const card = e.target.closest(".teacher-card");
-        const cardId = card.dataset.id;
-        updateTeacher(cardId);
-    }
-
-    if (e.target.classList.contains("delete-btn")) {
-        e.stopPropagation();
-
-        const card = e.target.closest(".teacher-card");
-        const cardId = card.dataset.id;
-        openModal({
-            title: "Delete Student?",
-            message: "This action cannot be undone.",
-            confirmText: "Delete",
-            onConfirm: () => deleteTeacher(cardId)
-        });
-        
-       
-    }
-
-});
-
-
-async function updateStudent(cardId) {
-    window.location.href="/admin/student/"+cardId;
-}
-
-async function deleteStudent(cardId) {
-    await fetch(`/api/admin/student/${cardId}`, {
-        method: "DELETE"
-    });
-    loadStudent(academicId);
-}
-
-
-contentbody.addEventListener("click", function (e) {
-
-    if (e.target.classList.contains("update-btn")) {
-        e.stopPropagation();
-        const card = e.target.closest(".student-card");
-        const cardId = card.dataset.en;
-        updateStudent(cardId);
-    }
-
-    if (e.target.classList.contains("delete-btn")) {
-        e.stopPropagation();
-
-        const card = e.target.closest(".student-card");
-        const cardId = card.dataset.id;
-        openModal({
-            title: "Delete Student?",
-            message: "This action cannot be undone.",
-            confirmText: "Delete",
-            onConfirm: () => deleteStudent(cardId)
-        });
-       
-    }
-
-});
+setRole('student');

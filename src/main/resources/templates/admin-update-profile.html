@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/update-admin-profile.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile active" id="profile">
+               <h3 id="adminname">&nbsp;</h3>
+                <p id="admincollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li  id="dashboard">Dashboard</li>
+                    <li id="addUser">Add User</li>
+                    <li id="searchUser">Search User</li>
+                    <li id="userUpdate">Update User</li>
+                    <li id="allStudent" >All Students</li>
+                    <li id="allTeacher">All Teachers</li>
+                    <li id="imageChangeReq">Image Change Request</li>
+                    <li id="changeAcademic">Change Academic</li>
+                    <li id="academic" >Academic</li>
+                    <li id="allAttendance" >All Attendance</li>
+                    <li id="recycleBin" >Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>Update Your Profile</h2>
+                    <p class="subtitle">Modify only the fields that need to be updated.</p>
+                </div>
+            </div>
+               
+            <form>
+                <div class="field">
+                    <input type="text" id="userId"  required readonly/>
+                    <label>Enter admin id</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="name" required />
+                    <label>Enter your name</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="email" required />
+                    <label>Enter email id</label>
+                </div>
+
+                <div class="send-otp" id="sendOtpBox">
+                    <div class="field">
+                        <input type="text" id="otp" class="otpClass" required />
+                        <label>Enter OTP</label>
+                    </div>
+                    <button type="button" id="otpBtn" class="otpBtn">Send OTP</button>
+                </div>
+                <div id="errorBoxOtp" class="errorbox" style="display:none;"></div>
+
+                <div class="field">
+                    <input type="text" id="collegeName" class="otpClass" required />
+                    <label>Enter college name</label>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="password" required />
+                    <label>Enter Current password</label>
+                </div>
+
+
+                <div class="actions">
+                    <button type="button" class="addBtn" id="update">Update</button>
+                </div>
+
+            </form>
+
+
+
+        </main>
+
+    </div>
+
+    
+    <script src="/js/basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/update-admin-profile.js"></script>
+</body>
+
+</html>
+
+

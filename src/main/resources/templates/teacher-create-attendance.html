@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/teacher-create-attendance.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile" id="profile">
+                <h3 id="teachername">&nbsp;</h3>
+                <p id="teachercollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li id="dashboard">Dashboard</li>
+                    <li class="active" id="newsession">Create New Session</li>
+                    <li id="allAttendance">All Attendance</li>
+                    <li id="recycleBin">Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>Create New Session</h2>
+                    <p class="subtitle">Create new session for attendance</p>
+                </div>
+            </div>
+
+            <form>
+                <div class="field">
+                    <input type="text" id="userId" required />
+                    <label>Enter Subject Name</label>
+                </div>
+
+                <div class="field">
+                    <input type="date" id="attendanceDate" required />
+                    <label>Select Date</label>
+                </div>
+
+                <div class="field">
+                    <input type="time" id="attendanceTime" required />
+                    <label>Select Time</label>
+                </div>
+
+                <div class="academic">
+                    <div class="academic-item">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="addBtn" id="update">Create</button>
+                </div>
+
+            </form>
+
+
+
+
+        </main>
+
+    </div>
+
+
+    <script src="/js/teacher-basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/teacher-create-attendance.js"></script>
+</body>
+
+</html>

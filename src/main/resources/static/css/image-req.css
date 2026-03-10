@@ -1,0 +1,215 @@
+/* =========================
+   GLOBAL FIX
+========================= */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   APPROVE / REJECT ANIMATION
+========================= */
+/* Base transition */
+.approval-card {
+    transition: 
+        transform 0.45s ease,
+        opacity 0.45s ease,
+        background-color 0.25s ease;
+    will-change: transform, opacity;
+}
+
+/* APPROVE */
+.swipe-right {
+    background-color: #16a34a;  /* strong green */
+    transform: translateX(-100vw);
+    opacity: 0.9;
+}
+
+/* REJECT */
+.swipe-left {
+    background-color: #dc2626;  /* strong red */
+    transform: translateX(-100vw);
+    opacity: 0.9;
+}
+
+/* =========================
+   SCROLLABLE CARDS SECTION
+========================= */
+
+
+
+/* =========================
+   Approval Card Container
+========================= */
+.approval-card {
+    display: flex;
+    background: #ffffff;
+    margin-top: 20px;
+    padding: 20px 25px;
+    border-radius: 5px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    border:1px solid var(--grey);
+    max-width: 950px;
+    /* margin: 25px auto; */
+    font-family:var(--font);
+    font-size: 14px;
+}
+
+/* =========================
+   LEFT SIDE IMAGES
+========================= */
+.image-section {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.image-section img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.new-img {
+    margin-right: 20px;
+    border: 2px solid var(--midDark);
+}
+
+/* =========================
+   RIGHT SIDE SECTION
+========================= */
+.student-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    border-left: 1px solid #f0f2f6;
+}
+
+/* =========================
+   ROW 1 - NAME
+========================= */
+.student-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+/* =========================
+   ROW 2 - BASIC INFO
+========================= */
+.student-basic {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 30px;
+    margin-bottom: 12px;
+}
+
+.student-basic span {
+    background: #f5f7fb;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #374151;
+}
+
+/* =========================
+   ROW 3 - ACADEMIC BADGES
+========================= */
+.student-academic {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.student-academic span {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* =========================
+   BUTTONS - Bottom Right
+========================= */
+.action-buttons {
+    margin-top: auto;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.action-buttons button {
+    padding: 8px 18px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+/* Approve Button */
+.approve {
+    background: #16a34a;
+    color: white;
+}
+
+.approve:hover {
+    background: #15803d;
+}
+
+/* Reject Button */
+.reject {
+    background: #dc2626;
+    color: white;
+}
+
+.reject:hover {
+    background: #b91c1c;
+}
+
+
+/* =========================
+   EMPTY STATE DESIGN
+========================= */
+.empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    padding: 60px 20px;
+    border-radius: 5px;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+}
+
+.empty-icon {
+    font-size: 42px;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.empty-state p {
+    font-size: 13px;
+    color: #64748b;
+}

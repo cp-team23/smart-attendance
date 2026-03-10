@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/attendance.css">
+</head>
+
+<body>
+    <div class="main">
+        <div class="header">
+
+            <div>
+                <div class="field teacherfield">
+                    <input type="text" id="teacherName" required readonly />
+                    <label>Teacher Name</label>
+                </div>
+                <div class="field">
+                    <input type="text" id="subject" required />
+                    <label>Subject</label>
+                </div>
+                <div class="field">
+                    <input type="date" id="date" required />
+                    <label>Date</label>
+                </div>
+                <div class="field">
+                    <input type="time" id="time" required />
+                    <label>Time</label>
+                </div>
+            </div>
+            <div>
+                
+            </div>
+        </div>
+        <div class="body">
+
+            <div class="left">
+                <div class="academic" id="academic">
+
+                </div>
+
+                <div class="left-bottom">
+                    <button class="darkBtn" id="showQr">Show Qr Code</button>
+                    <button class="darkBtn" id="addAcademic">Add New Batch</button>
+                    <button class="darkBtn" id="startstop">Start Attendance</button>
+                </div>
+
+            </div>
+            <div class="student">
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="add-academic">
+
+        <div class="academic-div">
+            <div id="academic-item">
+            
+            </div>
+            <button class="darkBtn" id="add">Add</button>
+
+        </div>
+    </div>
+   <div id="qrOverlay">
+    <div class="qrBox">
+
+        <button id="closeQr">✕</button>
+
+        <canvas id="qrCanvas"></canvas>
+
+        <div class="qrControls">
+            <label>Refresh Time (sec)</label>
+            <input type="number" id="qrSpeed" min="1" value="3">
+        </div>
+
+    </div>
+</div>
+
+    <div id="app" th:data-attendance-id="${attendanceId}">
+    </div>
+
+
+
+    
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/attendance.js"></script>
+</body>
+
+</html>

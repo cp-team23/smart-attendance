@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/academic.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile" id="profile">
+                <h3 id="adminname">&nbsp;</h3>
+                <p id="admincollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li id="dashboard">Dashboard</li>
+                    <li id="addUser">Add User</li>
+                    <li id="searchUser">Search User</li>
+                    <li id="userUpdate">Update User</li>
+                    <li id="allStudent">All Students</li>
+                    <li id="allTeacher">All Teachers</li>
+                    <li id="imageChangeReq">Image Change Request</li>
+                    <li id="changeAcademic">Change Academic</li>
+                    <li id="academic" class="active">Academic</li>
+                    <li id="allAttendance">All Attendance</li>
+                    <li id="recycleBin">Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>Academic Structure</h2>
+                    <p class="subtitle">Manage and review all classes & batches</p>
+                </div>
+                <div class="header-right">
+
+                    <button class="refresh-btn" id="refreshBtn">
+                        ↻ Refresh
+                    </button>
+                </div>
+
+
+            </div>
+
+            <!-- Cards Container -->
+            <div class="cards-container" id="cardsContainer">
+                
+            </div>
+
+
+            <div class="addAcademic">
+            <div id="addAcademicTitle">
+                Add New Record
+            </div>
+            <div class="addAcademicInput">
+                <div class="field">
+                    <input type="text" id="year" required />
+                    <label>Enter Year</label>
+                </div>
+                <div class="field">
+                    <input type="text" id="branch" required />
+                    <label>Enter Branch</label>
+                </div>
+                <div class="field">
+                    <input type="text" id="sem" required />
+                    <label>Enter Semester</label>
+                </div>
+                <div class="field">
+                    <input type="text" id="className" required />
+                    <label>Enter Class Name</label>
+                </div>
+                <div class="field">
+                    <input type="text" id="batch" required />
+                    <label>Enter Batch</label>
+                </div>
+                <button class="darkBtn" id="addAcademic">Add</button>
+            </div>
+        </div>
+
+
+
+        </main>
+
+    </div>
+
+
+    <script src="/js/basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/academic.js"></script>
+</body>
+
+</html>

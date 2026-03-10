@@ -150,6 +150,7 @@ public class StudentService {
         if (expireInstant.isBefore(Instant.now())) {
             throw new CustomeException(ErrorCode.QR_EXPIRED);
         }
+
         UUID attendanceId = scanQRDto.getAttendanceId();
         String encryptedCode = scanQRDto.getEncryptedCode();
         Long expireTime = scanQRDto.getExpireTime();
@@ -170,7 +171,7 @@ public class StudentService {
         boolean exist = attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,
                 student.getAcademic().getAcademicId());
 
-        if (!exist || attendanceRecord.getAttendance().isRunning()==false) {
+        if (!exist || attendanceRecord.getAttendance().isRunning()==true) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
         if (student.getCurImage().equals("defaultimage.jpg")) {
@@ -191,7 +192,7 @@ public class StudentService {
 
         redisTemplate.opsForValue()
                 .set("qr:" + studentId, value, QR_TTL_SECONDS, TimeUnit.SECONDS);
-
+        System.out.println(ipAddress + " "+ studentId);
     }
 
     // match face
@@ -275,6 +276,7 @@ public class StudentService {
                     sard.setAttendanceTime(attendance.getAttendanceTime());
                     sard.setSubjectName(attendance.getSubjectName());
                     sard.setStatus(ar.getStatus());
+                    sard.setTeacherName(ar.getAttendance().getTeacher().getName());
                     return sard;
                 })
                 .toList();

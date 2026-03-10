@@ -94,13 +94,12 @@ async function login() {
             
             showSnackbar("Login successful", "success");
 
-            setTimeout(() => {
                 if (data.role === 'ADMIN') {
                     window.location.href = "/admin/dashboard";
                 }else if(data.role === 'TEACHER'){
                     window.location.href = "/teacher/dashboard";
                 }
-            }, 200);
+            
             
         } else {
             if (data.error === "USER_NOT_FOUND") {

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/teacher-profile.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile active" id="profile">
+                <h3 id="teachername">&nbsp;</h3>
+                <p id="teachercollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li id="dashboard">Dashboard</li>
+                    <li id="newsession">Create New Session</li>
+                    <li id="allAttendance">All Attendance</li>
+                    <li id="recycleBin">Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>View Your Profile</h2>
+                    <p class="subtitle">You can modify only Password</p>
+                </div>
+            </div>
+               
+            <form>
+                <div class="field">
+                    <input type="text" id="userId"  required readonly/>
+                    <label>teacher id</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="name" required readonly/>
+                    <label>name</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="email" required readonly/>
+                    <label>Email id</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="collegeName" class="otpClass" required readonly/>
+                    <label>college name</label>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="curpassword" required />
+                    <label>Enter Current password</label>
+                </div>
+                <div class="field">
+                    <input type="password" id="newpassword1" required />
+                    <label>Enter New password</label>
+                </div>
+                <div class="field">
+                    <input type="password" id="newpassword2" required />
+                    <label>Repeat New password</label>
+                </div>
+
+
+                <div class="actions">
+                    <button type="button" class="addBtn" id="update">Update</button>
+                </div>
+
+            </form>
+
+
+
+        </main>
+
+    </div>
+
+    
+    <script src="/js/teacher-basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/teacher-profile.js"></script>
+</body>
+
+</html>

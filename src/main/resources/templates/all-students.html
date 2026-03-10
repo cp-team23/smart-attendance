@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/all-student.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile" id="profile">
+                <h3 id="adminname">&nbsp;</h3>
+                <p id="admincollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li id="dashboard">Dashboard</li>
+                    <li id="addUser">Add User</li>
+                    <li id="searchUser">Search User</li>
+                    <li id="userUpdate">Update User</li>
+                    <li id="allStudent" class="active">All Students</li>
+                    <li id="allTeacher">All Teachers</li>
+                    <li id="imageChangeReq">Image Change Request</li>
+                    <li id="changeAcademic">Change Academic</li>
+                    <li id="academic">Academic</li>
+                    <li id="allAttendance">All Attendance</li>
+                    <li id="recycleBin">Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>All Students</h2>
+                    <p class="subtitle">Manage and review students</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" class="search-icon">
+                            <path d="M21 21l-4.35-4.35m1.6-5.4a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor"
+                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by Enrollment No...">
+                    </div>
+                    <button class="refresh-btn" onclick="loadImageRequest()">
+                        ↻ Refresh
+                    </button>
+                </div>
+
+
+            </div>
+
+            <!-- Cards Container -->
+            <div class="cards-container" id="cardsContainer">
+
+
+                <div class="academic-dit-div">
+                    <div class="field">
+                        <div class="custom-dropdown">
+                            <input type="text" id="yearInput" required readonly />
+                            <label for="yearInput">Select year</label>
+                            <ul id="yearOption" class="options"></ul>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="custom-dropdown">
+                            <input type="text" id="branchInput" required readonly />
+                            <label for="branchInput">Select branch</label>
+                            <ul id="branchOption" class="options"></ul>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="custom-dropdown">
+                            <input type="text" id="semInput" required readonly />
+                            <label for="semInput">Select semester</label>
+                            <ul id="semOption" class="options"></ul>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="custom-dropdown">
+                            <input type="text" id="classInput" required readonly />
+                            <label for="classInput">Select class</label>
+                            <ul id="classOption" class="options"></ul>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="custom-dropdown">
+                            <input type="text" id="batchInput" required readonly />
+                            <label for="batchInput">Select batch</label>
+                            <ul id="batchOption" class="options"></ul>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="contentbody">
+
+                </div>
+            </div>
+
+
+
+        </main>
+
+    </div>
+
+
+     <div id="app"
+        th:data-academic-id="${academicId}">
+    </div>
+
+    <script src="/js/basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/all-student.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Overview</title>
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/properties.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/teacher-all-attendance.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="profile" id="profile">
+                <h3 id="teachername">&nbsp;</h3>
+                <p id="teachercollegeName">&nbsp;</p>
+            </div>
+            <hr class="line">
+            <nav>
+                <ul>
+                    <li id="dashboard">Dashboard</li>
+                    <li  id="newsession">Create New Session</li>
+                    <li class="active" id="allAttendance">All Attendance</li>
+                    <li id="recycleBin">Recycle Bin</li>
+                </ul>
+            </nav>
+
+            <button class="logout" id="logout">Logout</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="page-header">
+
+                <div class="header-left">
+                    <h2>All Attendance</h2>
+                    <p class="subtitle">Manage and review all session</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" class="search-icon">
+                            <path d="M21 21l-4.35-4.35m1.6-5.4a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor"
+                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search Attendance">
+                    </div>
+                    <button class="refresh-btn" id="refreshBtn">
+                        ↻ Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="contentbody">
+
+            </div>
+
+            
+
+
+
+
+        </main>
+
+    </div>
+
+
+    <script src="/js/teacher-basic.js"></script>
+    <script src="/js/snackbar.js"></script>
+    <script src="/js/teacher-all-attendance.js"></script>
+</body>
+
+</html>

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping("/change-password")
-    public ResponseEntity<?> changePassword(UserDto userDto,Authentication authentication){
+    public ResponseEntity<?> changePassword(@RequestBody UserDto userDto,Authentication authentication){
         String adminId = authentication.getName();
         userService.changePasswordService(userDto,adminId);
         return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGED_SUCCESSFULLY"));

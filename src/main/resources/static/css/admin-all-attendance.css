@@ -1,0 +1,103 @@
+
+.contentbody{
+    height: 100%;
+    width: 102%;
+    gap:20px;
+    margin-top:10px;
+    overflow-y: auto;      /* makes it scrollable */
+    overflow-x: hidden;
+    padding-right:2%;
+}
+
+.contentbody::-webkit-scrollbar {
+    width: 6px;
+}
+
+.contentbody::-webkit-scrollbar-thumb {
+    background: var(--dark);
+    border-radius: 4px;
+}
+
+.contentbody::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+
+/* Card */
+
+.attendance-card{
+    background:white;
+    border-radius:10px;
+    padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,0.06);
+    border:1px solid var(--grey);
+    margin-bottom:10px;
+}
+
+/* Header */
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.card-header h3{
+    font-size:16px;
+    background: var(--grey);
+    padding: 5px 16px;
+    border-radius: 5px;
+}
+
+/* Status */
+
+.status{
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:6px;
+}
+
+.status.running{
+    background:#e6f9ed;
+    color:var(--success);
+}
+
+.status.stopped{
+    background:#fbeaea;
+    color:var(--error);
+}
+
+/* Body */
+
+.card-body p{
+    font-size:14px;
+    margin:4px 0;
+}
+
+/* Buttons */
+
+.card-actions{
+    display:flex;
+    justify-content:end;
+    margin-top:12px;
+}
+
+.view-btn{
+    background:var(--dark);
+    color:white;
+    border:none;
+    padding:7px 14px;
+    border-radius:5px;
+    cursor:pointer;
+    margin-right: 10px;
+}
+
+.delete-btn{
+    background:var(--error);
+    color:white;
+    border:none;
+    padding:7px 14px;
+    border-radius:5px;
+    cursor:pointer;
+}

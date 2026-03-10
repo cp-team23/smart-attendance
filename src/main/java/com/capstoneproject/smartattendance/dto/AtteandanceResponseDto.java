@@ -26,10 +26,11 @@ public class AtteandanceResponseDto  {
 
     private boolean running;
 
+    private String teacherName;
+
     private List<AcademicDto> academicDatas;
 
-    private List<StudentResponseDto> presentDatas;
-    private List<StudentResponseDto> absentDatas;
+    private List<StudentResponseDto> student;
 
 }
 

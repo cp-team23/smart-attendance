@@ -96,6 +96,12 @@ public class AdminController {
         adminService.updateStudentService(studentDto,adminId);
         return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_UPDATED_SUCCESSFULLY"));
     }
+    @PutMapping("/student/academic")
+    public ResponseEntity<?> updatestudentacademic(@RequestBody StudentDto studentDto,Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.updateStudentAcademicService(studentDto,adminId);
+        return ResponseEntity.ok(Map.of("message", "STUDENT_ACCOUNT_UPDATED_SUCCESSFULLY"));
+    }
 
     @DeleteMapping("/student/{userId}")
     public ResponseEntity<?> deleteStudent(@PathVariable String userId,Authentication authentication) throws IOException{
@@ -250,7 +256,7 @@ public class AdminController {
     @GetMapping("/all-deleted-attendance")
     public ResponseEntity<?> getAllDeletedAttendance(Authentication authentication){
         String adminId = authentication.getName();
-        List<BasicAttendanceResponseDto> response = adminService.getAllAttendanceService(adminId);
+        List<BasicAttendanceResponseDto> response = adminService.getDeletedAttendance(adminId);
         return ResponseEntity.ok(Map.of("response",response));
     }
 

@@ -1,0 +1,117 @@
+
+
+
+/* =========================
+   TEACHER CARD GRID
+========================= */
+.cards-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    width: 78vw;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+/* =========================
+   TEACHER CARD
+========================= */
+.teacher-card {
+    height:200px;
+    background: #ffffff;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    border:1px solid var(--grey);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+/* Header */
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #0f172a;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Name */
+.teacher-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.teacher-id {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Body Info */
+.card-info {
+    margin-top: 10px;
+}
+
+.info-row {
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #334155;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* Footer */
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.card-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-btn {
+    background: var(--error);
+    color: #ffffff;
+}
+
+.delete-btn:hover {
+    background:rgb(228, 121, 121);
+}
+
+.edit-btn {
+    background:var(--dark);
+    color: var(--light);
+}
+
+.edit-btn:hover {
+    background:var(--midDark);
+}

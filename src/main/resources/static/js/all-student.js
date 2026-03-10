@@ -1,7 +1,7 @@
 const app = document.getElementById("app");
 let academicId = app.dataset.academicId || null;
 
-
+const searchInput = document.getElementById("searchInput");
 
 const yearInput = document.getElementById("yearInput");
 const yearOptionsBox = document.getElementById("yearOption");
@@ -20,8 +20,6 @@ const batchOptionsBox = document.getElementById("batchOption");
 
 const contentbody = document.querySelector(".contentbody");
 
-document.getElementById("gotoDashboard").addEventListener("click", () => window.location.href = "/admin/dashboard");
-
 
 let allData = [];
 let year = [];
@@ -34,33 +32,29 @@ let batch = [];
 function showData(student) {
     let html = "";
     student.forEach(element => {
-        html += `<div class="student-card student-card-1" data-id="${element.userId}" data-en="${element.enrollmentNo}">
-                <div class="student-card-img-1">
-                    <img class="img" src="${element.curImage}">
+        html += `<div class="student-row" data-en="${element.enrollmentNo}" data-id="${element.userId}" >
+
+            <div class="student-profile">
+                <img src="${element.curImage}" alt="Student">
+                <div>
+                    <div class="student-name">${element.name}</div>
+                    <div class="det">
+                        <div class="student-email">${element.userId}</div>
+                        <div class="student-field">Enrollment: ${element.enrollmentNo}</div>
+                        <div class="student-field">Email : ${element.email}</div>
+                    </div>  
                 </div>
-                <div class="student-card-info student-card-info-1">
-                    <div class="student-card-data">
-                        <div class="student-card-data-header">
-                            <div class="userid">${element.userId}</div>
-                            <div class="year">${element.year}</div>
-                        </div>
-                        <div class="en-no data">${element.enrollmentNo}</div>
-                        <div class="email data">${element.email}</div>
-                        <div class="branch-sem">
-                            <div class="branch data">${element.branch}</div>
-                            <div class="sem data">${element.semester}</div>
-                        </div>
-                        <div class="class-batch">
-                            <div class="class-name data">${element.className}</div>
-                            <div class="batch data">${element.batch}</div>
-                        </div>
-                    </div>
-                    <div class="student-card-btn">
-                        <button class="darkBtn delete-btn">Delete</button>
-                        <button class="darkBtn update-btn">Update</button>
-                    </div>
-                </div>
-           </div>`;
+            </div>
+            <div class="student-actions">
+                <button class="update-btn" >
+                    Edit
+                </button>
+                <button class="delete-btn">
+                    Delete
+                </button>
+            </div>
+
+        </div>`;
     });
 
     contentbody.innerHTML = html;
@@ -94,6 +88,7 @@ function setBatch() {
             allData.forEach(element => {
                 if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
                     academicId = element.academicId;
+                    console.log(academicId);
                     loadStudent(academicId);
                 }
             });
@@ -263,6 +258,7 @@ async function loadStudent(academicId) {
         const data = await res.json();
         if (res.ok) {
             if (data.response.length === 0) {
+                contentbody.innerHTML = "";
                 showSnackbar("Student Not found.", "success");
             } else {
                 console.log("hello");
@@ -277,7 +273,8 @@ async function loadStudent(academicId) {
                 batchInput.value = data.response[0].batch;
                 batchInput.classList.add("filled");
             }
-            showData(data.response);
+            allStudents = data.response;
+            showData(allStudents);
         }
         else {
             showSnackbar("Something went wrong. Try again", "warning");
@@ -294,37 +291,27 @@ async function update(cardId) {
     window.location.href = "/admin/student/" + cardId;
 }
 
-async function deleteStudent(cardId) {
-    await fetch(`/api/admin/student/${cardId}`, {
-        method: "DELETE"
-    });
-    loadStudent(academicId);
-}
+
 
 
 contentbody.addEventListener("click", function (e) {
 
+    const card = e.target.closest(".student-row");
+    if (!card) return;
+
+    const enrollmentNo = card.dataset.en;
+    const studentId = card.dataset.id;
+
     if (e.target.classList.contains("update-btn")) {
-        e.stopPropagation();
-        const card = e.target.closest(".student-card");
-        const cardId = card.dataset.en;
-        update(cardId);
+        window.location.href = "/admin/user/update/student/" + enrollmentNo;
     }
 
     if (e.target.classList.contains("delete-btn")) {
-        const card = e.target.closest(".student-card");
-        const cardId = card.dataset.id;
-
-        openModal({
-            title: "Delete Student?",
-            message: "This action cannot be undone.",
-            confirmText: "Delete",
-            onConfirm: () => deleteStudent(cardId)
-        });
+        deleteStudent(studentId).then(()=> loadStudent(academicId));
     }
-
-
 });
+
+
 
 loadData().then(() => {
     setYear();
@@ -342,3 +329,21 @@ loadData().then(() => {
     }
 });
 
+searchInput.addEventListener("input", function () {
+
+    const searchValue = this.value.toLowerCase().trim();
+
+    if (!searchValue) {
+        showData(allStudents);
+        return;
+    }
+
+    const filtered = allStudents.filter(student =>
+        student.name.toLowerCase().includes(searchValue) ||
+        student.userId.toLowerCase().includes(searchValue) ||
+        student.enrollmentNo.toLowerCase().includes(searchValue) ||
+        student.email.toLowerCase().includes(searchValue)
+    );
+
+    showData(filtered);
+});

@@ -1,0 +1,80 @@
+form{
+ width: 500px;
+ margin-left: auto;
+ margin-right: auto;
+}
+
+
+/* Container */
+.academic {
+    width: 465px;
+    height: 250px;
+    gap: 12px;
+    margin-top:10px;
+    overflow-y: auto;      /* makes it scrollable */
+    overflow-x: hidden;
+    padding-right: 2px;
+}
+
+
+/* Optional nicer scrollbar */
+.academic::-webkit-scrollbar {
+    width: 6px;
+}
+
+.academic::-webkit-scrollbar-thumb {
+    background: var(--dark);
+    border-radius: 4px;
+}
+
+.academic::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+/* Each Card */
+.academic-item {
+    border: 1px solid var(--dark);
+    border-radius: 5px;
+    padding: 14px 16px;
+    transition: all 0.2s ease;
+    margin-bottom:10px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+/* Hover Effect */
+.academic-item:hover {
+    border-color: #4a90e2;
+    background-color: #f4f9ff;
+}
+
+/* Label Styling */
+.academic-item label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Hide default checkbox */
+.academic-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+/* Checked State */
+.academic-item input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color:var(--success);
+}
+
+/* Optional: Selected Card Highlight */
+.academic-item:has(input[type="checkbox"]:checked) {
+    border-color:var(--success);
+    background-color: #eaf4ff;
+}

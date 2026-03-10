@@ -1,0 +1,45 @@
+form{
+    margin-left: auto;
+    margin-right: auto;
+    width:500px;
+}
+
+.field input[readonly] + label{ 
+    top: 14px;
+    font-size: 11px;
+}
+
+
+
+.send-otp{
+    display: flex;
+    justify-content: space-between;
+    align-items:end;
+    display: none;
+    width: 463px;
+}
+.send-otp>.field{
+    width:70%;
+}
+
+.otpBtn{
+    width: 30%;
+    height: 40px;
+     border:0px;
+    border-radius: 5px;
+    background: var(--dark);
+    color: var(--light);
+}
+
+.actions{
+    margin-top:8%;
+    display: flex;
+    justify-content: center;
+}
+
+.errorbox {
+  font-size: 10px;
+  color: var(--error);
+  margin-top: 3px;
+  margin-left: 3px;
+}

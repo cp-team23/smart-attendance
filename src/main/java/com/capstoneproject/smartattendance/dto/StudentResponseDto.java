@@ -24,4 +24,5 @@ public class StudentResponseDto{
     private String batch;
     private String curImage;
     private String newImage;
+    private AttendanceStatus status;
 }

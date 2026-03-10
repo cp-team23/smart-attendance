@@ -37,5 +37,6 @@ public class AcademicDto {
     @NotBlank(message = "ALL_FIELD_REQUIRED")
     private String batch;
 
-    private int studentCount;
+    private long studentCount;
+    private long deletedStudentstudentCount;
 }

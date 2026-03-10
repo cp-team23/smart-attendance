@@ -19,7 +19,7 @@ public interface TeacherRepo extends JpaRepository<Teacher,String> {
 
     Optional<Teacher> findByUserIdAndIsDeleted(String userId, boolean isDeleted);
 
-    Teacher findByAdminAndUserIdAndIsDeletedFalseAndDeletedDateIsNull(Admin admin, String userId);
+    Optional<Teacher> findByAdminAndUserIdAndIsDeletedFalseAndDeletedDateIsNull(Admin admin, String userId);
 
        
 } 

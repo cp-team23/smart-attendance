@@ -1,62 +1,84 @@
-
-input{
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-}
-.options {
-  width:100%;
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  border: 1px solid var(--grey);
-  border-radius: 5px;
-  display: none;
-  position: absolute;
-  background: var(--light);
-  max-height: 130px;
-  overflow-y: auto;
-  z-index: 10;
-}
-
-.options li {
-  padding: 10px;
-  cursor: pointer;
-}
-
-.options li:hover {
-  background:var(--midLight);
+.page-header{
+    margin-bottom: 80px;
 }
 
 .academic-dit-div{
-
-    height:50px;
-    width:80%;
-    margin-left:30px;
-    margin-top:1%;
+    width:79%;
     display: flex;
-    justify-content: start;
+    margin-top:-70px;
+    position: fixed;
+}
+
+.student-row {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap:2%;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
 }
 
-.contentbody{
-    height:85%;
-    width:90%;
-    padding-right:5%;
-    margin-top: 1.5%;
-    margin-left: 2%;
-    padding-top: 1%;
-    overflow-y:auto;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: 20px;
-    box-sizing: border-box; 
+/* Left Section */
+.student-profile {
+    display: flex;
+    align-items:center;
+    gap: 14px;
 }
 
-
-.contentbody::-webkit-scrollbar {
-    width: 6px;
+.student-profile img {
+    width: 55px;
+    height: 65px;
+    border-radius: 8px;
+    object-fit: cover;
 }
-.contentbody::-webkit-scrollbar-thumb {
-    background:var(--dark);
-    border-radius: 5px;
+
+.student-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #111827;
+}
+
+.student-email {
+    font-size: 14px;
+    margin-top: 5px;
+    color: #6b7280;
+}
+
+/* Middle fields */
+.student-field {
+    font-size: 14px;
+    color: #374151;
+}
+
+.det{
+    display: flex;
+    align-items:end;
+    gap:20px;
+}
+
+/* Actions */
+.student-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.student-actions button {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.update-btn {
+    background: #1f2937;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
 }
