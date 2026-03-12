@@ -1,38 +1,44 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class MailSenderService {
 
-    
-    private final JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Async
     public void sendMail(String to, String subject, String body) {
-
-        if (mailSender == null) {
-            throw new CustomeException(ErrorCode.MAIL_SERVICE_NOT_AVAILABLE);
-        }
-
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + resendApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            mailSender.send(message);
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("from", "onboarding@resend.dev"); // free tier default sender
+            payload.put("to", to);
+            payload.put("subject", subject);
+            payload.put("html", body);
 
-        } catch (CustomeException e) {
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+            restTemplate.postForObject("https://api.resend.com/emails", entity, String.class);
+
+        } catch (Exception e) {
             throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
         }
     }

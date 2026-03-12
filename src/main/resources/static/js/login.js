@@ -7,7 +7,7 @@ const loginBtn = document.getElementById('loginBtn');
 const registerBtn = document.getElementById('registerBtn');
 const errorBoxId = document.getElementById('errorBoxId');
 const errorBoxPwd = document.getElementById('errorBoxPwd');
-
+const label = userId.parentElement.querySelector("label");
 let role = 'teacher';
 
 function setRole(role) {
@@ -17,6 +17,7 @@ function setRole(role) {
     if (role === 'teacher') {
         teacherBtn.classList.add('active');
         boxTitle.textContent = 'Teacher Login';
+        label.innerText = "Enter Teacher Id"
         forgotLink.style.display = 'none';
         registerBtn.style.display = 'none';
         errorBoxId.style.display = 'none'
@@ -26,6 +27,7 @@ function setRole(role) {
     } else if (role === 'admin') {
         adminBtn.classList.add('active');
         boxTitle.textContent = 'Admin Login';
+        label.innerText = "Enter Admin Id"
         forgotLink.style.display = 'inline-block';
         registerBtn.style.display = 'inline-block';
         errorBoxId.style.display = 'none'
