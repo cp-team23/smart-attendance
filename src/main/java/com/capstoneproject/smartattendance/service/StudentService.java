@@ -171,7 +171,7 @@ public class StudentService {
         boolean exist = attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,
                 student.getAcademic().getAcademicId());
 
-        if (!exist || attendanceRecord.getAttendance().isRunning()==true) {
+        if (!exist || attendanceRecord.getAttendance().isDeleted()==true) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
         if (student.getCurImage().equals("defaultimage.jpg")) {
@@ -193,6 +193,9 @@ public class StudentService {
         redisTemplate.opsForValue()
                 .set("qr:" + studentId, value, QR_TTL_SECONDS, TimeUnit.SECONDS);
         System.out.println(ipAddress + " "+ studentId);
+        attendanceRecord.setStatus(AttendanceStatus.PRESENT);
+        attendanceRecordRepo.save(attendanceRecord);
+
     }
 
     // match face

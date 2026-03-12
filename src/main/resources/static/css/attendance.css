@@ -397,8 +397,8 @@
 }
 
 #qrCanvas{
-    width:350px;
-    height:350px;
+    width:90vh;
+    height:90vh;
 }
 
 #closeQr{

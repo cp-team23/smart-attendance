@@ -358,6 +358,16 @@ async function refreshQRCode() {
         console.log(parseInt(qrSpeedInput.value));
 
         if (!response.ok) {
+            qrOverlay.style.display = "none";
+            const data = await response.json();
+            if (qrInterval) {
+                clearInterval(qrInterval);
+                qrInterval = null;
+            }
+            if(data.error==="ATTENDANCE_IS_CLOSED"){
+                showSnackbar("Please Start Attendance", "error");
+                return;
+            }
             showSnackbar("Failed to refresh QR", "error");
             return;
         }
@@ -371,7 +381,10 @@ async function refreshQRCode() {
             expireTime: qrData.expireTime
         });
 
-        QRCode.toCanvas(qrCanvas, qrPayload, { width: 350 });
+        QRCode.toCanvas(qrCanvas, qrPayload, { 
+            width: 600 ,
+            errorCorrectionLevel:'L'
+        });
 
     } catch (error) {
 
@@ -385,6 +398,7 @@ function startQrRefresh() {
 
     qrOverlay.style.display = "flex";
 
+
     refreshQRCode();
 
     if (qrInterval) clearInterval(qrInterval);
@@ -395,7 +409,7 @@ function startQrRefresh() {
 
 }
 
-qrSpeedInput.addEventListener("change", () => {
+qrSpeedInput.addEventListener("input", () => {
 
     if (qrInterval) clearInterval(qrInterval);
 
@@ -413,6 +427,7 @@ closeQr.addEventListener("click", () => {
         clearInterval(qrInterval);
         qrInterval = null;
     }
+    getAttendance();
 
 });
 

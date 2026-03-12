@@ -395,7 +395,8 @@ public class AdminService {
     }
 
     public void approveImageChangeRequestService(String adminId, String userId) throws IOException {
-        adminRepo.findById(adminId)
+        
+            adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = studentRepo.findById(userId)
@@ -420,11 +421,12 @@ public class AdminService {
         student.setCurImage(student.getNewImage());
         student.setNewImage(null);
         studentRepo.save(student);
-
+        
     }
 
     public void rejectImageChangeRequestService(String adminId, String userId) throws IOException {
-        adminRepo.findById(adminId)
+       
+            adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = studentRepo.findById(userId)
@@ -446,6 +448,7 @@ public class AdminService {
 
         student.setNewImage(null);
         studentRepo.save(student);
+        
     }
 
     public void addTeacherService(TeacherDto teacherDto, String adminId) {

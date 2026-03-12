@@ -151,6 +151,9 @@ public class TeacherService {
         if (attendance.isDeleted()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
+        if(!attendance.isRunning()){
+            throw new CustomeException(ErrorCode.ATTENDANCE_IS_CLOSED);
+        }
         long expireTime = Instant.now().plusSeconds(refreshTime).toEpochMilli();
         String key = attendance.getAttendanceKey() + expireTime;
         String encryptedCode = CryptoUtil.encrypt(attendance.getVerificationCode(), key);
@@ -255,7 +258,7 @@ public class TeacherService {
         boolean alreadyAdded = attendanceAcademicRepo
                 .existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId, academicId);
         if (!alreadyAdded) {
-            throw new CustomeException(ErrorCode.ACADEMIC_ALREADY_PRESENT);
+            throw new CustomeException(ErrorCode.ACADEMIC_NOT_PRESENT);
         }
 
         attendanceAcademicRepo.deleteByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId, academicId);

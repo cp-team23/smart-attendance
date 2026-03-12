@@ -24,8 +24,6 @@ public class FaceMatchService {
     @Value("${face-match-api.uri}")
     private String faceMatchApi;
 
-    @Value("${face-match-api-key}")
-    private String faceMatchKey;
 
     public boolean matchFaces(byte[] dbImage, byte[] liveImage) {
 
@@ -48,7 +46,6 @@ public class FaceMatchService {
         try {
             FaceMatchResponse response = webClient.post()
                     .uri(faceMatchApi)
-                    .header("X-API-KEY", faceMatchKey)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .bodyValue(body)
                     .retrieve()
