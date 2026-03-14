@@ -580,7 +580,8 @@ ul{
 
 .notfound{
     width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: large;
+    margin-top:20%;
+    padding-left:40%;
+    font-size:30px;
+    color: #64748b;
 }
