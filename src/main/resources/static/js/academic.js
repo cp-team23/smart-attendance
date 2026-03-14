@@ -26,7 +26,15 @@ async function loadData() {
         const list = data.response;
 
         let html = "";
-
+        list.sort((a, b) => {
+        return (
+            b.year.localeCompare(a.year) ||
+            a.branch.localeCompare(b.branch) ||
+            a.semester.localeCompare(b.semester) ||
+            a.className.localeCompare(b.className) ||
+            a.batch.localeCompare(b.batch)
+        );
+    });
         list.forEach(element => {
 
             html += `

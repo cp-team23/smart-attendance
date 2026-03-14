@@ -36,6 +36,7 @@ attendanceBtn.addEventListener('click', () => setRole(role = 'attendance'));
 
 function showData(student) {
     let html = "";
+    student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
     student.forEach(element => {
         html += `<div class="student-row" data-id="${element.userId}">
             <div class="student-profile">
@@ -122,6 +123,7 @@ async function recycleStudent(studentId) {
 
 function showDataTeacher(teacher) {
     let html = "";
+    teacher.sort((a, b) => a.userId.localeCompare(b.userId));
     teacher.forEach(element => {
         const initials = element.name
             .split(" ")
@@ -239,7 +241,13 @@ async function loadAttendance() {
 
 function renderAttendance(list) {
     cardsContainer.innerHTML = "";
-
+    list.sort((a, b) => {
+    return (
+        b.attendanceDate.localeCompare(a.attendanceDate) ||
+        b.attendanceTime.localeCompare(a.attendanceTime) ||
+        b.subjectName.localeCompare(a.subjectName)
+        );
+    });
     if (list.length === 0) {
         cardsContainer.innerHTML = `<p class=notfound">No attendance found</p>`;
         return;

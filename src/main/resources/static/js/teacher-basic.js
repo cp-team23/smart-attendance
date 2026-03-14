@@ -141,33 +141,43 @@ function showConfirm({
 /* =========================
    LOADER
 ========================= */
-
 function showLoader() {
     const root = document.getElementById("loader-root");
     root.innerHTML = `
         <div class="loader-overlay">
-        <div class="loader-circle">
-        <div class="loader-spin"></div>
-        </div>
+            <div class="loader-circle">
+                <svg class="loader-ring" viewBox="0 0 50 50">
+                    <circle class="ring-track" cx="25" cy="25" r="20" />
+                    <circle class="ring-spin" cx="25" cy="25" r="20" />
+                </svg>
+            </div>
         </div>`;
 }
 
 function removeLoader() {
     const root = document.getElementById("loader-root");
-    root.innerHTML = "";
+    const overlay = root.querySelector(".loader-overlay");
+    if (overlay) {
+        overlay.classList.add("fade-out");
+        setTimeout(() => { root.innerHTML = ""; }, 250);
+    } else {
+        root.innerHTML = "";
+    }
 }
 
 function showSuccess() {
     const root = document.getElementById("loader-root");
     root.innerHTML = `
         <div class="loader-overlay">
-        <div class="success-circle">
-        <svg viewBox="0 0 24 24" class="check">
-        <path d="M20 6L9 17l-5-5"></path>
-        </svg>
-        </div>
+            <div class="success-circle">
+                <svg viewBox="0 0 24 24" class="check">
+                    <path d="M20 6L9 17l-5-5" />
+                </svg>
+            </div>
         </div>`;
     setTimeout(() => {
-        root.innerHTML = "";
-    }, 1200);
+        const overlay = root.querySelector(".loader-overlay");
+        if (overlay) overlay.classList.add("fade-out");
+        setTimeout(() => { root.innerHTML = ""; }, 250);
+    }, 1000);
 }

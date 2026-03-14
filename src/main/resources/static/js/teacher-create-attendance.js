@@ -37,7 +37,15 @@ async function loadData() {
 
         const list = data.response;
         academicDiv.innerHTML = "";
-
+        list.sort((a, b) => {
+        return (
+            b.year.localeCompare(a.year) ||
+            a.branch.localeCompare(b.branch) ||
+            a.semester.localeCompare(b.semester) ||
+            a.className.localeCompare(b.className) ||
+            a.batch.localeCompare(b.batch)
+        );
+        });
         list.forEach(item => {
             const wrapper = document.createElement("div");
             wrapper.classList.add("academic-item");
@@ -107,7 +115,7 @@ async function createAttendance() {
         });
 
         const data = await res.json();
-console.log(data);
+
        if (!res.ok) {
             removeLoader();
             showSnackbar("Failed to create attendance", "error");

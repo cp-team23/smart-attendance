@@ -31,6 +31,14 @@ function renderAttendance(list) {
         return;
     }
 
+    list.sort((a, b) => {
+    return (
+        b.attendanceDate.localeCompare(a.attendanceDate) ||
+        b.attendanceTime.localeCompare(a.attendanceTime) ||
+        b.subjectName.localeCompare(a.subjectName)
+        );
+    });
+
     list.forEach(item => {
         const card = document.createElement("div");
         card.classList.add("attendance-card");

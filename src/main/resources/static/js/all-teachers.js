@@ -40,7 +40,7 @@ function renderCards(teachers) {
             .map(word => word[0])
             .join("")
             .toUpperCase();
-
+        teacher.sort((a, b) => a.userId.localeCompare(b.userId));
         cards += `
             <div class="teacher-card" data-id="${teacher.userId}">
                 <div>

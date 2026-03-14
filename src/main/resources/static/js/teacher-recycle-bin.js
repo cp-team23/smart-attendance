@@ -15,11 +15,6 @@ async function loadAttendance() {
 
         allData = data.response;
 
-        if (allData.length === 0) {
-            cardsContainer.innerHTML = "<p>No attendance found</p>";
-            removeLoader(); // 👈
-            return;
-        }
 
         renderAttendance(allData);
         removeLoader(); // 👈
@@ -37,9 +32,17 @@ function renderAttendance(list) {
     cardsContainer.innerHTML = "";
 
     if (list.length === 0) {
-        cardsContainer.innerHTML = `<p class="notfound">No attendance found</p>`;
+        cardsContainer.innerHTML = `<p class="notfound" >No attendance found</p>`;
         return;
     }
+
+     list.sort((a, b) => {
+    return (
+        b.attendanceDate.localeCompare(a.attendanceDate) ||
+        b.attendanceTime.localeCompare(a.attendanceTime) ||
+        b.subjectName.localeCompare(a.subjectName)
+        );
+    });
 
     let html = "";
     list.forEach(item => {

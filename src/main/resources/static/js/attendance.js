@@ -135,6 +135,8 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+
+
 if (role === "admin") {
     showQr.style.display = "none";
     startStopBtn.style.display = "none";
@@ -282,29 +284,63 @@ function loadAttendanceData(data) {
 
 function showStudent(student) {
     student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
-    studentContainer.innerHTML = "";
-
+    
+     present = 0;
+     absent = 0;
+     temp = "";
     student.forEach(s => {
-        studentContainer.innerHTML += `
+        s.status === "PRESENT"?present++:absent++;
+        temp += `
         <div class="student-row" data-userid="${s.userId}">
             <div class="student-main">
                 <div class="student-enroll">${s.enrollmentNo}</div>
                 <div class="student-name">${s.name}</div>
             </div>
             <div class="student-info">
-                <span>${s.className}</span>
-                <span>${s.branch}</span>
-                <span>${s.batch}</span>
-                <span>${s.semester}</span>
                 <span>${s.year}</span>
+                <span>${s.branch}</span>
+                <span>${s.semester}</span>
+                <span><b>${s.className}</b></span>
+                <span><b>${s.batch}</b></span>
             </div>
-            <div class="student-status ${s.status === "PRESENT" ? "present" : "absent"}">
+            <div class="student-status ${s.status === "PRESENT" ? "present" : "absent"}" >
                 ${s.status}
             </div>
         </div>`;
     });
 
+    const total = present + absent;
+
+    studentContainer.innerHTML = `
+    <div class="attendance-summary">
+        <div class="count-box total">
+            <span>Total</span>
+            <strong>${total}</strong>
+        </div>
+
+        <div class="count-box present">
+            <span>Present</span>
+            <strong>${present}</strong>
+        </div>
+
+        <div class="count-box absent">
+            <span>Absent</span>
+            <strong>${absent}</strong>
+        </div>
+    </div>
+    ` + temp;
+
+    
     studentRows = document.querySelectorAll(".student-row");
+
+    studentRows.forEach((row, index) => {
+        row.addEventListener("click", () => {
+            currentStudentIndex = index;
+            highlightStudentRow();
+            toggleStudentAttendance();
+        });
+    });
+
     currentStudentIndex = 0;
     highlightStudentRow();
 }

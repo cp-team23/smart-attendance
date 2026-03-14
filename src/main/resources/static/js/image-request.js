@@ -46,7 +46,7 @@ loadImageRequest();
 ========================= */
 function renderCards(data) {
     let html = "";
-
+    data.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
     data.forEach(element => {
         html += `
         <div class="approval-card"

@@ -677,3 +677,47 @@ cursor:pointer;
 @keyframes draw-check {
     to { stroke-dashoffset: 0; }
 }
+
+
+
+
+.attendance-summary{
+    display:flex;
+    justify-content: center;
+    gap:12px;
+    margin-top: 12px;
+    margin-bottom:12px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.count-box{
+    width:30%;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:14px;
+    display:flex;
+    justify-content: center;
+    align-items:center;
+    gap:6px;
+    font-weight:500;
+}
+
+.count-box strong{
+    font-size:16px;
+}
+
+.count-box.total{
+    background:#e8f1ff;
+    color:#2c5fd5;
+}
+
+.count-box.present{
+    background:#e8f7ef;
+    color:#1c8c4c;
+}
+
+.count-box.absent{
+    background:#fdeaea;
+    color:#d63a3a;
+}

@@ -258,7 +258,7 @@ function printStudents(students, side) {
         container.innerHTML = `<p class=notfound">No students found</p>`;
         return;
     }
-
+    student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
     students.forEach(element => {
         container.innerHTML += `
         <div class="student-row"

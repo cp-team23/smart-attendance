@@ -30,6 +30,7 @@ let allStudents = [];
 
 function showData(student) {
     let html = "";
+    student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
     student.forEach(element => {
         html += `<div class="student-row" data-en="${element.enrollmentNo}" data-id="${element.userId}">
             <div class="student-profile">
