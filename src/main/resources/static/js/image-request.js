@@ -1,16 +1,17 @@
 const cardsContainer = document.getElementById("cardsContainer");
 const searchInput = document.getElementById("searchInput");
 
-
 /* =========================
    LOAD DATA FROM BACKEND
 ========================= */
 async function loadImageRequest() {
+    showLoader(); // 👈
     try {
         const res = await fetch("/api/admin/all-image-change-request");
 
         if (!res.ok) {
-            console.error("Failed to fetch data");
+            removeLoader(); // 👈
+            showSnackbar("Failed to fetch requests", "error");
             return;
         }
 
@@ -24,29 +25,31 @@ async function loadImageRequest() {
                     <p>All image change requests have been processed.</p>
                 </div>
             `;
+            removeLoader(); // 👈
             return;
         }
 
         renderCards(data.response);
+        removeLoader(); // 👈
 
     } catch (err) {
         console.error("Server error:", err);
+        removeLoader(); // 👈
+        showSnackbar("Something went wrong", "error");
     }
 }
 
 loadImageRequest();
 
-
 /* =========================
    RENDER CARDS
 ========================= */
 function renderCards(data) {
-
     let html = "";
 
     data.forEach(element => {
         html += `
-        <div class="approval-card" 
+        <div class="approval-card"
              data-id="${element.userId}"
              data-enrollment="${element.enrollmentNo}">
 
@@ -84,12 +87,10 @@ function renderCards(data) {
     cardsContainer.innerHTML = html;
 }
 
-
 /* =========================
    SEARCH BY ENROLLMENT
 ========================= */
 searchInput.addEventListener("input", function () {
-
     const value = this.value.toLowerCase();
     const cards = document.querySelectorAll(".approval-card");
 
@@ -97,15 +98,12 @@ searchInput.addEventListener("input", function () {
         const enrollment = card.dataset.enrollment.toLowerCase();
         card.style.display = enrollment.includes(value) ? "flex" : "none";
     });
-
 });
-
 
 /* =========================
    APPROVE / REJECT
 ========================= */
 cardsContainer.addEventListener("click", async function (e) {
-
     const card = e.target.closest(".approval-card");
     if (!card) return;
 
@@ -113,40 +111,63 @@ cardsContainer.addEventListener("click", async function (e) {
 
     // APPROVE
     if (e.target.classList.contains("approve")) {
+        const ok = await showConfirm({
+            title: "Approve Request ?",
+            message: "Are you sure you want to approve this request? This action cannot be undone.",
+            confirmText: "Approve"
+        });
+        if (!ok) return;
+
+        showLoader(); // 👈
         try {
             const res = await fetch(`/api/admin/image-change-request/${cardId}/approve`, {
                 method: "PATCH"
             });
 
             if (res.ok) {
+                showSuccess(); // 👈
                 card.classList.add("swipe-right");
                 setTimeout(() => card.remove(), 400);
             } else {
-                alert("Approve failed");
+                removeLoader(); // 👈
+                showSnackbar("Approve failed", "error");
             }
 
         } catch (err) {
             console.error(err);
+            removeLoader(); // 👈
+            showSnackbar("Something went wrong", "error");
         }
     }
 
     // REJECT
     if (e.target.classList.contains("reject")) {
+        const ok = await showConfirm({
+            title: "Reject Request ?",
+            message: "Are you sure you want to reject this request? This action cannot be undone.",
+            confirmText: "Reject"
+        });
+        if (!ok) return; // 👈 was missing in original!
+
+        showLoader(); // 👈
         try {
             const res = await fetch(`/api/admin/image-change-request/${cardId}/reject`, {
                 method: "DELETE"
             });
 
             if (res.ok) {
+                showSuccess(); // 👈
                 card.classList.add("swipe-left");
                 setTimeout(() => card.remove(), 400);
             } else {
-                alert("Reject failed");
+                removeLoader(); // 👈
+                showSnackbar("Reject failed", "error");
             }
 
         } catch (err) {
             console.error(err);
+            removeLoader(); // 👈
+            showSnackbar("Something went wrong", "error");
         }
     }
-
 });

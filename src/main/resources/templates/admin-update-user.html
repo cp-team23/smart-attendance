@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Overview</title>
+    <title>Update User</title>
     <link rel="stylesheet" href="/css/basic.css">
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
@@ -30,10 +30,10 @@
                     <li id="userUpdate" class="active">Update User</li>
                     <li id="allStudent">All Students</li>
                     <li id="allTeacher">All Teachers</li>
-                    <li id="imageChangeReq">Image Change Request</li>
+                    <li id="imageChangeReq">Image Requests</li>
                     <li id="changeAcademic">Change Academic</li>
                     <li id="academic">Academic</li>
-                    <li id="allAttendance">All Attendance</li>
+                    <li id="allAttendance">Session History</li>
                     <li id="recycleBin">Recycle Bin</li>
                 </ul>
             </nav>
@@ -79,8 +79,8 @@
         th:data-key="${key}"
         th:data-role="${role}">
     </div>
-
-
+<div id="loader-root"></div>
+<div id="confirm-root"></div>
     <script src="/js/basic.js"></script>
     <script src="/js/snackbar.js"></script>
     <script src="/js/updateuser.js"></script>

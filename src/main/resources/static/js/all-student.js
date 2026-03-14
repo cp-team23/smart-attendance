@@ -20,20 +20,18 @@ const batchOptionsBox = document.getElementById("batchOption");
 
 const contentbody = document.querySelector(".contentbody");
 
-
 let allData = [];
 let year = [];
 let branch = [];
 let sem = [];
 let className = [];
 let batch = [];
-
+let allStudents = [];
 
 function showData(student) {
     let html = "";
     student.forEach(element => {
-        html += `<div class="student-row" data-en="${element.enrollmentNo}" data-id="${element.userId}" >
-
+        html += `<div class="student-row" data-en="${element.enrollmentNo}" data-id="${element.userId}">
             <div class="student-profile">
                 <img src="${element.curImage}" alt="Student">
                 <div>
@@ -42,41 +40,41 @@ function showData(student) {
                         <div class="student-email">${element.userId}</div>
                         <div class="student-field">Enrollment: ${element.enrollmentNo}</div>
                         <div class="student-field">Email : ${element.email}</div>
-                    </div>  
+                    </div>
                 </div>
             </div>
             <div class="student-actions">
-                <button class="update-btn" >
-                    Edit
-                </button>
-                <button class="delete-btn">
-                    Delete
-                </button>
+                <button class="update-btn">Edit</button>
+                <button class="delete-btn">Delete</button>
             </div>
-
         </div>`;
     });
-
     contentbody.innerHTML = html;
 }
 
-
 async function loadData() {
-    const res = await fetch("/api/admin/academic-structure");
-    const data = await res.json();
+    showLoader(); // 👈
+    try {
+        const res = await fetch("/api/admin/academic-structure");
+        const data = await res.json();
 
-    allData = data.response;
+        allData = data.response;
 
-    allData.forEach(element => {
-        if (!year.includes(element.year)) {
-            year.push(element.year);
-        }
-    });
+        allData.forEach(element => {
+            if (!year.includes(element.year)) {
+                year.push(element.year);
+            }
+        });
+        removeLoader(); // 👈
+    } catch (err) {
+        removeLoader(); // 👈
+        showSnackbar("Failed to load academic structure", "error");
+        throw err;
+    }
 }
 
 function setBatch() {
     batchOptionsBox.innerHTML = "";
-
     batch.forEach(item => {
         const li = document.createElement("li");
         li.textContent = item;
@@ -86,9 +84,14 @@ function setBatch() {
             batchOptionsBox.style.display = "none";
 
             allData.forEach(element => {
-                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && batchInput.value === element.batch) {
+                if (
+                    yearInput.value === element.year &&
+                    branchInput.value === element.branch &&
+                    semInput.value === element.semester &&
+                    classInput.value === element.className &&
+                    batchInput.value === element.batch
+                ) {
                     academicId = element.academicId;
-                    console.log(academicId);
                     loadStudent(academicId);
                 }
             });
@@ -97,7 +100,6 @@ function setBatch() {
     });
 }
 
-
 function setClass() {
     classOptionsBox.innerHTML = "";
     batch = [];
@@ -105,7 +107,7 @@ function setClass() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
-            if (item !== branchInput.value) {
+            if (item !== classInput.value) {
                 batchInput.value = "";
                 batchInput.classList.remove("filled");
                 batchOptionsBox.style.display = "none";
@@ -125,7 +127,7 @@ function setSem() {
         const li = document.createElement("li");
         li.textContent = item;
         li.onclick = () => {
-            if (item !== branchInput.value) {
+            if (item !== semInput.value) {
                 classInput.value = "";
                 classInput.classList.remove("filled");
                 classOptionsBox.style.display = "none";
@@ -190,11 +192,9 @@ function setYear() {
             yearInput.value = item;
             yearInput.classList.add("filled");
             yearOptionsBox.style.display = "none";
-
         };
         yearOptionsBox.appendChild(li);
     });
-
 }
 
 yearInput.onclick = () => {
@@ -215,7 +215,6 @@ branchInput.onclick = () => {
         branchOptionsBox.style.display === "block" ? "none" : "block";
 };
 
-
 semInput.onclick = () => {
     className = [];
     allData.forEach(element => {
@@ -231,7 +230,12 @@ semInput.onclick = () => {
 classInput.onclick = () => {
     batch = [];
     allData.forEach(element => {
-        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
+        if (
+            yearInput.value === element.year &&
+            branchInput.value === element.branch &&
+            semInput.value === element.semester &&
+            !className.includes(element.className)
+        ) {
             className.push(element.className);
         }
     });
@@ -241,9 +245,14 @@ classInput.onclick = () => {
 };
 
 batchInput.onclick = () => {
-
     allData.forEach(element => {
-        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && !batch.includes(element.batch)) {
+        if (
+            yearInput.value === element.year &&
+            branchInput.value === element.branch &&
+            semInput.value === element.semester &&
+            classInput.value === element.className &&
+            !batch.includes(element.batch)
+        ) {
             batch.push(element.batch);
         }
     });
@@ -253,15 +262,17 @@ batchInput.onclick = () => {
 };
 
 async function loadStudent(academicId) {
+    showLoader(); // 👈
     try {
         const res = await fetch("/api/admin/all-student/" + academicId);
         const data = await res.json();
+
         if (res.ok) {
             if (data.response.length === 0) {
-                contentbody.innerHTML = "";
-                showSnackbar("Student Not found.", "success");
+                contentbody.innerHTML = `<p class=notfound">No student found</p>`;
+                removeLoader(); // 👈
+                showSnackbar("No students found.", "warning");
             } else {
-                console.log("hello");
                 yearInput.value = data.response[0].year;
                 yearInput.classList.add("filled");
                 branchInput.value = data.response[0].branch;
@@ -272,30 +283,22 @@ async function loadStudent(academicId) {
                 classInput.classList.add("filled");
                 batchInput.value = data.response[0].batch;
                 batchInput.classList.add("filled");
-            }
-            allStudents = data.response;
-            showData(allStudents);
-        }
-        else {
-            showSnackbar("Something went wrong. Try again", "warning");
-            return;
 
+                allStudents = data.response;
+                showData(allStudents);
+                removeLoader(); // 👈
+            }
+        } else {
+            removeLoader(); // 👈
+            showSnackbar("Something went wrong. Try again", "warning");
         }
     } catch (e) {
+        removeLoader(); // 👈
         showSnackbar("Something went wrong. Try again", "error");
     }
 }
 
-
-async function update(cardId) {
-    window.location.href = "/admin/student/" + cardId;
-}
-
-
-
-
 contentbody.addEventListener("click", function (e) {
-
     const card = e.target.closest(".student-row");
     if (!card) return;
 
@@ -307,20 +310,17 @@ contentbody.addEventListener("click", function (e) {
     }
 
     if (e.target.classList.contains("delete-btn")) {
-        deleteStudent(studentId).then(()=> loadStudent(academicId));
+        deleteStudent(studentId).then(() => loadStudent(academicId));
     }
 });
-
-
 
 loadData().then(() => {
     setYear();
     if (academicId !== null) {
         loadStudent(academicId);
-    }
-    else if (allData.length > 0) {
+    } else if (allData.length > 0) {
         for (let element of allData) {
-            if(element.studentCount>0){
+            if (element.studentCount > 0) {
                 academicId = element.academicId;
                 break;
             }
@@ -330,7 +330,6 @@ loadData().then(() => {
 });
 
 searchInput.addEventListener("input", function () {
-
     const searchValue = this.value.toLowerCase().trim();
 
     if (!searchValue) {

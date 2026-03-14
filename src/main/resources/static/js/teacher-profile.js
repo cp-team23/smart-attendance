@@ -1,5 +1,3 @@
-
-
 const userId = document.getElementById('userId');
 const userName = document.getElementById('name');
 const emailInput = document.getElementById('email');
@@ -7,37 +5,53 @@ const teacherCollegeName = document.getElementById('collegeName');
 const curpassword = document.getElementById('curpassword');
 const newpassword1 = document.getElementById('newpassword1');
 const newpassword2 = document.getElementById('newpassword2');
+const updateBtn = document.getElementById("update");
 
-const updateBtn = document.getElementById("update")
-
-
-
-
+/* =========================
+   LOAD PROFILE DATA
+========================= */
 
 async function loadData() {
-    const res = await fetch("/api/teacher/my");
-    let data = await res.json();
-    if (res.ok) {
-        console.log(data);
-        userId.value = data.userId;
-        userName.value = data.name;
-        emailInput.value = data.email;
-        teacherCollegeName.value = data.collegeName;
-    }
-    else {
+    showLoader(); // 👈
+    try {
+        const res = await fetch("/api/teacher/my");
+        const data = await res.json();
+
+        if (res.ok) {
+            userId.value = data.userId;
+            userName.value = data.name;
+            emailInput.value = data.email;
+            teacherCollegeName.value = data.collegeName;
+            removeLoader(); // 👈
+        } else {
+            removeLoader(); // 👈
+            showSnackbar("Something went wrong. Try again", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        removeLoader(); // 👈
         showSnackbar("Something went wrong. Try again", "error");
     }
 }
 
 loadData();
 
+/* =========================
+   CHANGE PASSWORD
+========================= */
+
 async function changePassword() {
+    const ok = await showConfirm({
+        title: "Update Password ?",
+        message: " ",
+        confirmText: "Update"
+    });
+    if (!ok) return;
 
     const current = curpassword.value.trim();
     const newPass1 = newpassword1.value.trim();
     const newPass2 = newpassword2.value.trim();
 
-    // Validation
     if (!current || !newPass1 || !newPass2) {
         showSnackbar("All fields are required", "error");
         return;
@@ -48,13 +62,13 @@ async function changePassword() {
         return;
     }
 
+    showLoader(); // 👈
+    updateBtn.disabled = true;
 
     try {
         const res = await fetch("/api/user/change-password", {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({
                 password: current,
@@ -64,26 +78,29 @@ async function changePassword() {
         });
 
         const data = await res.json();
-        if (res.ok) {
-            showSnackbar("Password updated successfully", "success");
 
-            // Clear fields
+        if (res.ok) {
+            showSuccess(); // 👈
+            showSnackbar("Password updated successfully", "success");
             curpassword.value = "";
             newpassword1.value = "";
             newpassword2.value = "";
-
         } else {
-            if(data.error ==="WRONG_PASSWORD"){
+            removeLoader(); // 👈
+            if (data.error === "WRONG_PASSWORD") {
                 showSnackbar("Wrong Password", "error");
+            } else {
+                showSnackbar("Something went wrong", "error");
             }
-            
         }
 
     } catch (err) {
         console.error(err);
+        removeLoader(); // 👈
         showSnackbar("Something went wrong", "error");
+    } finally {
+        updateBtn.disabled = false; // 👈 always re-enable
     }
 }
 
 updateBtn.addEventListener("click", changePassword);
-

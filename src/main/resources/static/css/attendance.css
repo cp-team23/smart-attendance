@@ -21,6 +21,9 @@
     border-radius: 5px;
     border: 1px solid var(--grey);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .body {
@@ -70,13 +73,20 @@
     border-radius: 5px;
     border: 1px solid var(--grey);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    overflow-y: auto;
+}
+
+.student::-webkit-scrollbar {
+    width: 6px;
+}
+
+.student::-webkit-scrollbar-thumb {
+    background: var(--dark);
+    border-radius: 5px;
 }
 
 .field {
-    margin-top: auto;
-    margin-bottom: auto;
     margin-left: 20px;
-    margin-top: 5px;
 }
 
 
@@ -84,7 +94,6 @@
 .field input {
     width: 50%;
     padding: 11px;
-    margin-top: 14px;
     border-radius: 5px;
     border: 1px solid var(--dark);
     font-size: 14px;
@@ -96,14 +105,14 @@
 }
 
 .field {
-    width: 10%;
+    width: 15%;
     position: relative;
     display: inline-block;
     margin-right: 18px;
 }
 
 .teacherfield {
-    width: 15%;
+    width: 25%;
 }
 
 .field input {
@@ -112,7 +121,7 @@
 
 .field label {
     position: absolute;
-    top: 60%;
+    top: 45%;
     left: 10px;
     transform: translateY(-50%);
     font-size: 13px;
@@ -129,7 +138,7 @@
 .field input[readonly]+label,
 .custom-dropdown input:focus+label,
 .custom-dropdown input.filled+label {
-    top: 14px;
+    top: 1px;
     font-size: 11px;
     color: var(--dark);
 }
@@ -195,13 +204,19 @@
 
 .darkBtn {
     height: 50px;
-    width: 150px;
+    width: 130px;
     background: var(--dark);
     color: var(--light);
     border: 1px solid var(--grey);
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 15px;
     font-weight: 550;
+}
+
+.headerBtn{
+    height:40px;
+    width:100px;
+    margin-right:20px;
 }
 
 .darkBtn:hover {
@@ -332,13 +347,14 @@
 }
 
 .student-name {
-    font-weight: 600;
-    font-size: 14px;
+    color: #666;
+    font-size: 16px;
 }
 
 .student-enroll {
-    font-size: 12px;
-    color: #666;
+    font-weight: 600;
+    font-size: 18px;
+    
 }
 
 /* Other data */
@@ -365,6 +381,11 @@
 .student-status.absent {
     background: #fee2e2;
     color: #991b1b;
+}
+
+.student-row.active{
+background:rgba(43, 130, 229, 0.183);
+border-left:4px solid var(--dark);
 }
 
 
@@ -423,4 +444,236 @@
 .qrControls input{
     width:60px;
     padding:5px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 8px 14px;
+    border-radius: 10px;
+    width: 320px;
+    margin-right: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+    background: #ffffff;
+    border: 1px solid #1e293b;
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    margin-right: 8px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.search-box input::placeholder {
+    color: #94a3b8;
+}
+
+
+
+
+
+
+.confirm-overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.45);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+}
+
+.confirm-box{
+background:#fff;
+width:360px;
+padding:28px;
+border-radius:14px;
+text-align:center;
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+animation:pop .2s ease;
+}
+
+@keyframes pop{
+from{transform:scale(.9);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+.confirm-icon{
+width:46px;
+height:46px;
+margin:auto;
+border-radius:50%;
+background:#fee2e2;
+color:#dc2626;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:22px;
+margin-bottom:12px;
+}
+
+.confirm-buttons{
+display:flex;
+gap:10px;
+margin-top:20px;
+}
+
+.confirm-cancel{
+flex:1;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#e5e7eb;
+cursor:pointer;
+}
+
+.confirm-ok{
+flex:1;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#ef4444;
+color:white;
+cursor:pointer;
+}
+
+
+
+/* ===== OVERLAY ===== */
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: overlay-in 0.2s ease;
+}
+
+.loader-overlay.fade-out {
+    animation: overlay-out 0.25s ease forwards;
+}
+
+@keyframes overlay-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes overlay-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* ===== LOADER CIRCLE ===== */
+.loader-circle {
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                0 6px 20px rgba(0, 0, 0, 0.15);
+    animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== SVG RING SPINNER ===== */
+.loader-ring {
+    width: 54px;
+    height: 54px;
+    animation: rotate 1.4s linear infinite;
+}
+
+.ring-track {
+    fill: none;
+    stroke: #e8edf5;
+    stroke-width: 4;
+}
+
+.ring-spin {
+    fill: none;
+    stroke: var(--dark);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 60;
+    animation: dash 1.4s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+    0%   { stroke-dashoffset: 80; }
+    50%  { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 80; }
+}
+
+/* ===== SUCCESS CIRCLE ===== */
+.success-circle {
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                0 6px 20px rgba(0, 0, 0, 0.15);
+    animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===== CHECK ICON ===== */
+.check {
+    width: 44px;
+    height: 44px;
+    stroke: var(--dark);
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: draw-check 0.4s ease 0.15s forwards;
+}
+
+@keyframes draw-check {
+    to { stroke-dashoffset: 0; }
 }

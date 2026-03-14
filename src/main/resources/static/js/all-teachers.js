@@ -2,22 +2,24 @@ const cardsContainer = document.getElementById("cardsContainer");
 const searchInput = document.getElementById("searchInput");
 const refreshBtn = document.getElementById("refreshBtn");
 
-
 let allTeachers = [];
 
 /* =========================
    FETCH TEACHERS
 ========================= */
 async function fetchTeachers() {
+    showLoader(); // 👈
     try {
         const response = await fetch("/api/admin/all-teacher");
         const data = await response.json();
 
         allTeachers = data.response || [];
         renderCards(allTeachers);
-        console.log("done");
+        removeLoader(); // 👈
     } catch (error) {
         console.error("Error fetching teachers:", error);
+        removeLoader(); // 👈
+        showSnackbar("Failed to load teachers", "error");
     }
 }
 
@@ -25,7 +27,6 @@ async function fetchTeachers() {
    RENDER CARDS
 ========================= */
 function renderCards(teachers) {
-
     if (teachers.length === 0) {
         cardsContainer.innerHTML = "<p>No teachers found</p>";
         return;
@@ -34,7 +35,6 @@ function renderCards(teachers) {
     let cards = "";
 
     teachers.forEach(teacher => {
-
         const initials = teacher.name
             .split(" ")
             .map(word => word[0])
@@ -76,10 +76,9 @@ function renderCards(teachers) {
 }
 
 /* =========================
-   SEARCH BY USER ID
+   SEARCH
 ========================= */
 searchInput.addEventListener("input", function () {
-
     const searchValue = searchInput.value.toLowerCase();
 
     const filteredTeachers = allTeachers.filter(teacher =>
@@ -89,10 +88,10 @@ searchInput.addEventListener("input", function () {
     renderCards(filteredTeachers);
 });
 
-
-
- cardsContainer.addEventListener("click", function (e) {
-
+/* =========================
+   CARD ACTIONS
+========================= */
+cardsContainer.addEventListener("click", function (e) {
     const card = e.target.closest(".teacher-card");
     if (!card) return;
 
@@ -103,8 +102,7 @@ searchInput.addEventListener("input", function () {
     }
 
     if (e.target.classList.contains("delete-btn")) {
-        console.log("Delete:", teacherId);
-        deleteTeacher(teacherId).then(()=>fetchTeachers());
+        deleteTeacher(teacherId).then(() => fetchTeachers());
     }
 });
 

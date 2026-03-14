@@ -1,14 +1,18 @@
 const dateInput = document.getElementById("attendanceDate");
 const timeInput = document.getElementById("attendanceTime");
 const academicDiv = document.querySelector(".academic");
+const subjectInput = document.getElementById("userId");
+const updateBtn = document.getElementById("update");
+
+/* =========================
+   SET CURRENT DATE & TIME
+========================= */
 
 function setCurrentDateTime() {
     const now = new Date();
 
-    // Format date → YYYY-MM-DD
     const today = now.toISOString().split("T")[0];
 
-    // Format time → HH:MM
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const currentTime = `${hours}:${minutes}`;
@@ -19,9 +23,12 @@ function setCurrentDateTime() {
 
 setCurrentDateTime();
 
-
+/* =========================
+   LOAD ACADEMIC STRUCTURE
+========================= */
 
 async function loadData() {
+    showLoader(); // 👈
     try {
         const res = await fetch("/api/teacher/academic-structure");
         const data = await res.json();
@@ -29,27 +36,24 @@ async function loadData() {
         if (!res.ok) throw new Error("Failed");
 
         const list = data.response;
-
-        academicDiv.innerHTML = ""; // clear first
+        academicDiv.innerHTML = "";
 
         list.forEach(item => {
-
             const wrapper = document.createElement("div");
             wrapper.classList.add("academic-item");
 
             wrapper.innerHTML = `
                 <label>
-                    <input type="checkbox" 
-                           value="${item.academicId}" 
+                    <input type="checkbox"
+                           value="${item.academicId}"
                            data-year="${item.year}"
                            data-semester="${item.semester}"
                            data-branch="${item.branch}"
                            data-class="${item.className}"
                            data-batch="${item.batch}">
-                    
-                    ${item.year} | ${item.semester} | 
-                    ${item.branch} | ${item.className} | 
-                    ${item.batch} 
+                    ${item.year} | ${item.semester} |
+                    ${item.branch} | ${item.className} |
+                    ${item.batch}
                     (${item.studentCount} Students)
                 </label>
             `;
@@ -57,21 +61,22 @@ async function loadData() {
             academicDiv.appendChild(wrapper);
         });
 
+        removeLoader(); // 👈
+
     } catch (error) {
         console.error(error);
+        removeLoader(); // 👈
         showSnackbar("Failed to load academic data", "error");
     }
 }
 
 loadData();
 
-
-
-const subjectInput = document.getElementById("userId");
-const updateBtn = document.getElementById("update");
+/* =========================
+   CREATE ATTENDANCE
+========================= */
 
 async function createAttendance() {
-
     const subjectName = subjectInput.value.trim();
     const attendanceDate = dateInput.value;
     const attendaceTime = timeInput.value;
@@ -85,13 +90,13 @@ async function createAttendance() {
         return;
     }
 
-    try {
+    showLoader(); // 👈
+    updateBtn.disabled = true; // 👈 fixed typo: was .disable
 
+    try {
         const res = await fetch("/api/teacher/attendance", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({
                 subjectName,
@@ -102,19 +107,28 @@ async function createAttendance() {
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
+console.log(data);
+       if (!res.ok) {
+            removeLoader();
             showSnackbar("Failed to create attendance", "error");
             return;
         }
 
-        console.log("Attendance created:", data.attendanceId);
+        document.getElementById("form").reset();
+        setCurrentDateTime();
+        showSuccess();
+        showSnackbar("Attendance session created! Redirecting...", "success");
 
-        showSnackbar("Attendance session created", "success");
+        setTimeout(() => {
+            window.location.href = `/teacher/attendance/${data.attendanceId}`;
+        }, 1200); // after success animation finishes
 
     } catch (err) {
         console.error(err);
+        removeLoader(); // 👈
         showSnackbar("Something went wrong", "error");
+    } finally {
+        updateBtn.disabled = false; // 👈 always re-enable
     }
 }
 

@@ -25,6 +25,7 @@ import com.capstoneproject.smartattendance.dto.AttendanceDto;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.QRDto;
+import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
 import com.capstoneproject.smartattendance.service.TeacherService;
 
 import jakarta.validation.Valid;
@@ -181,5 +182,12 @@ public class TeacherController {
         String teacherId = authentication.getName();
         teacherService.restoreAttendanceService(attendanceId, teacherId);
         return ResponseEntity.ok(Map.of("response", "RESTORED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/attendance/save/{attendanceId}")
+    public ResponseEntity<?> updateAttendance(Authentication authentication, @PathVariable UUID attendanceId,@Valid @RequestBody SaveAttendanceDto saveAttendanceDto){
+        String teacherId = authentication.getName();
+        teacherService.updateAttendanceService(attendanceId,saveAttendanceDto, teacherId);
+        return ResponseEntity.ok(Map.of("response", "SAVED_SUCCESSFULLY"));
     }
 }

@@ -54,6 +54,9 @@ public class StudentService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Value("${temp.file.upload-dir}")
+    private String tempUploadDir;
+
     @Value("${app.file.base-url}")
     private String fileBaseUrl;
 
@@ -128,8 +131,6 @@ public class StudentService {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
-        
-
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
@@ -159,10 +160,10 @@ public class StudentService {
                 .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, studentId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
 
-        if(attendanceRecord.getAttendance().isDeleted()){
+        if (attendanceRecord.getAttendance().isDeleted()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
-        if(attendanceRecord.getStatus().equals(AttendanceStatus.PRESENT)){
+        if (attendanceRecord.getStatus().equals(AttendanceStatus.PRESENT)) {
             throw new CustomeException(ErrorCode.ATTENDANCE_ALREADY_MARKED);
         }
         Student student = studentRepo.findById(studentId)
@@ -171,7 +172,7 @@ public class StudentService {
         boolean exist = attendanceAcademicRepo.existsByAttendance_AttendanceIdAndAcademic_AcademicId(attendanceId,
                 student.getAcademic().getAcademicId());
 
-        if (!exist || attendanceRecord.getAttendance().isDeleted()==true) {
+        if (!exist || attendanceRecord.getAttendance().isDeleted() == true) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
         if (student.getCurImage().equals("defaultimage.jpg")) {
@@ -192,20 +193,17 @@ public class StudentService {
 
         redisTemplate.opsForValue()
                 .set("qr:" + studentId, value, QR_TTL_SECONDS, TimeUnit.SECONDS);
-        System.out.println(ipAddress + " "+ studentId);
-        attendanceRecord.setStatus(AttendanceStatus.PRESENT);
-        attendanceRecordRepo.save(attendanceRecord);
-
     }
 
     // match face
-    public void scanFaceService(UUID attendanceId, String studentId, String ipAddress, MultipartFile liveImage) throws IOException {
-        if(liveImage.isEmpty() || attendanceId==null){
+    public void scanFaceService(UUID attendanceId, String studentId, String ipAddress, MultipartFile liveImage)
+            throws IOException {
+        if (liveImage.isEmpty() || attendanceId == null) {
             throw new CustomeException(ErrorCode.ALL_FIELD_REQUIRED);
         }
 
         String value = redisTemplate.opsForValue().get("qr:" + studentId);
-        
+
         if (value == null) {
             throw new CustomeException(ErrorCode.QR_EXPIRED);
         }
@@ -221,11 +219,12 @@ public class StudentService {
             throw new CustomeException(ErrorCode.INVALID_FILE_TYPE);
         }
 
-        AttendanceRecord attendanceRecord = attendanceRecordRepo.findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, studentId)
-                            .orElseThrow(()-> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+        AttendanceRecord attendanceRecord = attendanceRecordRepo
+                .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, studentId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
 
         Student student = studentRepo.findById(studentId)
-                            .orElseThrow(()-> new CustomeException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         String[] parts = value.split("\\|");
 
@@ -242,17 +241,27 @@ public class StudentService {
         } catch (IllegalArgumentException e) {
             throw new CustomeException(ErrorCode.INVALID_QR_DATA);
         }
-        
-        if(!attendanceId.equals(qrAttendanceId) || !ipAddress.equals(qrIpAddress)){
+
+        if (!attendanceId.equals(qrAttendanceId) || !ipAddress.equals(qrIpAddress)) {
             throw new CustomeException(ErrorCode.SCAN_QR_AGAIN);
         }
 
         Path path = Paths.get(uploadDir).resolve(student.getCurImage()).normalize();
 
+
         byte[] dbImage = Files.readAllBytes(path);
         byte[] liveImageBytes = liveImage.getBytes();
 
         boolean matched = faceMatchService.matchFaces(dbImage, liveImageBytes);
+
+        Path uploadPath = Paths.get(tempUploadDir).toAbsolutePath().normalize();
+        Files.createDirectories(uploadPath);
+
+        // new image
+        String fileName = "temp_" + UUID.randomUUID() + "_" + studentId + ".jpg";
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(liveImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
 
         if (!matched) {
             throw new CustomeException(ErrorCode.FACE_NOT_MATCHED);

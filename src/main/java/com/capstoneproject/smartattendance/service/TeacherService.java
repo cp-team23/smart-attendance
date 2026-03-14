@@ -19,6 +19,7 @@ import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.QRDto;
+import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Attendance;
@@ -104,6 +105,9 @@ public class TeacherService {
 
             for (Student student : students) {
                 AttendanceRecord record = new AttendanceRecord();
+                if(student.isDeleted()){
+                    continue;
+                }
                 record.setAttendance(attendace);
                 record.setStudent(student);
                 record.setStatus(AttendanceStatus.ABSENT); // default
@@ -151,7 +155,7 @@ public class TeacherService {
         if (attendance.isDeleted()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
-        if(!attendance.isRunning()){
+        if (!attendance.isRunning()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_IS_CLOSED);
         }
         long expireTime = Instant.now().plusSeconds(refreshTime).toEpochMilli();
@@ -177,6 +181,46 @@ public class TeacherService {
                 .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
 
         attendance.setRunning(false);
+        attendanceRepo.save(attendance);
+    }
+
+    public void updateAttendanceService(UUID attendanceId, SaveAttendanceDto saveAttendanceDto, String teacherId) {
+        teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Attendance attendance = attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+        if (attendance.isDeleted()) {
+            throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
+        }
+        attendance.setAttendanceDate(saveAttendanceDto.getAttendanceDate());
+        attendance.setAttendanceTime(saveAttendanceDto.getAttendanceTime());
+        attendance.setSubjectName(saveAttendanceDto.getSubjectName());
+
+        if (saveAttendanceDto.getPresentList() != null) {
+
+            for (String userId : saveAttendanceDto.getPresentList()) {
+
+                AttendanceRecord record = attendanceRecordRepo
+                        .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, userId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+                record.setStatus(AttendanceStatus.PRESENT);
+            }
+        }
+
+        if (saveAttendanceDto.getAbsentList() != null) {
+
+            for (String userId : saveAttendanceDto.getAbsentList()) {
+
+                AttendanceRecord record = attendanceRecordRepo
+                        .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, userId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+                record.setStatus(AttendanceStatus.ABSENT);
+            }
+        }
+
         attendanceRepo.save(attendance);
     }
 
@@ -311,7 +355,7 @@ public class TeacherService {
         Attendance attendance = attendanceRepo.findByAttendanceIdAndTeacher_UserId(attendanceId, teacherId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
 
-        if(attendance.isDeleted()){
+        if (attendance.isDeleted()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
         // ✅ Fetch AttendanceRecord (has both Student + status)
@@ -364,7 +408,8 @@ public class TeacherService {
                     res.setDeletedStudentstudentCount(deletedCount);
                     res.setStudentCount(activeCount);
 
-                    return res;})
+                    return res;
+                })
                 .toList());
 
         return response;

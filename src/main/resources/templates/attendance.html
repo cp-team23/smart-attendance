@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Attendance</title>
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
     <link rel="stylesheet" href="/css/attendance.css">
@@ -14,27 +14,36 @@
     <div class="main">
         <div class="header">
 
-            <div>
-                <div class="field teacherfield">
-                    <input type="text" id="teacherName" required readonly />
-                    <label>Teacher Name</label>
+                <div>
+                    <div class="field teacherfield">
+                        <input type="text" id="teacherName" required readonly />
+                        <label>Teacher Name</label>
+                    </div>
+                    <div class="field">
+                        <input type="text" id="subject" required />
+                        <label>Subject</label>
+                    </div>
+                    <div class="field">
+                        <input type="date" id="date" required />
+                        <label>Date</label>
+                    </div>
+                    <div class="field">
+                        <input type="time" id="time" required />
+                        <label>Time</label>
+                    </div>
                 </div>
-                <div class="field">
-                    <input type="text" id="subject" required />
-                    <label>Subject</label>
+                <div class="header-right">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" class="search-icon">
+                            <path d="M21 21l-4.35-4.35m1.6-5.4a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor"
+                                stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by Enrollment No...">
+                    </div>
+                    <button class="darkBtn headerBtn" onclick="getAttendance()">↻ Refresh</button>
+                    <button class="darkBtn headerBtn" id="backBtn">Back</button>
+                    <button class="darkBtn headerBtn" id="saveBtn">Save</button>
                 </div>
-                <div class="field">
-                    <input type="date" id="date" required />
-                    <label>Date</label>
-                </div>
-                <div class="field">
-                    <input type="time" id="time" required />
-                    <label>Time</label>
-                </div>
-            </div>
-            <div>
-                
-            </div>
         </div>
         <div class="body">
 
@@ -47,6 +56,7 @@
                     <button class="darkBtn" id="showQr">Show Qr Code</button>
                     <button class="darkBtn" id="addAcademic">Add New Batch</button>
                     <button class="darkBtn" id="startstop">Start Attendance</button>
+                    <button class="darkBtn" id="dowloadEXL">Dowload Excel</button>
                 </div>
 
             </div>
@@ -89,6 +99,9 @@
 
     
 </div>
+<div id="loader-root"></div>
+<div id="confirm-root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script src="/js/snackbar.js"></script>
     <script src="/js/attendance.js"></script>

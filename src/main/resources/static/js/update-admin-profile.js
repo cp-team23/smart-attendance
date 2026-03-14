@@ -1,53 +1,63 @@
-
-
 const userId = document.getElementById('userId');
 const userName = document.getElementById('name');
 const emailInput = document.getElementById('email');
 const otp = document.getElementById('otp');
 const adminCollegeName = document.getElementById('collegeName');
 const password = document.getElementById('password');
-
 const sendOtpBox = document.getElementById("sendOtpBox");
-
-const updateBtn = document.getElementById("update")
-
+const updateBtn = document.getElementById("update");
 const errorBoxOtp = document.getElementById('errorBoxOtp');
 const otpBtn = document.getElementById('otpBtn');
 
-
-
 let interval = null;
 
-
+/* =========================
+   LOAD PROFILE DATA
+========================= */
 
 async function loadData() {
-    const res = await fetch("/api/admin/my");
-    let data = await res.json();
-    data = data.response;
-    if (res.ok) {
-        console.log(data);
-        userId.value = data.userId;
-        userName.value = data.name;
-        emailInput.value = data.email;
-        adminCollegeName.value = data.collegeName;
-    }
-    else {
+    showLoader(); // 👈
+    try {
+        const res = await fetch("/api/admin/my");
+        let data = await res.json();
+        data = data.response;
+
+        if (res.ok) {
+            userId.value = data.userId;
+            userName.value = data.name;
+            emailInput.value = data.email;
+            adminCollegeName.value = data.collegeName;
+            removeLoader(); // 👈
+        } else {
+            removeLoader(); // 👈
+            showSnackbar("Something went wrong. Try again", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        removeLoader(); // 👈
         showSnackbar("Something went wrong. Try again", "error");
     }
 }
 
 loadData();
 
+/* =========================
+   EMAIL CHANGE → SHOW OTP BOX
+========================= */
+
 emailInput.addEventListener("change", () => {
     sendOtpBox.style.display = 'flex';
 });
 
-function startOtpTimer(durationInSeconds = 120) {
+/* =========================
+   OTP TIMER
+========================= */
 
+function startOtpTimer(durationInSeconds = 120) {
     let timer = durationInSeconds;
     errorBoxOtp.style.display = 'inline';
-    errorBoxOtp.style.fontSize = "10px";     // increase text size
-    errorBoxOtp.style.marginTop = "3px";    // top margin
+    errorBoxOtp.style.fontSize = "10px";
+    errorBoxOtp.style.marginTop = "3px";
     errorBoxOtp.style.marginBottom = "1px";
 
     interval = setInterval(() => {
@@ -65,17 +75,15 @@ function startOtpTimer(durationInSeconds = 120) {
     }, 1000);
 }
 
+/* =========================
+   SEND OTP
+========================= */
 
-// --------------------- SEND OTP ---------------------
 otpBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
+    if (!email) return;
 
-    if (email === "") {
-
-        return;
-    }
-
-    otpBtn.textContent = "Sending...";
+    showLoader(); // 👈
     otpBtn.disabled = true;
 
     try {
@@ -88,28 +96,39 @@ otpBtn.addEventListener('click', async () => {
         const data = await response.json();
 
         if (response.ok) {
-            errorBoxOtp.style.display = "none";
+            removeLoader(); // 👈 (no success animation — OTP send is not a final action)
             otpBtn.textContent = "Resend OTP";
+            errorBoxOtp.style.display = "none";
             showSnackbar("OTP sent successfully", "success");
             clearInterval(interval);
             startOtpTimer();
         } else {
-            showSnackbar("Failed to send OTP. Try again 2 ", "warning");
+            removeLoader(); // 👈
             otpBtn.textContent = "Send OTP";
+            showSnackbar("Failed to send OTP. Try again", "warning");
         }
+
     } catch (err) {
-        console.log(err);
-        showSnackbar("Failed to send OTP. Try again 3", "warning");
+        console.error(err);
+        removeLoader(); // 👈
         otpBtn.textContent = "Send OTP";
+        showSnackbar("Failed to send OTP. Try again", "warning");
     }
 
     otpBtn.disabled = false;
 });
 
+/* =========================
+   UPDATE PROFILE
+========================= */
 
-//REGISTER
 updateBtn.addEventListener('click', async () => {
-
+    const ok = await showConfirm({
+        title: "Update Profile ?",
+        message: "Are you sure you want to update profile?",
+        confirmText: "Update"
+    });
+    if (!ok) return;
 
     const userData = {
         userId: userId.value.trim(),
@@ -120,50 +139,37 @@ updateBtn.addEventListener('click', async () => {
         otp: otp.value.trim()
     };
 
-    // validations
-    if (!userData.userId) {
-        showSnackbar("Don't change user id", "warning");
-        return;
-    }
-    if (!userData.name) {
-        showSnackbar("Fill name", "warning");
-        return;
-    } if (!userData.email) {
-        showSnackbar("Fill email", "warning");
-        return;
-    } if (!userData.collegeName) {
-        showSnackbar("Fill College name", "warning");
-        return;
-    } if (!userData.password) {
-        showSnackbar("Confirm with your password", "warning");
-        return;
-    }
-    updateBtn.textContent = "Updating...";
+    // Validations before loader
+    if (!userData.userId) return showSnackbar("Don't change user id", "warning");
+    if (!userData.name) return showSnackbar("Fill name", "warning");
+    if (!userData.email) return showSnackbar("Fill email", "warning");
+    if (!userData.collegeName) return showSnackbar("Fill College name", "warning");
+    if (!userData.password) return showSnackbar("Confirm with your password", "warning");
+
+    showLoader(); // 👈
     updateBtn.disabled = true;
 
     try {
         const response = await fetch('/api/admin/update', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         });
 
-        console.log(userData);
         const data = await response.json();
-        console.log(response);
 
         if (response.ok) {
-            showSnackbar("Updated successfull", "success");
+            showSuccess(); // 👈
+            showSnackbar("Updated successfully", "success");
             sessionStorage.clear();
         } else {
+            removeLoader(); // 👈
             switch (data.error) {
                 case "EMAIL_NOT_AVAILABLE":
                     showSnackbar("Please try different email", "error");
                     break;
                 case "OTP_EXPIRED":
-                    showSnackbar("OTP expired! please send again", "error");
+                    showSnackbar("OTP expired! Please send again", "error");
                     break;
                 case "OTP_INVALID":
                     showSnackbar("Wrong OTP", "error");
@@ -177,11 +183,10 @@ updateBtn.addEventListener('click', async () => {
         }
 
     } catch (err) {
+        console.error(err);
+        removeLoader(); // 👈
         showSnackbar("Something went wrong. Try again", "error");
+    } finally {
+        updateBtn.disabled = false; // 👈 always re-enable
     }
-
-    updateBtn.textContent = "Update";
-    updateBtn.disabled = false;
 });
-
-

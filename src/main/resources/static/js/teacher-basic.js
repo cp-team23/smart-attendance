@@ -3,52 +3,43 @@
 ========================= */
 const routes = {
     dashboard: "/teacher/dashboard",
-    newsession:"/teacher/attendance/new",
+    newsession: "/teacher/attendance/new",
     profile: "/teacher/profile",
-    allAttendance:"/teacher/all-attendance",
-    recycleBin:"/teacher/recycle-bin"
+    allAttendance: "/teacher/all-attendance",
+    recycleBin: "/teacher/recycle-bin"
 };
-
 
 /* =========================
    SIDEBAR CLICK HANDLER
 ========================= */
 Object.keys(routes).forEach(id => {
-
     const element = document.getElementById(id);
     if (!element) return;
 
     element.addEventListener("click", () => {
-
-        // Normal static routes
         if (typeof routes[id] === "string") {
             window.location.href = routes[id];
         }
     });
-
 });
 
-
 /* =========================
-   ADMIN PROFILE LOAD
+   TEACHER PROFILE LOAD
 ========================= */
 
 const nameData = document.getElementById("teachername");
 const collegeName = document.getElementById("teachercollegeName");
 
 async function loadTeacherProfile() {
-
     const cached = sessionStorage.getItem("teacherProfile");
 
     if (cached && cached !== "undefined" && cached !== "null") {
         try {
             const data = JSON.parse(cached);
-
             if (nameData && collegeName) {
                 nameData.innerHTML = data.name;
                 collegeName.innerHTML = data.collegeName;
             }
-
             return;
         } catch (e) {
             console.warn("Invalid cached JSON, clearing...");
@@ -62,7 +53,7 @@ async function loadTeacherProfile() {
         if (!res.ok) throw new Error("Failed to load profile");
 
         const json = await res.json();
-        const data = json.response ?? json; // supports both formats
+        const data = json.response ?? json;
 
         sessionStorage.setItem("teacherProfile", JSON.stringify(data));
 
@@ -79,14 +70,12 @@ async function loadTeacherProfile() {
 
 loadTeacherProfile();
 
-
 /* =========================
    LOGOUT
 ========================= */
 
 document.getElementById("logout")?.addEventListener("click", async () => {
-    console.log("hello");
-
+    showLoader(); // 👈
     try {
         const response = await fetch('/api/auth/logout', {
             method: 'POST',
@@ -94,13 +83,91 @@ document.getElementById("logout")?.addEventListener("click", async () => {
         });
 
         if (response.ok) {
-            sessionStorage.clear();
-            window.location.href = "/auth/login";
+            showSuccess(); // 👈
+            setTimeout(() => {
+                sessionStorage.clear();
+                window.location.href = "/auth/login";
+            }, 1200); // wait for success animation
         } else {
+            removeLoader(); // 👈
             showSnackbar("Logout failed", "error");
         }
 
     } catch (error) {
+        removeLoader(); // 👈
         showSnackbar("Something went wrong", "error");
     }
 });
+
+/* =========================
+   CONFIRM DIALOG
+========================= */
+
+function showConfirm({
+    icon = "!",
+    title = "Confirm Action",
+    message = "Are you sure you want to continue?",
+    confirmText = "Confirm",
+    cancelText = "Cancel"
+} = {}) {
+    return new Promise((resolve) => {
+        const root = document.getElementById("confirm-root");
+
+        root.innerHTML = `
+        <div class="confirm-overlay">
+            <div class="confirm-box">
+                <div class="confirm-icon">${icon}</div>
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="confirm-buttons">
+                    <button class="confirm-cancel">${cancelText}</button>
+                    <button class="confirm-ok">${confirmText}</button>
+                </div>
+            </div>
+        </div>`;
+
+        root.querySelector(".confirm-cancel").onclick = () => {
+            root.innerHTML = "";
+            resolve(false);
+        };
+
+        root.querySelector(".confirm-ok").onclick = () => {
+            root.innerHTML = "";
+            resolve(true);
+        };
+    });
+}
+
+/* =========================
+   LOADER
+========================= */
+
+function showLoader() {
+    const root = document.getElementById("loader-root");
+    root.innerHTML = `
+        <div class="loader-overlay">
+        <div class="loader-circle">
+        <div class="loader-spin"></div>
+        </div>
+        </div>`;
+}
+
+function removeLoader() {
+    const root = document.getElementById("loader-root");
+    root.innerHTML = "";
+}
+
+function showSuccess() {
+    const root = document.getElementById("loader-root");
+    root.innerHTML = `
+        <div class="loader-overlay">
+        <div class="success-circle">
+        <svg viewBox="0 0 24 24" class="check">
+        <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+        </div>
+        </div>`;
+    setTimeout(() => {
+        root.innerHTML = "";
+    }, 1200);
+}

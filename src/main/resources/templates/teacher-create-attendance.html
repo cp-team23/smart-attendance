@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Overview</title>
+    <title>Create Session</title>
     <link rel="stylesheet" href="/css/basic.css">
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
@@ -27,7 +27,7 @@
                 <ul>
                     <li id="dashboard">Dashboard</li>
                     <li class="active" id="newsession">Create New Session</li>
-                    <li id="allAttendance">All Attendance</li>
+                    <li id="allAttendance">Session History</li>
                     <li id="recycleBin">Recycle Bin</li>
                 </ul>
             </nav>
@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <form>
+            <form id="form">
                 <div class="field">
                     <input type="text" id="userId" required />
                     <label>Enter Subject Name</label>
@@ -79,7 +79,8 @@
 
     </div>
 
-
+<div id="confirm-root"></div>
+<div id="loader-root"></div>
     <script src="/js/teacher-basic.js"></script>
     <script src="/js/snackbar.js"></script>
     <script src="/js/teacher-create-attendance.js"></script>

@@ -20,16 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
+import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.dto.TeacherDto;
+import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
 
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.Attendance;
+import com.capstoneproject.smartattendance.entity.AttendanceRecord;
 import com.capstoneproject.smartattendance.entity.Teacher;
 import com.capstoneproject.smartattendance.entity.Student;
 
@@ -38,6 +41,7 @@ import com.capstoneproject.smartattendance.exception.ErrorCode;
 
 import com.capstoneproject.smartattendance.repository.AcademicRepo;
 import com.capstoneproject.smartattendance.repository.AdminRepo;
+import com.capstoneproject.smartattendance.repository.AttendanceRecordRepo;
 import com.capstoneproject.smartattendance.repository.AttendanceRepo;
 import com.capstoneproject.smartattendance.repository.StudentRepo;
 import com.capstoneproject.smartattendance.repository.TeacherRepo;
@@ -57,6 +61,8 @@ public class AdminService {
     private final TeacherRepo teacherRepo;
 
     private final AcademicRepo academicRepo;
+
+    private final AttendanceRecordRepo attendanceRecordRepo;
 
     private final ModelMapper modelMapper;
 
@@ -497,6 +503,8 @@ public class AdminService {
 
     }
 
+
+
     public void deleteTeacherService(String userId, String adminId) {
 
         Teacher teacher = teacherRepo.findById(userId)
@@ -793,6 +801,49 @@ public class AdminService {
                 })
                 .toList();
         return response;
+    }
+
+    public void updateAttendanceService(UUID attendanceId,SaveAttendanceDto saveAttendanceDto,String adminId){
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+        
+        Attendance attendance = attendanceRepo.findById(attendanceId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
+        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+            throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
+        if(attendance.isDeleted()){
+           throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
+        }
+        attendance.setAttendanceDate(saveAttendanceDto.getAttendanceDate());
+        attendance.setAttendanceTime(saveAttendanceDto.getAttendanceTime());
+        attendance.setSubjectName(saveAttendanceDto.getSubjectName());
+
+        if (saveAttendanceDto.getPresentList() != null) {
+
+            for (String userId : saveAttendanceDto.getPresentList()) {
+
+                AttendanceRecord record = attendanceRecordRepo
+                        .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, userId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+                record.setStatus(AttendanceStatus.PRESENT);
+            }
+        }
+
+        if (saveAttendanceDto.getAbsentList() != null) {
+
+            for (String userId : saveAttendanceDto.getAbsentList()) {
+
+                AttendanceRecord record = attendanceRecordRepo
+                        .findByAttendance_AttendanceIdAndStudent_UserId(attendanceId, userId)
+                        .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+                record.setStatus(AttendanceStatus.ABSENT);
+            }
+        }
+
+        attendanceRepo.save(attendance);
+        attendanceRepo.save(attendance);
     }
 
     public void restoreAttendanceService(UUID attendanceId, String adminId) {
