@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
-import com.capstoneproject.smartattendance.dto.AdminDashboardDto;
 // import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceDto;
