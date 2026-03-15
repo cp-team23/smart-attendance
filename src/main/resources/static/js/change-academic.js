@@ -255,10 +255,10 @@ function printStudents(students, side) {
     container.innerHTML = "";
 
     if (!students || students.length === 0) {
-        container.innerHTML = `<p class=notfound">No students found</p>`;
+        container.innerHTML = `<p class="notfound">No students found</p>`;
         return;
     }
-    student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
+    students.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
     students.forEach(element => {
         container.innerHTML += `
         <div class="student-row"

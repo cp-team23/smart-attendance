@@ -88,7 +88,14 @@ loadAdminProfile();
 ========================= */
 
 document.getElementById("logout")?.addEventListener("click", async () => {
+    const ok = await showConfirm({
+        title: "Logout ?",
+        message: `Are you sure you want logout ?.`,
+        confirmText: "Logout"
+    });
+    if (!ok) return;
     showLoader(); // 👈
+    
     try {
         const response = await fetch('/api/auth/logout', {
             method: 'POST',
@@ -99,7 +106,7 @@ document.getElementById("logout")?.addEventListener("click", async () => {
             showSuccess(); // 👈 brief flash before redirect
             setTimeout(() => {
                 sessionStorage.clear();
-                window.location.href = "/auth/login";
+                window.location.href = "/login";
             }, 1200); // wait for success animation to finish
         } else {
             removeLoader(); // 👈
@@ -266,3 +273,60 @@ function showSuccess() {
         setTimeout(() => { root.innerHTML = ""; }, 250);
     }, 1000);
 }
+
+/* =========================
+   MOBILE SIDEBAR TOGGLE
+========================= */
+
+(function () {
+    // Inject hamburger button + overlay if not already in DOM
+    function initMobileSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const container = document.querySelector('.container');
+        if (!sidebar || !container) return;
+
+        // Create hamburger button
+        if (!document.querySelector('.menu-toggle')) {
+            const btn = document.createElement('button');
+            btn.className = 'menu-toggle';
+            btn.setAttribute('aria-label', 'Open menu');
+            btn.innerHTML = '<img src="/assets/icons/menu.svg" alt="menu">';
+            document.body.appendChild(btn);
+            btn.addEventListener('click', openSidebar);
+        }
+
+        // Create overlay
+        if (!document.querySelector('.sidebar-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', closeSidebar);
+        }
+    }
+
+    function openSidebar() {
+        document.querySelector('.sidebar')?.classList.add('open');
+        document.querySelector('.sidebar-overlay')?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        document.querySelector('.sidebar')?.classList.remove('open');
+        document.querySelector('.sidebar-overlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close sidebar when any nav item is clicked (mobile UX)
+    function bindNavClose() {
+        document.querySelectorAll('nav ul li').forEach(li => {
+            li.addEventListener('click', () => {
+                if (window.innerWidth <= 767) closeSidebar();
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMobileSidebar();
+        bindNavClose();
+    });
+})();

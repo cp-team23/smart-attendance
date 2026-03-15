@@ -33,8 +33,9 @@ async function loadData() {
             a.semester.localeCompare(b.semester) ||
             a.className.localeCompare(b.className) ||
             a.batch.localeCompare(b.batch)
-        );
-    });
+            );
+        });
+
         list.forEach(element => {
 
             html += `

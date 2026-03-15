@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,9 @@ import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.QRDto;
 import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
+import com.capstoneproject.smartattendance.dto.SessionDto;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
+import com.capstoneproject.smartattendance.dto.TeacherDashboardDto;
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Attendance;
 import com.capstoneproject.smartattendance.entity.AttendanceAcademic;
@@ -105,7 +108,7 @@ public class TeacherService {
 
             for (Student student : students) {
                 AttendanceRecord record = new AttendanceRecord();
-                if(student.isDeleted()){
+                if (student.isDeleted()) {
                     continue;
                 }
                 record.setAttendance(attendace);
@@ -339,7 +342,24 @@ public class TeacherService {
         List<BasicAttendanceResponseDto> response = attendances
                 .stream()
                 .filter(a -> !a.isDeleted())
-                .map(a -> modelMapper.map(a, BasicAttendanceResponseDto.class))
+                .map(a -> {
+
+                    BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+
+                    temp.setTeacherName(a.getTeacher().getName());
+
+                    int total = a.getAttendanceRecords().size();
+
+                    int present = (int) a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    temp.setTotalStudentCount(total);
+                    temp.setPresentStudentCount(present);
+
+                    return temp;
+                })
                 .toList();
         return response;
     }
@@ -564,8 +584,20 @@ public class TeacherService {
         List<BasicAttendanceResponseDto> response = teacher.getAttendance()
                 .stream()
                 .filter(a -> a.isDeleted())
-                .map(a -> modelMapper.map(a, BasicAttendanceResponseDto.class))
-                .toList();
+                .map(a -> {
+                    BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+                    int total = a.getAttendanceRecords().size();
+
+                    int present = (int) a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    temp.setTotalStudentCount(total);
+                    temp.setPresentStudentCount(present);
+                    return temp;
+                })
+                .collect(Collectors.toList());
         return response;
     }
 
@@ -582,6 +614,75 @@ public class TeacherService {
         attendance.setDeleted(false);
         attendance.setDeletedDate(null);
         attendanceRepo.save(attendance);
+    }
+
+    public TeacherDashboardDto getAdminDashboardService(String teacherId, int days) {
+
+        Teacher teacher = teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        List<Attendance> attendances = teacher.getAttendance();
+
+        List<Attendance> activeAttendances = attendances.stream()
+                .filter(a -> !a.isDeleted())
+                .collect(Collectors.toList());
+
+        int totalSession = activeAttendances.size();
+
+        int activeSession = (int) activeAttendances.stream()
+                .filter(Attendance::isRunning)
+                .count();
+
+        // calculate average attendance
+        double avgAttendance = activeAttendances.stream()
+                .mapToDouble(a -> {
+
+                    int total = a.getAttendanceRecords().size();
+
+                    long present = a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    return total == 0 ? 0 : (present * 100.0) / total;
+
+                })
+                .average()
+                .orElse(0);
+
+        LocalDate fromDate = LocalDate.now().minusDays(days);
+
+        List<SessionDto> sessions = activeAttendances.stream()
+                .filter(a -> !a.getAttendanceDate().isBefore(fromDate))
+                .map(a -> {
+
+                    int total = a.getAttendanceRecords().size();
+
+                    long present = a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    double percentage = total == 0 ? 0 : (present * 100.0) / total;
+
+                    SessionDto dto = new SessionDto();
+                    dto.setDate(a.getAttendanceDate());
+                    dto.setSubjectName(a.getSubjectName());
+                    dto.setAttendancePercentage(percentage);
+
+                    return dto;
+
+                })
+                .collect(Collectors.toList());
+
+        TeacherDashboardDto response = new TeacherDashboardDto();
+
+        response.setTotalSession(totalSession);
+        response.setActiveSession(activeSession);
+        response.setAvgAttendance((float) avgAttendance);
+        response.setSessions(sessions);
+
+        return response;
     }
 
 }

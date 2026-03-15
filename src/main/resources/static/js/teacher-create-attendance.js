@@ -115,7 +115,7 @@ async function createAttendance() {
         });
 
         const data = await res.json();
-
+console.log(data);
        if (!res.ok) {
             removeLoader();
             showSnackbar("Failed to create attendance", "error");

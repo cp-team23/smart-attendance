@@ -11,7 +11,7 @@ const loginBtn = document.getElementById('submitBtn');
 const registerBtn = document.getElementById('registerBtn');
 
 const errorBoxUserId = document.getElementById('errorBoxUserId');
-const errorBoxName= document.getElementById('errorBoxName');
+const errorBoxName = document.getElementById('errorBoxName');
 const errorBoxEmail = document.getElementById('errorBoxEmail');
 const errorBoxOtp = document.getElementById('errorBoxOtp');
 const errorBoxCollegeName = document.getElementById('errorBoxCollegeName');
@@ -24,14 +24,14 @@ loginBtn.addEventListener('click', () => {
 });
 
 function startOtpTimer(durationInSeconds = 120) {
-    
+
     let timer = durationInSeconds;
-    errorBoxOtp.style.display='inline';
+    errorBoxOtp.style.display = 'inline';
     errorBoxOtp.style.fontSize = "10px";     // increase text size
     errorBoxOtp.style.marginTop = "3px";    // top margin
-    errorBoxOtp.style.marginBottom = "1px"; 
+    errorBoxOtp.style.marginBottom = "1px";
 
-     interval = setInterval(() => {
+    interval = setInterval(() => {
         const minutes = Math.floor(timer / 60);
         const seconds = timer % 60;
 
@@ -104,33 +104,33 @@ registerBtn.addEventListener('click', async () => {
     };
 
     // validations
-    if(!userData.userId){
+    if (!userData.userId) {
         errorBoxUserId.textContent = "Please enter user id";
         errorBoxUserId.style.display = "block";
         return;
     }
-    if(!userData.email){
+    if (!userData.email) {
         errorBoxName.style.display = "none";
         errorBoxEmail.textContent = "Please enter your email id";
         errorBoxEmail.style.display = "block";
         return;
-    }if(!userData.otp){
+    } if (!userData.otp) {
         errorBoxEmail.style.display = "none";
         errorBoxOtp.textContent = "Please enter OTP";
         errorBoxOtp.style.display = "block";
         return;
-    }if(!userData.password){
+    } if (!userData.password) {
         errorBoxCollegeName.style.display = "none";
         errorBoxPwd.textContent = "Please enter password";
         errorBoxPwd.style.display = "block";
         return;
-    }if(!userData.confirmPassword){
+    } if (!userData.confirmPassword) {
         errorBoxPwd.style.display = "none";
         errorBoxCnfmPwd.textContent = "Please enter password";
         errorBoxCnfmPwd.style.display = "block";
         return;
     }
-   
+
     if (userData.password !== userData.confirmPassword) {
         errorBoxPwd.textContent = "Passwords do not match!";
         errorBoxPwd.style.display = "block";
@@ -152,12 +152,12 @@ registerBtn.addEventListener('click', async () => {
         if (response.ok) {
             showSnackbar("Password changed successfully", "success");
             setTimeout(() => {
-               window.location.href = "/login";
+                window.location.href = "/login";
             }, 1000);
-            
+
         } else {
 
-            switch(data.error){
+            switch (data.error) {
                 case "USERID_NOT_AVAILABLE":
                     errorBoxUserId.textContent = "Please try different user id";
                     break;
@@ -170,13 +170,13 @@ registerBtn.addEventListener('click', async () => {
                 case "INVALID_OTP":
                     errorBoxOtp.textContent = "Wrong OTP";
                     break;
-                default :
+                default:
                     showSnackbar("Something went wrong. Try again", "warning");
             }
         }
 
     } catch (err) {
-       showSnackbar("Something went wrong. Try again", "error");
+        showSnackbar("Something went wrong. Try again", "error");
     }
 
     registerBtn.textContent = "Change Password";

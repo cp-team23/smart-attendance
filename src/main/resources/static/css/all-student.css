@@ -1,15 +1,16 @@
-.page-header{
+.page-header {
     margin-bottom: 80px;
 }
 
-.academic-dit-div{
-    width:79%;
+.academic-dit-div {
+    width: 79%;
     display: flex;
-    margin-top:-70px;
+    margin-top: -70px;
     position: fixed;
 }
 
 .student-row {
+    width: 97.5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -23,7 +24,7 @@
 /* Left Section */
 .student-profile {
     display: flex;
-    align-items:center;
+    align-items: center;
     gap: 14px;
 }
 
@@ -52,10 +53,10 @@
     color: #374151;
 }
 
-.det{
+.det {
     display: flex;
-    align-items:end;
-    gap:20px;
+    align-items: end;
+    gap: 20px;
 }
 
 /* Actions */

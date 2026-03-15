@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
+import com.capstoneproject.smartattendance.dto.AdminDashboardDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceStatus;
@@ -28,7 +29,7 @@ import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
 import com.capstoneproject.smartattendance.dto.TeacherDto;
 import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
-
+import com.capstoneproject.smartattendance.dto.SessionDto;
 import com.capstoneproject.smartattendance.entity.Academic;
 import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.Attendance;
@@ -83,6 +84,48 @@ public class AdminService {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
+
+    public AdminDashboardDto getAdminDashboardService(String adminId, int days) {
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+        AdminDashboardDto response = new AdminDashboardDto();
+
+        response.setStudentCount((int) admin.getStudents().stream()
+                .filter(student -> !student.isDeleted())
+                .count());
+        response.setTeacherCount((int) admin.getTeachers().stream()
+                .filter(student -> !student.isDeleted())
+                .count());
+        response.setAcademicCount(admin.getAcademicDatas().size());
+        response.setImageReqCount(this.getAllImageChangeRequestService(adminId).size());
+
+        response.setSessions(getLastDaysSessions(admin, days));
+        return response;
+    }
+
+    public List<SessionDto> getLastDaysSessions(Admin admin, int days) {
+
+        LocalDate fromDate = LocalDate.now().minusDays(days);
+
+        return admin.getTeachers().stream()
+                .filter(teacher -> !teacher.isDeleted())
+                .flatMap(teacher -> teacher.getAttendance().stream())
+                .filter(att -> !att.isDeleted())
+                .filter(att -> !att.getAttendanceDate().isBefore(fromDate))
+                .map(att -> {
+                    int total = att.getAttendanceRecords().size();
+                    long present = att.getAttendanceRecords().stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+                    double percentage = total == 0 ? 0 : (present * 100.0) / total;
+                    SessionDto dto = new SessionDto();
+                    dto.setDate(att.getAttendanceDate());
+                    dto.setSubjectName(att.getSubjectName());
+                    dto.setAttendancePercentage(percentage);
+                    dto.setTeacherName(att.getTeacher().getName());
+                    return dto;
+                }).toList();
+    }
 
     public List<AcademicDto> getAcademicDataService(String adminId) {
 
@@ -401,8 +444,8 @@ public class AdminService {
     }
 
     public void approveImageChangeRequestService(String adminId, String userId) throws IOException {
-        
-            adminRepo.findById(adminId)
+
+        adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = studentRepo.findById(userId)
@@ -427,12 +470,12 @@ public class AdminService {
         student.setCurImage(student.getNewImage());
         student.setNewImage(null);
         studentRepo.save(student);
-        
+
     }
 
     public void rejectImageChangeRequestService(String adminId, String userId) throws IOException {
-       
-            adminRepo.findById(adminId)
+
+        adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
         Student student = studentRepo.findById(userId)
@@ -454,7 +497,7 @@ public class AdminService {
 
         student.setNewImage(null);
         studentRepo.save(student);
-        
+
     }
 
     public void addTeacherService(TeacherDto teacherDto, String adminId) {
@@ -502,8 +545,6 @@ public class AdminService {
         teacherRepo.save(teacher);
 
     }
-
-
 
     public void deleteTeacherService(String userId, String adminId) {
 
@@ -600,6 +641,7 @@ public class AdminService {
     }
 
     public List<BasicAttendanceResponseDto> getAllAttendanceService(String adminId) {
+
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
@@ -610,11 +652,25 @@ public class AdminService {
                 .stream()
                 .filter(a -> !a.isDeleted())
                 .map(a -> {
+
                     BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+
                     temp.setTeacherName(a.getTeacher().getName());
+
+                    int total = a.getAttendanceRecords().size();
+
+                    int present = (int) a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    temp.setTotalStudentCount(total);
+                    temp.setPresentStudentCount(present);
+
                     return temp;
                 })
                 .toList();
+
         return response;
     }
 
@@ -795,25 +851,38 @@ public class AdminService {
                 .stream()
                 .filter(a -> a.isDeleted())
                 .map(a -> {
+
                     BasicAttendanceResponseDto temp = modelMapper.map(a, BasicAttendanceResponseDto.class);
+
                     temp.setTeacherName(a.getTeacher().getName());
+
+                    int total = a.getAttendanceRecords().size();
+
+                    int present = (int) a.getAttendanceRecords()
+                            .stream()
+                            .filter(r -> r.getStatus() == AttendanceStatus.PRESENT)
+                            .count();
+
+                    temp.setTotalStudentCount(total);
+                    temp.setPresentStudentCount(present);
+
                     return temp;
                 })
                 .toList();
         return response;
     }
 
-    public void updateAttendanceService(UUID attendanceId,SaveAttendanceDto saveAttendanceDto,String adminId){
+    public void updateAttendanceService(UUID attendanceId, SaveAttendanceDto saveAttendanceDto, String adminId) {
         adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
-        
+
         Attendance attendance = attendanceRepo.findById(attendanceId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND));
-        if(!attendance.getTeacher().getAdmin().getUserId().equals(adminId)){
+        if (!attendance.getTeacher().getAdmin().getUserId().equals(adminId)) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if(attendance.isDeleted()){
-           throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
+        if (attendance.isDeleted()) {
+            throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
         attendance.setAttendanceDate(saveAttendanceDto.getAttendanceDate());
         attendance.setAttendanceTime(saveAttendanceDto.getAttendanceTime());

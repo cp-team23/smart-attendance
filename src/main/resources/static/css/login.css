@@ -1,14 +1,15 @@
 .role-buttons {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-top: 5px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-/* Role Button */
 .role-buttons button {
   flex: 1;
+  min-width: 80px;
   padding: 8px 0;
   border-radius: 5px;
   border: 1px solid var(--dark);
@@ -20,16 +21,12 @@
   transition: all 0.2s ease;
 }
 
-/* Hover */
-
-/* Active Role */
 .role-buttons button.active {
   background-color: var(--dark);
   color: var(--light);
   border-color: var(--dark);
 }
 
-/* Link */
 a {
   margin: 6px 2px;
   text-decoration: none;
@@ -43,13 +40,10 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 📱 Mobile */
+/* ========================================
+   MOBILE
+======================================== */
 @media (max-width: 480px) {
-
-  .box-card {
-    margin-top: 45%;
-  }
-
   .role-buttons {
     gap: 6px;
   }
@@ -64,4 +58,3 @@ a:hover {
     font-size: 12px;
   }
 }
-

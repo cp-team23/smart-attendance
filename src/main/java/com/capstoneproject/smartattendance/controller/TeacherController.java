@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
+import com.capstoneproject.smartattendance.dto.AdminDashboardDto;
 // import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceDto;
@@ -26,6 +27,7 @@ import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
 import com.capstoneproject.smartattendance.dto.QRDto;
 import com.capstoneproject.smartattendance.dto.SaveAttendanceDto;
+import com.capstoneproject.smartattendance.dto.TeacherDashboardDto;
 import com.capstoneproject.smartattendance.service.TeacherService;
 
 import jakarta.validation.Valid;
@@ -43,6 +45,13 @@ public class TeacherController {
         String teacherId = authentication.getName();
         BasicDataDto basicDataDto = teacherService.getMyDetailsService(teacherId);
         return ResponseEntity.ok(basicDataDto);
+    }
+
+    @GetMapping("/dashboard/{days}") 
+    public ResponseEntity<?> getAdminDashbaord(Authentication authentication,@PathVariable int days){
+        String teacherId = authentication.getName();
+        TeacherDashboardDto response =  teacherService.getAdminDashboardService(teacherId,days);
+        return ResponseEntity.ok(Map.of("response",response));
     }
 
     @PostMapping("/attendance")

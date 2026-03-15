@@ -51,9 +51,8 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"Unauthorized\"}");
-                        } else {
-                            response.sendRedirect("/login");
-                        }
+                        } 
+                        response.sendRedirect("/login");
                 })
             );
 

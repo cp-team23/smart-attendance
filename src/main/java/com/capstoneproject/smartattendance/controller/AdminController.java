@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
+import com.capstoneproject.smartattendance.dto.AdminDashboardDto;
 import com.capstoneproject.smartattendance.dto.AdminDto;
 import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
@@ -47,6 +48,13 @@ public class AdminController {
         BasicDataDto basicDataDto = adminService.getMyDetailsService(adminId);
         return ResponseEntity.ok(Map.of("response",basicDataDto));
 
+    }
+
+    @GetMapping("/dashboard/{days}") 
+    public ResponseEntity<?> getAdminDashbaord(Authentication authentication,@PathVariable int days){
+        String adminId = authentication.getName();
+        AdminDashboardDto response =  adminService.getAdminDashboardService(adminId,days);
+        return ResponseEntity.ok(Map.of("response",response));
     }
     
     @PostMapping("/academic-structure")

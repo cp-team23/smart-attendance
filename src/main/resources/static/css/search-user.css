@@ -34,159 +34,159 @@
 
 
 .user-card {
-    display: flex;
-    gap: 50px;
-    padding: 45px;
-    margin-top: 25px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
-    border:1px solid var(--grey);
-    max-width: 100%;
+  display: flex;
+  gap: 50px;
+  padding: 45px;
+  margin-top: 25px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--grey);
+  max-width: 100%;
 }
 
 /* Left Image */
 .user-image {
-    width: 300px;
-    flex-shrink: 0;
+  width: 300px;
+  flex-shrink: 0;
 }
 
 .user-image img {
-    width: 100%;
-    height: 360px;
-    object-fit: cover;
-    border-radius: 12px;
-    border:1px solid var(--grey);
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--grey);
 }
 
 /* Right Content */
 .user-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .user-details h2 {
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #111827;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827;
 }
 
 .user-college {
-    font-size: 15px;
-    color: #6b7280;
-    margin-bottom: 35px;
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 35px;
 }
 
 /* Details Grid */
 .details-grid {
-    display: grid;
-    grid-template-columns: 170px 1fr;
-    row-gap: 18px;
-    column-gap: 25px;
-    font-size: 15px;
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  row-gap: 18px;
+  column-gap: 25px;
+  font-size: 15px;
 }
 
 .label {
-    font-weight: 600;
-    color: #374151;
+  font-weight: 600;
+  color: #374151;
 }
 
 .value {
-    color: #111827;
+  color: #111827;
 }
 
 /* Buttons aligned RIGHT */
 .card-buttons {
-    margin-top: 45px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
+  margin-top: 45px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
 }
 
 /* Buttons */
 .card-buttons button {
-    padding: 10px 26px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
+  padding: 10px 26px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
 }
 
 .update-btn {
-    background-color: #1f2937;
-    color: #ffffff;
+  background-color: #1f2937;
+  color: #ffffff;
 }
 
 .delete-btn {
-    background-color: #dc2626;
-    color: #ffffff;
+  background-color: #dc2626;
+  color: #ffffff;
 }
 
 
 .teacher-card {
-    padding: 40px;
-    margin-top: 35px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-    border:1px solid var(--grey);
-    max-width: 700px;
+  padding: 40px;
+  margin-top: 35px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--grey);
+  max-width: 700px;
 }
 
 .teacher-card h2 {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #111827;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827;
 }
 
 .teacher-college {
-    font-size: 15px;
-    color: #6b7280;
-    margin-bottom: 30px;
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 30px;
 }
 
 .teacher-details {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    row-gap: 18px;
-    column-gap: 20px;
-    font-size: 15px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  row-gap: 18px;
+  column-gap: 20px;
+  font-size: 15px;
 }
 
 .teacher-label {
-    font-weight: 600;
-    color: #374151;
+  font-weight: 600;
+  color: #374151;
 }
 
 .teacher-value {
-    color: #111827;
+  color: #111827;
 }
 
 .teacher-buttons {
-    margin-top: 35px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
+  margin-top: 35px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
 }
 
 .teacher-buttons button {
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
 }
 
 .teacher-buttons .update-btn {
-    background-color: #1f2937;
-    color: white;
+  background-color: #1f2937;
+  color: white;
 }
 
 .teacher-buttons .delete-btn {
-    background-color: #dc2626;
-    color: white;
+  background-color: #dc2626;
+  color: white;
 }

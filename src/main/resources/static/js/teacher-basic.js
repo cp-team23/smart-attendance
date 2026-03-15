@@ -75,7 +75,13 @@ loadTeacherProfile();
 ========================= */
 
 document.getElementById("logout")?.addEventListener("click", async () => {
-    showLoader(); // 👈
+    const ok = await showConfirm({
+        title: "Logout ?",
+        message: `Are you sure you want logout ?.`,
+        confirmText: "Logout"
+    });
+    if (!ok) return;
+    showLoader();
     try {
         const response = await fetch('/api/auth/logout', {
             method: 'POST',
@@ -86,7 +92,7 @@ document.getElementById("logout")?.addEventListener("click", async () => {
             showSuccess(); // 👈
             setTimeout(() => {
                 sessionStorage.clear();
-                window.location.href = "/auth/login";
+                window.location.href = "/login";
             }, 1200); // wait for success animation
         } else {
             removeLoader(); // 👈
@@ -141,6 +147,7 @@ function showConfirm({
 /* =========================
    LOADER
 ========================= */
+
 function showLoader() {
     const root = document.getElementById("loader-root");
     root.innerHTML = `
@@ -181,3 +188,55 @@ function showSuccess() {
         setTimeout(() => { root.innerHTML = ""; }, 250);
     }, 1000);
 }
+
+/* =========================
+   MOBILE SIDEBAR TOGGLE
+========================= */
+
+(function () {
+    function initMobileSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        if (!document.querySelector('.menu-toggle')) {
+            const btn = document.createElement('button');
+            btn.className = 'menu-toggle';
+            btn.setAttribute('aria-label', 'Open menu');
+            btn.innerHTML = '<img src="/assets/icons/menu.svg" alt="menu">';
+            document.body.appendChild(btn);
+            btn.addEventListener('click', openSidebar);
+        }
+
+        if (!document.querySelector('.sidebar-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', closeSidebar);
+        }
+    }
+
+    function openSidebar() {
+        document.querySelector('.sidebar')?.classList.add('open');
+        document.querySelector('.sidebar-overlay')?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        document.querySelector('.sidebar')?.classList.remove('open');
+        document.querySelector('.sidebar-overlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function bindNavClose() {
+        document.querySelectorAll('nav ul li').forEach(li => {
+            li.addEventListener('click', () => {
+                if (window.innerWidth <= 767) closeSidebar();
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMobileSidebar();
+        bindNavClose();
+    });
+})();

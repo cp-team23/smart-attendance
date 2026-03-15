@@ -1,40 +1,44 @@
-form{
-    margin-left: auto;
-    margin-right: auto;
-    width:500px;
+form {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 500px;
 }
 
-.field input[readonly] + label{ 
-    top: 14px;
-    font-size: 11px;
+.field input[readonly]+label {
+  top: 14px;
+  font-size: 11px;
 }
 
-
-
-.send-otp{
-    display: flex;
-    justify-content: space-between;
-    align-items:end;
-    display: none;
-    width: 463px;
-}
-.send-otp>.field{
-    width:70%;
+.send-otp {
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 463px;
 }
 
-.otpBtn{
-    width: 30%;
-    height: 40px;
-     border:0px;
-    border-radius: 5px;
-    background: var(--dark);
-    color: var(--light);
+.send-otp>.field {
+  width: 68%;
 }
 
-.actions{
-    margin-top:8%;
-    display: flex;
-    justify-content: center;
+.otpBtn {
+  width: 30%;
+  height: 40px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--dark);
+  color: var(--light);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 8%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .errorbox {
@@ -42,4 +46,36 @@ form{
   color: var(--error);
   margin-top: 3px;
   margin-left: 3px;
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+@media (max-width: 767px) {
+  form {
+    max-width: 100%;
+  }
+
+  .send-otp {
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .send-otp>.field {
+    width: 100%;
+  }
+
+  .otpBtn {
+    width: 100%;
+  }
+
+  .actions {
+    margin-top: 24px;
+  }
+
+  .actions button {
+    flex: 1;
+    min-width: 120px;
+  }
 }

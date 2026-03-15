@@ -13,18 +13,55 @@ body {
 .container {
     display: flex;
     height: 100vh;
+    overflow: hidden;
+}
+
+/* ============================
+   HAMBURGER MENU (Mobile)
+============================ */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1100;
+    background: var(--dark);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.menu-toggle img {
+    width: 22px;
+    height: 22px;
+    filter: invert(1);
+    display: block;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 900;
+}
+
+.sidebar-overlay.active {
+    display: block;
 }
 
 /* Sidebar */
 .sidebar {
-    width: 290px;
-    /* fixed width better than % */
+    width: 260px;
     background: linear-gradient(180deg, var(--dark), #1e2b45);
     color: white;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    /* important */
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    z-index: 1000;
 }
 
 .profile {
@@ -33,10 +70,11 @@ body {
 
 .profile h3 {
     margin-bottom: 5px;
+    font-size: 16px;
 }
 
 .profile p {
-    font-size: 14px;
+    font-size: 13px;
     opacity: 0.8;
 }
 
@@ -47,10 +85,8 @@ body {
     border: none;
 }
 
-/* Navigation */
 nav {
     flex: 1;
-    /* takes remaining space */
 }
 
 nav ul {
@@ -58,11 +94,12 @@ nav ul {
 }
 
 nav ul li {
-    padding: 12px;
+    padding: 11px 12px;
     margin-bottom: 6px;
     cursor: pointer;
     border-radius: 5px;
     transition: background 0.2s ease;
+    font-size: 14px;
 }
 
 nav ul li:hover {
@@ -75,7 +112,6 @@ nav ul li.active {
     background: var(--midDark);
 }
 
-/* Logout at bottom properly */
 .logout {
     background: var(--midDark);
     border: none;
@@ -86,11 +122,10 @@ nav ul li.active {
     width: 100%;
 }
 
-
 .addBtn {
     height: 40px;
     width: 200px;
-    border: 0px;
+    border: 0;
     border-radius: 5px;
     margin-top: 20px;
     background: var(--dark);
@@ -100,7 +135,6 @@ nav ul li.active {
     margin-right: auto;
 }
 
-
 /* =========================
    MAIN LAYOUT
 ========================= */
@@ -109,9 +143,9 @@ nav ul li.active {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    width: 80vw;
+    min-width: 0;
     background: var(--light);
-    padding: 25px;
+    padding: 20px;
     overflow: hidden;
 }
 
@@ -122,36 +156,37 @@ nav ul li.active {
     position: sticky;
     top: 0;
     z-index: 10;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     background: #ffffff;
-    padding: 20px 25px;
+    padding: 16px 20px;
     border-radius: 5px;
     border: 1px solid var(--grey);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .header-right {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-/* Refresh Button */
 .refresh-btn {
     background: #0f172a;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: 5px;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
 }
 
 .refresh-btn:hover {
@@ -162,16 +197,15 @@ nav ul li.active {
     transform: scale(0.96);
 }
 
-/* Header Left */
 .header-left h2 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     color: #0f172a;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .subtitle {
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
 }
 
@@ -182,9 +216,10 @@ nav ul li.active {
     display: flex;
     align-items: center;
     background: #f8fafc;
-    padding: 8px 14px;
+    padding: 8px 12px;
     border-radius: 10px;
-    width: 320px;
+    width: 260px;
+    max-width: 100%;
     border: 1px solid #e2e8f0;
     transition: all 0.2s ease;
 }
@@ -195,10 +230,11 @@ nav ul li.active {
 }
 
 .search-icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     color: #64748b;
     margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .search-box input {
@@ -206,7 +242,7 @@ nav ul li.active {
     outline: none;
     background: transparent;
     width: 100%;
-    font-size: 14px;
+    font-size: 13px;
     color: #1e293b;
 }
 
@@ -215,13 +251,10 @@ nav ul li.active {
 }
 
 .cards-container {
-
     overflow-y: auto;
-    padding-right: 8px;
-
+    padding-right: 6px;
 }
 
-/* Custom Scrollbar */
 .cards-container::-webkit-scrollbar {
     width: 6px;
 }
@@ -231,13 +264,11 @@ nav ul li.active {
     border-radius: 5px;
 }
 
-
-
-
-
-
+/* =========================
+   FORM FIELDS
+========================= */
 .field input {
-    width: 50%;
+    width: 100%;
     padding: 11px;
     margin-top: 14px;
     border-radius: 5px;
@@ -257,7 +288,6 @@ nav ul li.active {
 .password-wrapper input {
     width: 100%;
     padding-right: 40px;
-    /* space for icon */
 }
 
 .password-toggle {
@@ -306,7 +336,6 @@ nav ul li.active {
     transition: 0.3s ease;
 }
 
-/* Floating label */
 .field input:focus+label,
 .field input:valid+label,
 .custom-dropdown input:focus+label,
@@ -316,9 +345,6 @@ nav ul li.active {
     color: var(--dark);
 }
 
-
-
-
 .options {
     width: 100%;
     list-style: none;
@@ -327,21 +353,15 @@ nav ul li.active {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     display: none;
-    /* keep as you had */
     position: absolute;
     background: #ffffff;
     max-height: 180px;
     overflow-y: auto;
     z-index: 10;
-
-    /* Modern shadow */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-
-    /* Smooth look */
     backdrop-filter: blur(4px);
 }
 
-/* List items */
 .options li {
     padding: 10px 16px;
     cursor: pointer;
@@ -351,20 +371,17 @@ nav ul li.active {
     transition: all 0.2s ease;
 }
 
-/* Hover effect */
 .options li:hover {
     background: #f3f4f6;
     color: #2563eb;
 }
 
-/* Active option (if you manually add class="active") */
 .options li.active {
     background: #2563eb;
     color: #ffffff;
     font-weight: 500;
 }
 
-/* Better scrollbar */
 .options::-webkit-scrollbar {
     width: 6px;
 }
@@ -378,12 +395,9 @@ nav ul li.active {
     background: #9ca3af;
 }
 
-
-
-
-
-
-
+/* =========================
+   CONFIRM DIALOG
+========================= */
 .confirm-overlay {
     position: fixed;
     inset: 0;
@@ -392,11 +406,12 @@ nav ul li.active {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 16px;
 }
 
 .confirm-box {
     background: #fff;
-    width: 360px;
+    width: min(360px, 100%);
     padding: 28px;
     border-radius: 14px;
     text-align: center;
@@ -455,7 +470,10 @@ nav ul li.active {
     color: white;
     cursor: pointer;
 }
-/* ===== OVERLAY ===== */
+
+/* =========================
+   LOADER
+========================= */
 .loader-overlay {
     position: fixed;
     inset: 0;
@@ -474,16 +492,25 @@ nav ul li.active {
 }
 
 @keyframes overlay-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes overlay-out {
-    from { opacity: 1; }
-    to   { opacity: 0; }
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }
 
-/* ===== LOADER CIRCLE ===== */
 .loader-circle {
     width: 90px;
     height: 90px;
@@ -492,12 +519,10 @@ nav ul li.active {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-                0 6px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.15);
     animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ===== SVG RING SPINNER ===== */
 .loader-ring {
     width: 54px;
     height: 54px;
@@ -521,16 +546,25 @@ nav ul li.active {
 }
 
 @keyframes rotate {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes dash {
-    0%   { stroke-dashoffset: 80; }
-    50%  { stroke-dashoffset: 20; }
-    100% { stroke-dashoffset: 80; }
+    0% {
+        stroke-dashoffset: 80;
+    }
+
+    50% {
+        stroke-dashoffset: 20;
+    }
+
+    100% {
+        stroke-dashoffset: 80;
+    }
 }
 
-/* ===== SUCCESS CIRCLE ===== */
 .success-circle {
     width: 90px;
     height: 90px;
@@ -539,8 +573,7 @@ nav ul li.active {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-                0 6px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.15);
     animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -549,13 +582,13 @@ nav ul li.active {
         transform: scale(0.6);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
     }
 }
 
-/* ===== CHECK ICON ===== */
 .check {
     width: 44px;
     height: 44px;
@@ -570,18 +603,120 @@ nav ul li.active {
 }
 
 @keyframes draw-check {
-    to { stroke-dashoffset: 0; }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
-
-ul{
+ul {
     font-weight: 600;
 }
 
-.notfound{
+.notfound {
     width: 100%;
-    margin-top:20%;
-    padding-left:40%;
-    font-size:30px;
-    color: #64748b;
+    margin-top: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: large;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ========================================
+   TABLET (768px – 1024px)
+======================================== */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main {
+        padding: 16px;
+    }
+
+    .page-header {
+        padding: 14px 16px;
+    }
+
+    .header-left h2 {
+        font-size: 18px;
+    }
+
+    .search-box {
+        width: 220px;
+    }
+}
+
+/* ========================================
+   MOBILE (≤ 767px) – slide-in drawer
+======================================== */
+@media (max-width: 767px) {
+
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 270px;
+        transform: translateX(-100%);
+        overflow-y: auto;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main {
+        width: 100%;
+        padding: 12px;
+        padding-top: 60px;
+        overflow-y: auto;
+        height: 100vh;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .header-right {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        width: 100%;
+        flex: 1;
+        min-width: 180px;
+    }
+
+    .refresh-btn {
+        width: 100%;
+    }
+
+    .header-left h2 {
+        font-size: 17px;
+    }
+
+    .addBtn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .cards-container {
+        overflow-y: visible;
+        padding-right: 0;
+    }
+}
+
+button:active{
+    scale:.95;
 }

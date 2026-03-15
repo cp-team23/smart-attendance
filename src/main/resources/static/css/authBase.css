@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family:var(--font);
+  font-family: var(--font);
 }
 
 body {
@@ -13,8 +13,9 @@ body {
   align-items: center;
 }
 
+/* Logo */
 .logo-card {
-  position: fixed;         
+  position: fixed;
   top: 20px;
   left: 24px;
   display: flex;
@@ -22,37 +23,34 @@ body {
   z-index: 10;
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(6px);
-  border-radius:15px;
+  border-radius: 15px;
   height: 120px;
-
   opacity: 0;
   transform: translateX(-20px);
   animation: logoFadeIn 0.7s ease-out forwards;
   animation-delay: 0.2s;
 }
 
-/* Logo image */
 .logo-image img {
-  width: 140px;
-  height: 140px;
-  margin-top:9px;
+  width: 120px;
+  height: 120px;
+  margin-top: 9px;
   object-fit: contain;
 }
 
-/* Logo text */
 .logo-text h1 {
   letter-spacing: 0.3px;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #ffffff;
-  margin-top:-8px;
+  margin-top: -8px;
 }
 
 .logo-text p {
   font-size: 13px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   margin: 0;
-  margin-right:80px;
+  margin-right: 20px;
 }
 
 @keyframes logoFadeIn {
@@ -60,23 +58,22 @@ body {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
-
 /* Card */
 .box-card {
   background: var(--light);
   width: 400px;
   border-radius: 10px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
-/* Header */
 .box-header {
   background: var(--dark);
   color: var(--light);
@@ -84,10 +81,9 @@ body {
   font-size: 18px;
   font-weight: 600;
   text-align: center;
-   letter-spacing: 0.3px;
+  letter-spacing: 0.3px;
 }
 
-/* Body */
 .box-body {
   padding: 22px;
 }
@@ -95,10 +91,9 @@ body {
 form {
   display: flex;
   flex-direction: column;
-  margin-top:-10px;
+  margin-top: -10px;
 }
 
-/* Inputs */
 input {
   padding: 11px;
   margin-top: 14px;
@@ -112,7 +107,6 @@ input:focus {
   border: 2px solid var(--dark);
 }
 
-/* Error */
 .errorbox {
   font-size: 10px;
   color: var(--error);
@@ -120,14 +114,12 @@ input:focus {
   margin-left: 3px;
 }
 
-/* Actions */
 .actions {
   display: flex;
   gap: 10px;
   margin-top: 20px;
 }
 
-/* Buttons */
 button {
   padding: 10px;
   border-radius: 5px;
@@ -157,22 +149,14 @@ button:active {
   transform: scale(0.96);
 }
 
-/* Mobile */
-@media (max-width: 480px) {
-  .box-card {
-    width: 100%;
-    margin: 15px;
-  }
-}
-
-
+/* Field */
 .password-wrapper {
   position: relative;
 }
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 40px; /* space for icon */
+  padding-right: 40px;
 }
 
 .password-toggle {
@@ -198,10 +182,10 @@ button:active {
 }
 
 .field {
-  width:100%;
+  width: 100%;
   position: relative;
   display: inline-block;
-  margin-right: 18px;
+  margin-right: 0;
 }
 
 .field input {
@@ -214,19 +198,102 @@ button:active {
   left: 10px;
   transform: translateY(-50%);
   font-size: 13px;
-  color:var(--dark);
+  color: var(--dark);
   background: #fff;
   padding: 0 6px;
   pointer-events: none;
   transition: 0.3s ease;
 }
 
-/* Floating label */
-.field input:focus + label,
-.field input:valid + label {
+.field input:focus+label,
+.field input:valid+label {
   top: 14px;
   font-size: 11px;
-  color:var(--dark);
+  color: var(--dark);
 }
 
+/* ========================================
+   TABLET
+======================================== */
+@media (max-width: 1024px) {
+  .logo-text h1 {
+    font-size: 20px;
+  }
 
+  .logo-image img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .box-card {
+    width: 380px;
+  }
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+@media (max-width: 767px) {
+
+  body {
+    align-items: flex-start;
+    padding-top: 0;
+  }
+
+  .logo-card {
+    position: static;
+    width: 100%;
+    border-radius: 0;
+    height: auto;
+    padding: 14px 16px;
+    transform: none;
+    opacity: 1;
+    animation: none;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .logo-image img {
+    width: 70px;
+    height: 70px;
+    margin-top: 0;
+  }
+
+  .logo-text h1 {
+    font-size: 18px;
+  }
+
+  .logo-text p {
+    font-size: 12px;
+    margin-right: 0;
+  }
+
+  body {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .box-card {
+    width: calc(100% - 24px);
+    margin: 16px 12px 20px;
+    border-radius: 12px;
+  }
+
+  .box-header {
+    font-size: 16px;
+    padding: 15px;
+  }
+
+  .box-body {
+    padding: 18px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .mainBtn,
+  .secondBtn {
+    width: 100%;
+  }
+}
