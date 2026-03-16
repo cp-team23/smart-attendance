@@ -148,6 +148,84 @@ function studentContent() {
     batchOptionsBox = document.getElementById("batchOption");
 
     addBtn.addEventListener("click", updateStudent);
+
+    
+        /* =========================
+           DROPDOWN ONCLICK HANDLERS
+        ========================= */
+        setYear();
+        yearInput.onclick = () => {
+            branch = [];
+            branchOptionsBox.style.display = "none";
+            semOptionsBox.style.display = "none";
+            classOptionsBox.style.display = "none";
+            batchOptionsBox.style.display = "none";
+            yearOptionsBox.style.display =
+                yearOptionsBox.style.display === "block" ? "none" : "block";
+        };
+
+        branchInput.onclick = () => {
+            sem = [];
+            allData.forEach(element => {
+                if (yearInput.value == element.year && !branch.includes(element.branch)) {
+                    branch.push(element.branch);
+                }
+            });
+            setBranch();
+            yearOptionsBox.style.display = "none";
+            semOptionsBox.style.display = "none";
+            classOptionsBox.style.display = "none";
+            batchOptionsBox.style.display = "none";
+            branchOptionsBox.style.display =
+                branchOptionsBox.style.display === "block" ? "none" : "block";
+        };
+
+        semInput.onclick = () => {
+            className = [];
+            allData.forEach(element => {
+                if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
+                    sem.push(element.semester);
+                }
+            });
+            setSem();
+            yearOptionsBox.style.display = "none";
+            branchOptionsBox.style.display = "none";
+            classOptionsBox.style.display = "none";
+            batchOptionsBox.style.display = "none";
+            semOptionsBox.style.display =
+                semOptionsBox.style.display === "block" ? "none" : "block";
+        };
+
+        classInput.onclick = () => {
+            batch = [];
+            allData.forEach(element => {
+                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
+                    className.push(element.className);
+                }
+            });
+            setClass();
+            yearOptionsBox.style.display = "none";
+            branchOptionsBox.style.display = "none";
+            semOptionsBox.style.display = "none";
+            batchOptionsBox.style.display = "none";
+            classOptionsBox.style.display =
+                classOptionsBox.style.display === "block" ? "none" : "block";
+        };
+
+        batchInput.onclick = () => {
+            allData.forEach(element => {
+                if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && !batch.includes(element.batch)) {
+                    batch.push(element.batch);
+                }
+            });
+            yearOptionsBox.style.display = "none";
+            branchOptionsBox.style.display = "none";
+            semOptionsBox.style.display = "none";
+            classOptionsBox.style.display = "none";
+            setBatch();
+            batchOptionsBox.style.display =
+                batchOptionsBox.style.display === "block" ? "none" : "block";
+        };
 }
 
 /* =========================
@@ -406,85 +484,8 @@ function setYear() {
 }
 
 loadData().then(() => {
-    setYear();
+    setRole();
 });
-
-/* =========================
-   DROPDOWN ONCLICK HANDLERS
-========================= */
-
-yearInput.onclick = () => {
-    branch = [];
-    branchOptionsBox.style.display = "none";
-    semOptionsBox.style.display = "none";
-    classOptionsBox.style.display = "none";
-    batchOptionsBox.style.display = "none";
-    yearOptionsBox.style.display =
-        yearOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-branchInput.onclick = () => {
-    sem = [];
-    allData.forEach(element => {
-        if (yearInput.value == element.year && !branch.includes(element.branch)) {
-            branch.push(element.branch);
-        }
-    });
-    setBranch();
-    yearOptionsBox.style.display = "none";
-    semOptionsBox.style.display = "none";
-    classOptionsBox.style.display = "none";
-    batchOptionsBox.style.display = "none";
-    branchOptionsBox.style.display =
-        branchOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-semInput.onclick = () => {
-    className = [];
-    allData.forEach(element => {
-        if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
-            sem.push(element.semester);
-        }
-    });
-    setSem();
-    yearOptionsBox.style.display = "none";
-    branchOptionsBox.style.display = "none";
-    classOptionsBox.style.display = "none";
-    batchOptionsBox.style.display = "none";
-    semOptionsBox.style.display =
-        semOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-classInput.onclick = () => {
-    batch = [];
-    allData.forEach(element => {
-        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && !className.includes(element.className)) {
-            className.push(element.className);
-        }
-    });
-    setClass();
-    yearOptionsBox.style.display = "none";
-    branchOptionsBox.style.display = "none";
-    semOptionsBox.style.display = "none";
-    batchOptionsBox.style.display = "none";
-    classOptionsBox.style.display =
-        classOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-batchInput.onclick = () => {
-    allData.forEach(element => {
-        if (yearInput.value === element.year && branchInput.value === element.branch && semInput.value === element.semester && classInput.value === element.className && !batch.includes(element.batch)) {
-            batch.push(element.batch);
-        }
-    });
-    yearOptionsBox.style.display = "none";
-    branchOptionsBox.style.display = "none";
-    semOptionsBox.style.display = "none";
-    classOptionsBox.style.display = "none";
-    setBatch();
-    batchOptionsBox.style.display =
-        batchOptionsBox.style.display === "block" ? "none" : "block";
-};
 
 /* =========================
    SEARCH ON ENTER
