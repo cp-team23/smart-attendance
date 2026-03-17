@@ -54,16 +54,12 @@ public class FaceMatchService {
 
             return response != null && response.isSame_person();
 
-        } catch (WebClientResponseException.Unauthorized ex) {
-            log.error("Face-match API unauthorized (invalid API key)");
-            return false;
-
-        } catch (WebClientResponseException ex) {
-            log.error("Face-match API error: {}", ex.getResponseBodyAsString());
+        }catch (WebClientResponseException ex) {
+            log.error("Face-match API error: {}");
             return false;
 
         } catch (Exception ex) {
-            log.error("Face-match service failed", ex);
+            log.error("Face-match service failed");
             return false;
         }
     }

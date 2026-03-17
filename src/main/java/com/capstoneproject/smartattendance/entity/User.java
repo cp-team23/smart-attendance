@@ -1,6 +1,7 @@
 package com.capstoneproject.smartattendance.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.capstoneproject.smartattendance.dto.Role;
 
@@ -29,5 +30,6 @@ public class User {
     
     private boolean isDeleted;
     private LocalDate deletedDate;
-    
+
+    private LocalDateTime lastLogin;
 }

@@ -1,6 +1,7 @@
 package com.capstoneproject.smartattendance.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,8 @@ public class Attendance {
     private boolean isDeleted;
 
     private LocalDate deletedDate;
+
+    private LocalDateTime lastStartTime;
 
     @OneToMany(mappedBy = "attendance", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AttendanceRecord> attendanceRecords = new ArrayList<>();

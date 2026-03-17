@@ -175,6 +175,11 @@ public class StudentService {
         if (!exist || attendanceRecord.getAttendance().isDeleted() == true) {
             throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
+        if(student.getLastLogin()!=null 
+            && attendanceRecord.getAttendance().getLastStartTime()!=null 
+            && student.getLastLogin().isAfter(attendanceRecord.getAttendance().getLastStartTime())){
+                throw new CustomeException(ErrorCode.NOT_ALLOWED);
+        }
         if (student.getCurImage().equals("defaultimage.jpg")) {
             throw new CustomeException(ErrorCode.IMAGE_NOT_FOUND);
         }

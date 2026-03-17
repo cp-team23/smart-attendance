@@ -1,5 +1,6 @@
 package com.capstoneproject.smartattendance.service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -136,6 +137,8 @@ public class AuthService {
         jwtCookie.setSecure(false);
         response.addCookie(jwtCookie);
 
+        user.setLastLogin(LocalDateTime.now());
+        userRepo.save(user);
         return ResponseEntity.ok(responseBody);
     }
 

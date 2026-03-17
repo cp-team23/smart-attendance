@@ -2,6 +2,7 @@ package com.capstoneproject.smartattendance.service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -137,6 +138,7 @@ public class TeacherService {
         if (attendance.isDeleted()) {
             throw new CustomeException(ErrorCode.ATTENDANCE_RECORD_NOT_FOUND);
         }
+        attendance.setLastStartTime(LocalDateTime.now());
         attendance.setRunning(true);
         attendanceRepo.save(attendance);
     }
