@@ -1,7 +1,8 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import org.springframework.mail.SimpleMailMessage;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -9,30 +10,30 @@ import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailSenderService {
 
-    
     private final JavaMailSender mailSender;
 
     @Async
     public void sendMail(String to, String subject, String body) {
 
-        if (mailSender == null) {
-            throw new CustomeException(ErrorCode.MAIL_SERVICE_NOT_AVAILABLE);
-        }
-
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true);   // true = isHtml
 
             mailSender.send(message);
 
-        } catch (CustomeException e) {
+        } catch (Exception e) {
+            log.error("Failed to send mail to {}: {}", to, e.getMessage());
             throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
         }
     }
