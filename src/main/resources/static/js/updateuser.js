@@ -334,13 +334,18 @@ async function loadTeacher(key) {
    INITIAL LOAD BASED ON ROLE
 ========================= */
 
-if (newRole === 'student') {
-    loadStudent(key);
-}
-if (newRole === 'teacher') {
-    setRole(role = 'teacher');
-    loadTeacher(key);
-}
+// WITH this:
+loadData().then(() => {
+    if (newRole === 'teacher') {
+        setRole(role = 'teacher');
+        loadTeacher(key);
+    } else if (newRole === 'student') {
+        setRole(role = 'student');   // studentContent() already default hai, but explicit rakh
+        loadStudent(key);
+    } else {
+        setRole();
+    }
+});
 
 /* =========================
    LOAD ACADEMIC STRUCTURE
@@ -483,9 +488,6 @@ function setYear() {
     });
 }
 
-loadData().then(() => {
-    setRole();
-});
 
 /* =========================
    SEARCH ON ENTER
