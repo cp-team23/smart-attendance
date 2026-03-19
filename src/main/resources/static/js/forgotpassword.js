@@ -23,6 +23,49 @@ loginBtn.addEventListener('click', () => {
     window.location.href = '/login';
 });
 
+
+
+function showLoader() {
+    const root = document.getElementById("loader-root");
+    root.innerHTML = `
+        <div class="loader-overlay">
+            <div class="loader-circle">
+                <svg class="loader-ring" viewBox="0 0 50 50">
+                    <circle class="ring-track" cx="25" cy="25" r="20" />
+                    <circle class="ring-spin" cx="25" cy="25" r="20" />
+                </svg>
+            </div>
+        </div>`;
+}
+
+function removeLoader() {
+    const root = document.getElementById("loader-root");
+    const overlay = root.querySelector(".loader-overlay");
+    if (overlay) {
+        overlay.classList.add("fade-out");
+        setTimeout(() => { root.innerHTML = ""; }, 250);
+    } else {
+        root.innerHTML = "";
+    }
+}
+
+function showSuccess() {
+    const root = document.getElementById("loader-root");
+    root.innerHTML = `
+        <div class="loader-overlay">
+            <div class="success-circle">
+                <svg viewBox="0 0 24 24" class="check">
+                    <path d="M20 6L9 17l-5-5" />
+                </svg>
+            </div>
+        </div>`;
+    setTimeout(() => {
+        const overlay = root.querySelector(".loader-overlay");
+        if (overlay) overlay.classList.add("fade-out");
+        setTimeout(() => { root.innerHTML = ""; }, 250);
+    }, 1000);
+}
+
 function startOtpTimer(durationInSeconds = 120) {
 
     let timer = durationInSeconds;
@@ -139,9 +182,10 @@ registerBtn.addEventListener('click', async () => {
 
     registerBtn.textContent = "Changing...";
     registerBtn.disabled = true;
+    showLoader();
 
     try {
-        const response = await fetch('/api/auth/forgotpassword', {
+        const response = await fetch('/api/auth/forgot-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
@@ -150,13 +194,14 @@ registerBtn.addEventListener('click', async () => {
         const data = await response.json();
 
         if (response.ok) {
+            showSuccess();
             showSnackbar("Password changed successfully", "success");
             setTimeout(() => {
                 window.location.href = "/login";
             }, 1000);
 
         } else {
-
+            removeLoader();
             switch (data.error) {
                 case "USERID_NOT_AVAILABLE":
                     errorBoxUserId.textContent = "Please try different user id";
@@ -176,6 +221,7 @@ registerBtn.addEventListener('click', async () => {
         }
 
     } catch (err) {
+        removeLoader();
         showSnackbar("Something went wrong. Try again", "error");
     }
 

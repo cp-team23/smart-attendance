@@ -173,7 +173,7 @@ async function add() {
 
 }
 
-async function update(academicId) {
+async function update(id) {
 
     const ok = await showConfirm({
         title: "Update Academic ?",
@@ -184,7 +184,7 @@ async function update(academicId) {
     if (!ok) return;
 
     const payload = {
-        academicId: academicId,
+        academicId: id,
         year: year.value.trim(),
         branch: branch.value.trim(),
         semester: sem.value.trim(),
@@ -229,6 +229,14 @@ async function update(academicId) {
             academicId = null;
 
             addBtn.innerHTML = "Add";
+            addAcademicTitle.innerHTML = "Add New Record";
+
+            if (updateBtn) {
+                const prevCard = updateBtn.closest(".card");
+                prevCard.classList.remove("selected");
+                updateBtn.innerText = "Update";
+                updateBtn = null;
+            }
 
         }
         else if (result.error === "ACADEMIC_ALREADY_PRESENT") {
@@ -253,7 +261,7 @@ async function update(academicId) {
 
 }
 
-async function deleteAcademic(academicId) {
+async function deleteAcademic(id) {
 
     const ok = await showConfirm({
         title: "Delete Academic ?",
@@ -263,7 +271,7 @@ async function deleteAcademic(academicId) {
 
     if (!ok) return;
 
-    if (!academicId) {
+    if (!id) {
         showSnackbar("Invalid academic id", "error");
         return;
     }
@@ -272,7 +280,7 @@ async function deleteAcademic(academicId) {
 
         showLoader();
 
-        const response = await fetch(`${API_URL}/${academicId}`, {
+        const response = await fetch(`${API_URL}/${id}`, {
             method: "DELETE"
         });
 

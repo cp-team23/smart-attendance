@@ -38,3 +38,142 @@ a:hover {
 .otpBtnClass:active {
   transform: scale(0.96);
 }
+
+/* =========================
+   LOADER
+========================= */
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: overlay-in 0.2s ease;
+}
+
+.loader-overlay.fade-out {
+    animation: overlay-out 0.25s ease forwards;
+}
+
+@keyframes overlay-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes overlay-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.loader-circle {
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.15);
+    animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.loader-ring {
+    width: 54px;
+    height: 54px;
+    animation: rotate 1.4s linear infinite;
+}
+
+.ring-track {
+    fill: none;
+    stroke: #e8edf5;
+    stroke-width: 4;
+}
+
+.ring-spin {
+    fill: none;
+    stroke: var(--dark);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 60;
+    animation: dash 1.4s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dashoffset: 80;
+    }
+
+    50% {
+        stroke-dashoffset: 20;
+    }
+
+    100% {
+        stroke-dashoffset: 80;
+    }
+}
+
+.success-circle {
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.15);
+    animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.check {
+    width: 44px;
+    height: 44px;
+    stroke: var(--dark);
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: draw-check 0.4s ease 0.15s forwards;
+}
+
+@keyframes draw-check {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+

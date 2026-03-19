@@ -51,7 +51,7 @@ public class AuthController {
      }
 
      @PostMapping("/forgot-password")
-     public ResponseEntity<?> forgotPassword(@Valid @RequestBody AdminDto adminDto){
+     public ResponseEntity<?> forgotPassword(@RequestBody AdminDto adminDto){
            authService.forgotPasswordService(adminDto);
            return ResponseEntity.ok(Map.of("message", "PASSWORD_CHANGE_SUCCESSFULLY"));
 
