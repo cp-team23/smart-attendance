@@ -12,7 +12,9 @@ public class AdminMailService {
         private final MailSenderService mailSenderService;
 
         public void sendStudentDetailsMail(Student student, String adminId, String password, String type) {
-
+                if(password == null){
+                    password = "same as before";
+                }
                 String subject = "Student Account " + type + " – Smart Attendance System";
 
                 String body = """
@@ -269,7 +271,9 @@ public class AdminMailService {
         }
 
         public void sendTeacherDetailsMail(Teacher teacher, String adminId, String password, String type) {
-
+                if(password == null){
+                    password = "same as before";
+                }
                 String subject = "Teacher Account " + type + " – Smart Attendance System";
 
                 String body = """
