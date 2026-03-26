@@ -464,9 +464,11 @@ async function addStudentAPI(userData, isBulk = false) {
             return { success: true };
         } else {
             if (data.error == "USERID_NOT_AVAILABLE") {
+                if (!isBulk) showSnackbar("User id not available", "error");
                 return { success: false, error: "Student Id not available" };
             }
             if (data.error == "ENROLLMENT_NOT_AVAILABLE") {
+                if (!isBulk) showSnackbar("Enrollment number not available", "error")
                 return { success: false, error: "Enrollment number not available" };
             }
             return { success: false, error: data.error || "Unknown error" };

@@ -1,9 +1,6 @@
 package com.capstoneproject.smartattendance.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -79,11 +75,9 @@ public class AdminService {
 
     private final StringRedisTemplate redisTemplate;
 
-    @Value("${app.file.base-url}")
-    private String fileBaseUrl;
+    // Add field
+    private final CloudinaryService cloudinaryService;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     public AdminDashboardDto getAdminDashboardService(String adminId, int days) {
         Admin admin = adminRepo.findById(adminId)
@@ -324,7 +318,7 @@ public class AdminService {
         student.setAdmin(admin);
         student.setCollegeName(admin.getCollegeName());
         student.setAcademic(academic);
-        student.setCurImage("defaultimage.jpg");
+        student.setCurImage("https://res.cloudinary.com/dzyjaax7p/image/upload/v1773846089/defaultimage_kuxomk.jpg");
         student.setPassword(passwordEncoder.encode(password));
 
         adminMailService.sendStudentDetailsMail(student, adminId, studentDto.getPassword(), "created");
@@ -435,8 +429,8 @@ public class AdminService {
                     res.setSemester(s.getAcademic().getSemester());
                     res.setClassName(s.getAcademic().getClassName());
                     res.setBatch(s.getAcademic().getBatch());
-                    res.setCurImage(fileBaseUrl + res.getCurImage());
-                    res.setNewImage(fileBaseUrl + res.getNewImage());
+                    res.setCurImage(res.getCurImage());
+                    res.setNewImage(res.getNewImage());
                     return res;
                 })
                 .toList();
@@ -458,13 +452,10 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        if (student.getCurImage() != null && !student.getCurImage().equals("defaultimage.jpg")) {
-            String curFile = student.getCurImage();
-            Path curPath = uploadPath.resolve(curFile).normalize();
-            Files.deleteIfExists(curPath);
+        String defaultUrl = "https://res.cloudinary.com/dzyjaax7p/image/upload/v1773846089/defaultimage_kuxomk.jpg";
+        if (student.getCurImage() != null && !student.getCurImage().equals(defaultUrl)) {
+            String publicId = cloudinaryService.extractPublicId(student.getCurImage());
+            cloudinaryService.deleteImage(publicId);
         }
 
         student.setCurImage(student.getNewImage());
@@ -488,13 +479,8 @@ public class AdminService {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        String newFile = student.getNewImage();
-        Path newPath = uploadPath.resolve(newFile).normalize();
-        Files.deleteIfExists(newPath);
-
+        String publicId = cloudinaryService.extractPublicId(student.getNewImage());
+        cloudinaryService.deleteImage(publicId);
         student.setNewImage(null);
         studentRepo.save(student);
 
@@ -583,8 +569,8 @@ public class AdminService {
         studentResponseDto.setSemester(academic.getSemester());
         studentResponseDto.setClassName(academic.getClassName());
         studentResponseDto.setBatch(academic.getBatch());
-        studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
-        studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+        studentResponseDto.setCurImage(studentResponseDto.getCurImage());
+        studentResponseDto.setNewImage(studentResponseDto.getNewImage());
 
         return studentResponseDto;
     }
@@ -617,8 +603,8 @@ public class AdminService {
                     studentResponseDto.setSemester(a.getAcademic().getSemester());
                     studentResponseDto.setClassName(a.getAcademic().getClassName());
                     studentResponseDto.setBatch(a.getAcademic().getBatch());
-                    studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
-                    studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+                    studentResponseDto.setCurImage(studentResponseDto.getCurImage());
+                    studentResponseDto.setNewImage(studentResponseDto.getNewImage());
                     return studentResponseDto;
                 })
                 .toList();
@@ -793,8 +779,8 @@ public class AdminService {
                     studentResponseDto.setSemester(a.getAcademic().getSemester());
                     studentResponseDto.setClassName(a.getAcademic().getClassName());
                     studentResponseDto.setBatch(a.getAcademic().getBatch());
-                    studentResponseDto.setCurImage(fileBaseUrl + studentResponseDto.getCurImage());
-                    studentResponseDto.setNewImage(fileBaseUrl + studentResponseDto.getNewImage());
+                    studentResponseDto.setCurImage(studentResponseDto.getCurImage());
+                    studentResponseDto.setNewImage(studentResponseDto.getNewImage());
                     return studentResponseDto;
                 })
                 .toList();

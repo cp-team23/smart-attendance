@@ -1,17 +1,12 @@
 package com.capstoneproject.smartattendance.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,14 +46,7 @@ public class StudentService {
 
     private static final long QR_TTL_SECONDS = 120;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
-    @Value("${temp.file.upload-dir}")
-    private String tempUploadDir;
-
-    @Value("${app.file.base-url}")
-    private String fileBaseUrl;
+    private final CloudinaryService cloudinaryService;
 
     public StudentResponseDto getMyDetailsService(String studentId) {
         Student student = studentRepo.findById(studentId)
@@ -70,8 +58,8 @@ public class StudentService {
         response.setSemester(academic.getSemester());
         response.setClassName(academic.getClassName());
         response.setBatch(academic.getBatch());
-        response.setCurImage(fileBaseUrl + response.getCurImage());
-        response.setNewImage(fileBaseUrl + response.getNewImage());
+        response.setCurImage(response.getCurImage());
+        response.setNewImage(response.getNewImage());
         return response;
     }
 
@@ -104,20 +92,15 @@ public class StudentService {
             throw new CustomeException(ErrorCode.INVALID_FILE_TYPE);
         }
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        String prevFile = student.getNewImage();
-        if (prevFile != null) {
-            Path prevPath = uploadPath.resolve(prevFile).normalize();
-            Files.deleteIfExists(prevPath);
+        if (student.getNewImage() != null) {
+            String publicId = cloudinaryService.extractPublicId(student.getNewImage());
+            cloudinaryService.deleteImage(publicId);
         }
-        // new image
-        String fileName = UUID.randomUUID() + "_" + studentId + extension;
-        Path filePath = uploadPath.resolve(fileName);
-        Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        student.setNewImage(fileName);
+        // Upload new image to Cloudinary
+        String newImageUrl = cloudinaryService.uploadImage(image, "smart-attendance/students");
+
+        student.setNewImage(newImageUrl);
         studentRepo.save(student);
 
     }
@@ -131,12 +114,9 @@ public class StudentService {
             throw new CustomeException(ErrorCode.NO_REQUEST_FOUND);
         }
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        String prevFile = student.getNewImage();
-        Path prevPath = uploadPath.resolve(prevFile).normalize();
-        Files.deleteIfExists(prevPath);
+        // Delete from Cloudinary
+        String publicId = cloudinaryService.extractPublicId(student.getNewImage());
+        cloudinaryService.deleteImage(publicId);
 
         student.setNewImage(null);
         studentRepo.save(student);
@@ -180,7 +160,7 @@ public class StudentService {
             && student.getLastLogin().isAfter(attendanceRecord.getAttendance().getLastStartTime())){
                 throw new CustomeException(ErrorCode.NOT_ALLOWED);
         }
-        if (student.getCurImage().equals("defaultimage.jpg")) {
+        if (student.getCurImage().equals("https://res.cloudinary.com/dzyjaax7p/image/upload/v1773846089/defaultimage_kuxomk.jpg")) {
             throw new CustomeException(ErrorCode.IMAGE_NOT_FOUND);
         }
 
@@ -251,21 +231,11 @@ public class StudentService {
             throw new CustomeException(ErrorCode.SCAN_QR_AGAIN);
         }
 
-        Path path = Paths.get(uploadDir).resolve(student.getCurImage()).normalize();
-
-
-        byte[] dbImage = Files.readAllBytes(path);
+        // Cloudinary URL se image bytes fetch karo
+        byte[] dbImage = new java.net.URL(student.getCurImage()).openStream().readAllBytes();
         byte[] liveImageBytes = liveImage.getBytes();
 
         boolean matched = faceMatchService.matchFaces(dbImage, liveImageBytes);
-
-        Path uploadPath = Paths.get(tempUploadDir).toAbsolutePath().normalize();
-        Files.createDirectories(uploadPath);
-
-        // new image
-        String fileName = "temp_" + UUID.randomUUID() + "_" + studentId + ".jpg";
-        Path filePath = uploadPath.resolve(fileName);
-        Files.copy(liveImage.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
 
         if (!matched) {
