@@ -20,27 +20,29 @@ const batchOptionsBox = document.getElementById("batchOption");
 
 const contentbody = document.querySelector(".contentbody");
 
+const ALL = "All";
+
 let allData = [];
-let year = [];
-let branch = [];
-let sem = [];
-let className = [];
-let batch = [];
 let allStudents = [];
 
-function showData(student) {
-    let html = "";
-    student.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
-    student.forEach(element => {
-        html += `<div class="student-row" data-en="${element.enrollmentNo}" data-id="${element.userId}">
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function showData(students) {
+    if (students.length === 0) {
+        contentbody.innerHTML = `<p class="notfound">No students found</p>`;
+        return;
+    }
+    students.sort((a, b) => a.enrollmentNo.localeCompare(b.enrollmentNo));
+    contentbody.innerHTML = students.map(s => `
+        <div class="student-row" data-en="${s.enrollmentNo}" data-id="${s.userId}">
             <div class="student-profile">
-                <img src="${element.curImage}" alt="Student">
+                <img src="${s.curImage}" alt="Student">
                 <div>
-                    <div class="student-name">${element.name}</div>
+                    <div class="student-name">${s.name}</div>
                     <div class="det">
-                        <div class="student-email">${element.userId}</div>
-                        <div class="student-field">Enrollment: ${element.enrollmentNo}</div>
-                        <div class="student-field">Email : ${element.email}</div>
+                        <div class="student-email">${s.userId}</div>
+                        <div class="student-field">Enrollment: ${s.enrollmentNo}</div>
+                        <div class="student-field">Email : ${s.email}</div>
                     </div>
                 </div>
             </div>
@@ -48,302 +50,260 @@ function showData(student) {
                 <button class="update-btn">Edit</button>
                 <button class="delete-btn">Delete</button>
             </div>
-        </div>`;
-    });
-    contentbody.innerHTML = html;
+        </div>`).join("");
 }
 
+// ─── Get matching academicIds from current filter state ───────────────────────
+
+function getFilteredAcademicIds() {
+    const y  = yearInput.value;
+    const br = branchInput.value;
+    const sm = semInput.value;
+    const cl = classInput.value;
+    const bt = batchInput.value;
+
+    return allData
+        .filter(e =>
+            (!y  || y  === ALL || e.year      === y)  &&
+            (!br || br === ALL || e.branch    === br) &&
+            (!sm || sm === ALL || e.semester  === sm) &&
+            (!cl || cl === ALL || e.className === cl) &&
+            (!bt || bt === ALL || e.batch     === bt)
+        )
+        .map(e => e.academicId);
+}
+
+// ─── Fetch students from backend ──────────────────────────────────────────────
+
+async function fetchStudents(academicIds) {
+    showLoader();
+    try {
+        const res = await fetch("/api/admin/student/all", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(academicIds)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showSnackbar("Something went wrong. Try again", "warning");
+            removeLoader();
+            return;
+        }
+
+        allStudents = data.response ?? [];
+        removeLoader();
+        applySearch();
+
+        if (allStudents.length === 0) {
+            showSnackbar("No students found.", "warning");
+        }
+
+    } catch (e) {
+        removeLoader();
+        showSnackbar("Something went wrong. Try again", "error");
+    }
+}
+
+// ─── Search filter (client-side only) ────────────────────────────────────────
+
+function applySearch() {
+    const q = searchInput.value.toLowerCase().trim();
+    if (!q) {
+        showData(allStudents);
+        return;
+    }
+    const filtered = allStudents.filter(s =>
+        s.name.toLowerCase().includes(q) ||
+        s.userId.toLowerCase().includes(q) ||
+        s.enrollmentNo.toLowerCase().includes(q) ||
+        s.email.toLowerCase().includes(q)
+    );
+    showData(filtered);
+}
+
+// ─── On filter change → get ids → fetch ──────────────────────────────────────
+
+function onFilterChange() {
+    const ids = getFilteredAcademicIds();
+    if (ids.length === 0) {
+        contentbody.innerHTML = `<p class="notfound">No matching academic group found</p>`;
+        return;
+    }
+    fetchStudents(ids);
+}
+
+// ─── Dropdown builder ─────────────────────────────────────────────────────────
+
+function buildDropdown(box, input, items) {
+    box.innerHTML = "";
+    const options = [ALL, ...items];
+    options.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        if (input.value === item) li.classList.add("selected");
+        li.onclick = (e) => {
+            e.stopPropagation();
+            input.value = item;
+            input.classList.add("filled"); // always keep label up
+            box.style.display = "none";
+            onFilterChange();
+        };
+        box.appendChild(li);
+    });
+}
+
+// ─── Unique values helpers ────────────────────────────────────────────────────
+
+function uniq(arr) {
+    return [...new Set(arr)].sort();
+}
+
+function filteredUniq(field, filters = {}) {
+    return uniq(
+        allData
+            .filter(e =>
+                (!filters.year      || filters.year      === ALL || e.year      === filters.year) &&
+                (!filters.branch    || filters.branch    === ALL || e.branch    === filters.branch) &&
+                (!filters.semester  || filters.semester  === ALL || e.semester  === filters.semester) &&
+                (!filters.className || filters.className === ALL || e.className === filters.className)
+            )
+            .map(e => e[field])
+    );
+}
+
+// ─── Toggle dropdown ──────────────────────────────────────────────────────────
+
+const allBoxes = [yearOptionsBox, branchOptionsBox, semOptionsBox, classOptionsBox, batchOptionsBox];
+
+function toggleDropdown(box, buildFn) {
+    const isOpen = box.style.display === "block";
+    allBoxes.forEach(b => b.style.display = "none");
+    if (!isOpen) {
+        buildFn();
+        box.style.display = "block";
+    }
+}
+
+// ─── Wire up inputs ───────────────────────────────────────────────────────────
+
+yearInput.onclick = (e) => {
+    e.stopPropagation();
+    toggleDropdown(yearOptionsBox, () => {
+        buildDropdown(yearOptionsBox, yearInput, filteredUniq("year"));
+    });
+};
+
+branchInput.onclick = (e) => {
+    e.stopPropagation();
+    toggleDropdown(branchOptionsBox, () => {
+        buildDropdown(branchOptionsBox, branchInput,
+            filteredUniq("branch", { year: yearInput.value })
+        );
+    });
+};
+
+semInput.onclick = (e) => {
+    e.stopPropagation();
+    toggleDropdown(semOptionsBox, () => {
+        buildDropdown(semOptionsBox, semInput,
+            filteredUniq("semester", { year: yearInput.value, branch: branchInput.value })
+        );
+    });
+};
+
+classInput.onclick = (e) => {
+    e.stopPropagation();
+    toggleDropdown(classOptionsBox, () => {
+        buildDropdown(classOptionsBox, classInput,
+            filteredUniq("className", { year: yearInput.value, branch: branchInput.value, semester: semInput.value })
+        );
+    });
+};
+
+batchInput.onclick = (e) => {
+    e.stopPropagation();
+    toggleDropdown(batchOptionsBox, () => {
+        buildDropdown(batchOptionsBox, batchInput,
+            filteredUniq("batch", { year: yearInput.value, branch: branchInput.value, semester: semInput.value, className: classInput.value })
+        );
+    });
+};
+
+// ─── Close on outside click ───────────────────────────────────────────────────
+
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".custom-dropdown")) {
+        allBoxes.forEach(b => b.style.display = "none");
+    }
+});
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+searchInput.addEventListener("input", applySearch);
+
+// ─── Load academic structure ──────────────────────────────────────────────────
+
 async function loadData() {
-    showLoader(); // 👈
+    showLoader();
     try {
         const res = await fetch("/api/admin/academic-structure");
         const data = await res.json();
-
         allData = data.response;
-
-        allData.forEach(element => {
-            if (!year.includes(element.year)) {
-                year.push(element.year);
-            }
-        });
-        removeLoader(); // 👈
+        removeLoader();
     } catch (err) {
-        removeLoader(); // 👈
+        removeLoader();
         showSnackbar("Failed to load academic structure", "error");
         throw err;
     }
 }
 
-function setBatch() {
-    batchOptionsBox.innerHTML = "";
-    batch.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        li.onclick = () => {
-            batchInput.value = item;
-            batchInput.classList.add("filled");
-            batchOptionsBox.style.display = "none";
+// ─── Set inputs from an academicData entry ────────────────────────────────────
 
-            allData.forEach(element => {
-                if (
-                    yearInput.value === element.year &&
-                    branchInput.value === element.branch &&
-                    semInput.value === element.semester &&
-                    classInput.value === element.className &&
-                    batchInput.value === element.batch
-                ) {
-                    academicId = element.academicId;
-                    loadStudent(academicId);
-                }
-            });
-        };
-        batchOptionsBox.appendChild(li);
-    });
+function prefillInputs(entry) {
+    yearInput.value   = entry.year;      yearInput.classList.add("filled");
+    branchInput.value = entry.branch;    branchInput.classList.add("filled");
+    semInput.value    = entry.semester;  semInput.classList.add("filled");
+    classInput.value  = entry.className; classInput.classList.add("filled");
+    batchInput.value  = entry.batch;     batchInput.classList.add("filled");
 }
 
-function setClass() {
-    classOptionsBox.innerHTML = "";
-    batch = [];
-    className.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        li.onclick = () => {
-            if (item !== classInput.value) {
-                batchInput.value = "";
-                batchInput.classList.remove("filled");
-                batchOptionsBox.style.display = "none";
-            }
-            classInput.value = item;
-            classInput.classList.add("filled");
-            classOptionsBox.style.display = "none";
-        };
-        classOptionsBox.appendChild(li);
-    });
-}
+// ─── Initial load ─────────────────────────────────────────────────────────────
 
-function setSem() {
-    semOptionsBox.innerHTML = "";
-    className = [];
-    sem.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        li.onclick = () => {
-            if (item !== semInput.value) {
-                classInput.value = "";
-                classInput.classList.remove("filled");
-                classOptionsBox.style.display = "none";
-                batchInput.value = "";
-                batchInput.classList.remove("filled");
-                batchOptionsBox.style.display = "none";
-            }
-            semInput.value = item;
-            semInput.classList.add("filled");
-            semOptionsBox.style.display = "none";
-        };
-        semOptionsBox.appendChild(li);
-    });
-}
+async function initialLoad() {
+    if (academicId !== null) {
+        // came from another page with specific academicId → load only that
+        const entry = allData.find(e => e.academicId === academicId);
+        if (entry) prefillInputs(entry);
+        fetchStudents([academicId]);
 
-function setBranch() {
-    branchOptionsBox.innerHTML = "";
-    sem = [];
-    branch.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        li.onclick = () => {
-            if (item !== branchInput.value) {
-                semInput.value = "";
-                semInput.classList.remove("filled");
-                semOptionsBox.style.display = "none";
-                classInput.value = "";
-                classInput.classList.remove("filled");
-                classOptionsBox.style.display = "none";
-                batchInput.value = "";
-                batchInput.classList.remove("filled");
-                batchOptionsBox.style.display = "none";
-            }
-            branchInput.value = item;
-            branchInput.classList.add("filled");
-            branchOptionsBox.style.display = "none";
-        };
-        branchOptionsBox.appendChild(li);
-    });
-}
-
-function setYear() {
-    yearOptionsBox.innerHTML = "";
-    year.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        li.onclick = () => {
-            if (item !== yearInput.value) {
-                branchInput.value = "";
-                branchInput.classList.remove("filled");
-                branchOptionsBox.style.display = "none";
-                semInput.value = "";
-                semInput.classList.remove("filled");
-                semOptionsBox.style.display = "none";
-                classInput.value = "";
-                classInput.classList.remove("filled");
-                classOptionsBox.style.display = "none";
-                batchInput.value = "";
-                batchInput.classList.remove("filled");
-                batchOptionsBox.style.display = "none";
-            }
-            yearInput.value = item;
-            yearInput.classList.add("filled");
-            yearOptionsBox.style.display = "none";
-        };
-        yearOptionsBox.appendChild(li);
-    });
-}
-
-yearInput.onclick = () => {
-    branch = [];
-    yearOptionsBox.style.display =
-        yearOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-branchInput.onclick = () => {
-    sem = [];
-    allData.forEach(element => {
-        if (yearInput.value == element.year && !branch.includes(element.branch)) {
-            branch.push(element.branch);
+    } else {
+        // no academicId → load first entry that has students
+        const firstEntry = allData.find(e => e.studentCount > 0) || allData[0];
+        if (firstEntry) {
+            prefillInputs(firstEntry);
+            fetchStudents([firstEntry.academicId]);
         }
-    });
-    setBranch();
-    branchOptionsBox.style.display =
-        branchOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-semInput.onclick = () => {
-    className = [];
-    allData.forEach(element => {
-        if (yearInput.value == element.year && branchInput.value === element.branch && !sem.includes(element.semester)) {
-            sem.push(element.semester);
-        }
-    });
-    setSem();
-    semOptionsBox.style.display =
-        semOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-classInput.onclick = () => {
-    batch = [];
-    allData.forEach(element => {
-        if (
-            yearInput.value === element.year &&
-            branchInput.value === element.branch &&
-            semInput.value === element.semester &&
-            !className.includes(element.className)
-        ) {
-            className.push(element.className);
-        }
-    });
-    setClass();
-    classOptionsBox.style.display =
-        classOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-batchInput.onclick = () => {
-    allData.forEach(element => {
-        if (
-            yearInput.value === element.year &&
-            branchInput.value === element.branch &&
-            semInput.value === element.semester &&
-            classInput.value === element.className &&
-            !batch.includes(element.batch)
-        ) {
-            batch.push(element.batch);
-        }
-    });
-    setBatch();
-    batchOptionsBox.style.display =
-        batchOptionsBox.style.display === "block" ? "none" : "block";
-};
-
-async function loadStudent(academicId) {
-    showLoader(); // 👈
-    try {
-        const res = await fetch("/api/admin/all-student/" + academicId);
-        const data = await res.json();
-
-        if (res.ok) {
-            if (data.response.length === 0) {
-                contentbody.innerHTML = `<p class=notfound">No student found</p>`;
-                removeLoader(); // 👈
-                showSnackbar("No students found.", "warning");
-            } else {
-                yearInput.value = data.response[0].year;
-                yearInput.classList.add("filled");
-                branchInput.value = data.response[0].branch;
-                branchInput.classList.add("filled");
-                semInput.value = data.response[0].semester;
-                semInput.classList.add("filled");
-                classInput.value = data.response[0].className;
-                classInput.classList.add("filled");
-                batchInput.value = data.response[0].batch;
-                batchInput.classList.add("filled");
-
-                allStudents = data.response;
-                showData(allStudents);
-                removeLoader(); // 👈
-            }
-        } else {
-            removeLoader(); // 👈
-            showSnackbar("Something went wrong. Try again", "warning");
-        }
-    } catch (e) {
-        removeLoader(); // 👈
-        showSnackbar("Something went wrong. Try again", "error");
+        // user "All" select kare tab onFilterChange() sab load karega
     }
 }
+
+// ─── Delete / Edit ────────────────────────────────────────────────────────────
 
 contentbody.addEventListener("click", function (e) {
     const card = e.target.closest(".student-row");
     if (!card) return;
 
-    const enrollmentNo = card.dataset.en;
-    const studentId = card.dataset.id;
-
     if (e.target.classList.contains("update-btn")) {
-        window.location.href = "/admin/user/update/student/" + enrollmentNo;
+        window.location.href = "/admin/user/update/student/" + card.dataset.en;
     }
 
     if (e.target.classList.contains("delete-btn")) {
-        deleteStudent(studentId).then(() => loadStudent(academicId));
+        deleteStudent(card.dataset.id).then(() => onFilterChange());
     }
 });
 
-loadData().then(() => {
-    setYear();
-    if (academicId !== null) {
-        loadStudent(academicId);
-    } else if (allData.length > 0) {
-        for (let element of allData) {
-            if (element.studentCount > 0) {
-                academicId = element.academicId;
-                break;
-            }
-        }
-        loadStudent(academicId);
-    }
-});
+// ─── Init ─────────────────────────────────────────────────────────────────────
 
-searchInput.addEventListener("input", function () {
-    const searchValue = this.value.toLowerCase().trim();
-
-    if (!searchValue) {
-        showData(allStudents);
-        return;
-    }
-
-    const filtered = allStudents.filter(student =>
-        student.name.toLowerCase().includes(searchValue) ||
-        student.userId.toLowerCase().includes(searchValue) ||
-        student.enrollmentNo.toLowerCase().includes(searchValue) ||
-        student.email.toLowerCase().includes(searchValue)
-    );
-
-    showData(filtered);
-});
+loadData().then(() => initialLoad());

@@ -47,6 +47,9 @@ import com.capstoneproject.smartattendance.service.mail.AdminMailService;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -75,9 +78,10 @@ public class AdminService {
 
     private final StringRedisTemplate redisTemplate;
 
+    private final ImageApprovalAsyncService imageApprovalAsyncService;
+
     // Add field
     private final CloudinaryService cloudinaryService;
-
 
     public AdminDashboardDto getAdminDashboardService(String adminId, int days) {
         Admin admin = adminRepo.findById(adminId)
@@ -587,29 +591,28 @@ public class AdminService {
         return basicDataDto;
     }
 
-    public List<StudentResponseDto> getAllStudentService(UUID academicId, String adminId) {
+    public List<StudentResponseDto> getAllStudentService(List<UUID> academicsList, String adminId) {
 
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-        List<StudentResponseDto> response = admin.getStudents()
+        return admin.getStudents()
                 .stream()
-                .filter(a -> a.getAcademic().getAcademicId().equals(academicId))
-                .filter(a -> !a.isDeleted())
-                .map(a -> {
-                    StudentResponseDto studentResponseDto = modelMapper.map(a, StudentResponseDto.class);
-                    studentResponseDto.setYear(a.getAcademic().getYear());
-                    studentResponseDto.setBranch(a.getAcademic().getBranch());
-                    studentResponseDto.setSemester(a.getAcademic().getSemester());
-                    studentResponseDto.setClassName(a.getAcademic().getClassName());
-                    studentResponseDto.setBatch(a.getAcademic().getBatch());
-                    studentResponseDto.setCurImage(studentResponseDto.getCurImage());
-                    studentResponseDto.setNewImage(studentResponseDto.getNewImage());
-                    return studentResponseDto;
+                .filter(student -> academicsList.contains(student.getAcademic().getAcademicId()))
+                .filter(student -> !student.isDeleted())
+                .map(student -> {
+                    Academic academic = student.getAcademic();
+
+                    StudentResponseDto dto = modelMapper.map(student, StudentResponseDto.class);
+                    dto.setYear(academic.getYear());
+                    dto.setBranch(academic.getBranch());
+                    dto.setSemester(academic.getSemester());
+                    dto.setClassName(academic.getClassName());
+                    dto.setBatch(academic.getBatch());
+
+                    return dto;
                 })
                 .toList();
-
-        return response;
     }
 
     public List<BasicDataDto> getAllteacherService(String adminId) {
@@ -915,5 +918,39 @@ public class AdminService {
         attendance.setDeletedDate(null);
         attendanceRepo.save(attendance);
     }
+
+    public void removeStudentImageService(String userId, String adminId) throws IOException {
+        adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        Student student = studentRepo.findByUserIdAndAdmin_UserId(userId, adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+        String defaultUrl = "https://res.cloudinary.com/dzyjaax7p/image/upload/v1773846089/defaultimage_kuxomk.jpg";
+        if (student.getCurImage() != null && !student.getCurImage().equals(defaultUrl)) {
+            String publicId = cloudinaryService.extractPublicId(student.getCurImage());
+            cloudinaryService.deleteImage(publicId);
+        }
+        student.setCurImage(defaultUrl);
+        studentRepo.save(student);
+    }
+
+    public void approveImageAllStudentImageService(String adminId) {
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
+
+       
+        List<Student> studentsWithNewImage = admin.getStudents()
+                .stream()
+                .filter(s -> s.getNewImage() != null)
+                .toList();
+
+        if (studentsWithNewImage.isEmpty()) {
+            return;
+        }
+        imageApprovalAsyncService.processImageApprovals(admin, studentsWithNewImage);
+    }
+
+   
 
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 @Service
@@ -36,15 +37,20 @@ public class CloudinaryService {
 
     // URL format: https://res.cloudinary.com/{cloud}/image/upload/v{version}/{folder}/{filename}.jpg
     public String extractPublicId(String imageUrl) {
-        // e.g. "smart-attendance/students/abc123"
+        
         String[] parts = imageUrl.split("/upload/");
-        String afterUpload = parts[1]; // "v1234567/smart-attendance/students/abc123.jpg"
-        // Remove version prefix if present
+        String afterUpload = parts[1]; 
+        
         if (afterUpload.startsWith("v") && afterUpload.contains("/")) {
             afterUpload = afterUpload.substring(afterUpload.indexOf("/") + 1);
         }
-        // Remove extension
         int dotIndex = afterUpload.lastIndexOf(".");
         return dotIndex != -1 ? afterUpload.substring(0, dotIndex) : afterUpload;
+    }
+
+    public byte[] downloadImage(String url) throws IOException {
+        try (InputStream in = new java.net.URL(url).openStream()) {
+            return in.readAllBytes();
+        }
     }
 }

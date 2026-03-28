@@ -4,6 +4,37 @@ const searchInput = document.getElementById("searchInput");
 /* =========================
    LOAD DATA FROM BACKEND
 ========================= */
+
+
+document.getElementById("approveAllImage").addEventListener("click", async () => {
+    try {
+        const ok = await showConfirm({
+            title: "Approve All Request ?",
+            message: "Are you sure you want to approve all this request? This action cannot be undone.",
+            confirmText: "Approve"
+        });
+        if (!ok) return;
+        showLoader();
+        const res = await fetch("/api/admin/student/approve/iamge/all", {
+            method: "PATCH"
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showSuccess();
+            loadImageRequest();
+            showSnackbar("Processing started. You'll be notified via email once all images are reviewed.", "success");
+        } else {
+            showSnackbar("Something went wrong. Try again", "warning");
+        }
+    } catch (e) {
+        showSnackbar("Something went wrong. Try again", "error");
+    } finally {
+        removeLoader();
+    }
+});
+
+
 async function loadImageRequest() {
     showLoader(); // 👈
     try {

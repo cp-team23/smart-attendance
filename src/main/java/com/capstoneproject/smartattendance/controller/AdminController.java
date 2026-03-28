@@ -175,12 +175,13 @@ public class AdminController {
 
     }
 
-    @GetMapping("/all-student/{academicId}")
-    public ResponseEntity<?> getAllStudent(@PathVariable UUID academicId,Authentication authentication){
+    @PostMapping("/student/all")   
+    public ResponseEntity<?> getAllStudent(@RequestBody List<UUID> academicsList, Authentication authentication) {
         String adminId = authentication.getName();
-        List<StudentResponseDto> response =adminService.getAllStudentService(academicId,adminId);
+        List<StudentResponseDto> response = adminService.getAllStudentService(academicsList, adminId);
         return ResponseEntity.ok(Map.of("response", response));
     }
+
     @GetMapping("/all-teacher")
     public ResponseEntity<?> getAllTeacher(Authentication authentication){
         String adminId = authentication.getName();
@@ -296,5 +297,21 @@ public class AdminController {
         adminService.updateAttendanceService(attendanceId,saveAttendanceDto, adminId);
         return ResponseEntity.ok(Map.of("response", "SAVED_SUCCESSFULLY"));
     }
+
+
+    @DeleteMapping("/student/image/{userId}")
+    public ResponseEntity<?> removeStudentImage(Authentication authentication,@PathVariable String userId) throws IOException{
+        String adminId = authentication.getName();
+        adminService.removeStudentImageService(userId,adminId);
+        return ResponseEntity.ok(Map.of("response", "DELETED_SUCCESSFULLY"));
+    }
+
+    @PatchMapping("/student/approve/iamge/all")
+    public ResponseEntity<?> approveAllStudentImage(Authentication authentication){
+        String adminId = authentication.getName();
+        adminService.approveImageAllStudentImageService(adminId);
+        return ResponseEntity.ok(Map.of("response", "SUCCESS"));
+    }
+
 
 }

@@ -64,6 +64,7 @@ function showStudent(student) {
                 </div>
                 <div class="card-buttons">
                     <button class="update-btn" id="updateBtn">Edit</button>
+                    <button class="delete-btn" id="deleteImageBtn">Delete Photo</button>
                     <button class="delete-btn" id="deleteBtn">Delete</button>
                 </div>
             </div>
@@ -72,11 +73,38 @@ function showStudent(student) {
 
     deleteBtn = document.getElementById("deleteBtn");
     updateBtn = document.getElementById("updateBtn");
+    deleteImageBtn = document.getElementById("deleteImageBtn");
 
     deleteBtn.addEventListener("click", async () => {
         const res = await deleteStudent(student.userId); // loader handled inside deleteStudent (global.js)
         if (res) {
             cardsContainer.innerHTML = "";
+        }
+    });
+    deleteImageBtn.addEventListener("click", async () => {
+        const ok = await showConfirm({
+            title: "Delete Student Image ?",
+            message: `Are you sure you want to delete ${student.userId} image ? This action cannot be undone.`,
+            confirmText: "Delete"
+        });
+        if (!ok) return false;
+        try {
+            showLoader(); 
+            const res = await fetch(`/api/admin/student/image/${student.userId}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                removeLoader(); // 👈
+                showSnackbar("Failed to delete Student Photo", "error");
+                return false;
+            }
+            searchUser();
+            showSuccess();
+            showSnackbar("Student Photo Deleted Successfully", "success");
+        } catch (err) {
+            removeLoader();
+            showSnackbar("Something went wrong", "error");
         }
     });
 
