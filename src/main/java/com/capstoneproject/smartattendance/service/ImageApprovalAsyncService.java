@@ -50,6 +50,7 @@ public class ImageApprovalAsyncService {
                         String publicId = cloudinaryService.extractPublicId(s.getCurImage());
                         cloudinaryService.deleteImage(publicId);
                     }
+                    adminMailService.sendImageDecisionMail(s, true);
                     s.setCurImage(s.getNewImage());
                     s.setNewImage(null);
                     studentRepo.save(s);
@@ -63,7 +64,6 @@ public class ImageApprovalAsyncService {
             }
         });
 
-        // ✅ SORT by enrollment number
         List<ImageApprovalResult> sortedResults = results.stream()
                 .sorted((a, b) -> a.getEnrollmentNo().compareTo(b.getEnrollmentNo()))
                 .toList();

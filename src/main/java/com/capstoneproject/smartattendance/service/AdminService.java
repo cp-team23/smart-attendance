@@ -2,6 +2,7 @@ package com.capstoneproject.smartattendance.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.capstoneproject.smartattendance.dto.AcademicDto;
 import com.capstoneproject.smartattendance.dto.AdminDashboardDto;
@@ -20,6 +22,7 @@ import com.capstoneproject.smartattendance.dto.AtteandanceResponseDto;
 import com.capstoneproject.smartattendance.dto.AttendanceStatus;
 import com.capstoneproject.smartattendance.dto.BasicAttendanceResponseDto;
 import com.capstoneproject.smartattendance.dto.BasicDataDto;
+import com.capstoneproject.smartattendance.dto.ImageApprovalResult;
 import com.capstoneproject.smartattendance.dto.StudentResponseDto;
 import com.capstoneproject.smartattendance.dto.Role;
 import com.capstoneproject.smartattendance.dto.StudentDto;
@@ -465,7 +468,7 @@ public class AdminService {
         student.setCurImage(student.getNewImage());
         student.setNewImage(null);
         studentRepo.save(student);
-
+        adminMailService.sendImageDecisionMail(student, true);   // approve
     }
 
     public void rejectImageChangeRequestService(String adminId, String userId) throws IOException {
@@ -487,7 +490,7 @@ public class AdminService {
         cloudinaryService.deleteImage(publicId);
         student.setNewImage(null);
         studentRepo.save(student);
-
+        adminMailService.sendImageDecisionMail(student, false);  // reject
     }
 
     public void addTeacherService(TeacherDto teacherDto, String adminId) {
@@ -939,7 +942,6 @@ public class AdminService {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
-       
         List<Student> studentsWithNewImage = admin.getStudents()
                 .stream()
                 .filter(s -> s.getNewImage() != null)
@@ -951,6 +953,76 @@ public class AdminService {
         imageApprovalAsyncService.processImageApprovals(admin, studentsWithNewImage);
     }
 
-   
+    public List<ImageApprovalResult> addMultipleStudentImageService(String adminId, List<MultipartFile> images) throws IOException {
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
 
+        List<ImageApprovalResult> results = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+
+            if (image.isEmpty())
+                continue;
+            
+            String originalFilename = image.getOriginalFilename();
+            String enrollmentNo = "UNKNOWN";
+
+            if (originalFilename != null && originalFilename.contains(".")) {
+                enrollmentNo = originalFilename.substring(0, originalFilename.lastIndexOf("."));
+            }
+
+            try {
+                
+                if (originalFilename == null || !originalFilename.contains(".")) {
+                    results.add(new ImageApprovalResult(enrollmentNo, "INVALID FILE NAME"));
+                    continue;
+                }
+                if (image.getSize() > 5 * 1024 * 1024) {
+                    results.add(new ImageApprovalResult(enrollmentNo, "FILE SIZE EXCEEDED"));
+                    continue;
+                }
+
+                String contentType = image.getContentType();
+                if (contentType == null || !(contentType.equals("image/png")
+                        || contentType.equals("image/jpeg")
+                        || contentType.equals("image/jpg"))) {
+                    results.add(new ImageApprovalResult(enrollmentNo, "INVALID FILE TYPE"));
+                    continue;
+                }
+
+                String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                if (!(extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg"))) {
+                    results.add(new ImageApprovalResult(enrollmentNo, "INVALID FILE TYPE"));
+                    continue;
+                }
+
+                Student student = studentRepo
+                        .findByAdminAndEnrollmentNoAndIsDeletedFalseAndDeletedDateIsNull(admin, enrollmentNo)
+                        .orElse(null);
+
+                if (student == null) {
+                    results.add(new ImageApprovalResult(enrollmentNo, "USER NOT FOUND"));
+                    continue;
+                }
+
+                if (student.getNewImage() != null) {
+                    String publicId = cloudinaryService.extractPublicId(student.getNewImage());
+                    cloudinaryService.deleteImage(publicId);
+                }
+
+                String newImageUrl = cloudinaryService.uploadImage(image, "smart-attendance/students");
+                student.setNewImage(newImageUrl);
+                studentRepo.save(student);
+
+                results.add(new ImageApprovalResult(enrollmentNo, "SUCCESS"));
+            } catch (Exception e) {
+                log.warn("Image upload failed for {}: {}", enrollmentNo, e.getMessage());
+                results.add(new ImageApprovalResult(enrollmentNo, "INTERNAL ERROR"));
+            }
+        }
+        if (!results.isEmpty()) {
+            adminMailService.sendMultipleImageUploadReportMail(admin, results);
+        }
+        return results; 
+    }
 }

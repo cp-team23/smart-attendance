@@ -1,514 +1,99 @@
 package com.capstoneproject.smartattendance.service.mail;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import com.capstoneproject.smartattendance.dto.ImageApprovalResult;
 import com.capstoneproject.smartattendance.entity.Admin;
 import com.capstoneproject.smartattendance.entity.Student;
 import com.capstoneproject.smartattendance.entity.Teacher;
-import lombok.RequiredArgsConstructor;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminMailService {
 
     private final MailSenderService mailSenderService;
 
+    // ── Template paths ─────────────────────────────────────────────────────────
+    private static final String TPL_STUDENT = "templates/mail/student-account.html";
+    private static final String TPL_TEACHER = "templates/mail/teacher-account.html";
+    private static final String TPL_APPROVAL_REPORT = "templates/mail/image-approval-report.html";
+    private static final String TPL_UPLOAD_REPORT = "templates/mail/bulk-upload-report.html";
+    private static final String TPL_IMAGE_DECISION = "templates/mail/student-image-decision.html";
+
+
+    // ── Helper: load HTML file from classpath ──────────────────────────────────
+    private String loadTemplate(String path) throws IOException {
+        ClassPathResource resource = new ClassPathResource(path);
+        return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     public void sendStudentDetailsMail(Student student, String adminId, String password, String type) {
-        if (password == null) {
+        if (password == null)
             password = "same as before";
-        }
+
         String subject = "Student Account " + type + " – Smart Attendance System";
 
-        String body = """
-                <!DOCTYPE html>
-                <html>
+        String body;
+        try {
+            body = loadTemplate(TPL_STUDENT);
+        } catch (IOException e) {
+            log.error("Failed to load student-account.html: {}", e.getMessage());
+            return;
+        }
 
-                <head>
-                    <meta charset="UTF-8" />
-                    <style>
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            background: #e5e7eb;
-                            font-family: Arial, Helvetica, sans-serif;
-                        }
-
-                        .wrapper {
-                            max-width: 600px;
-                            margin: 30px auto;
-                            background: #ffffff;
-                            border-radius: 8px;
-                            overflow: hidden;
-                            box-shadow: 0 2px 8px rgba(27, 38, 59, 0.12);
-                        }
-
-                        .header {
-                            background: #1B263B;
-                            padding: 28px 32px;
-                            text-align: center;
-                        }
-
-                        .header h1 {
-                            margin: 0;
-                            color: #ffffff;
-                            font-size: 22px;
-                            letter-spacing: 0.5px;
-                        }
-
-                        .header p {
-                            margin: 6px 0 0;
-                            color: #eeeeee;
-                            font-size: 13px;
-                        }
-
-                        .badge {
-                            display: inline-block;
-                            margin-top: 12px;
-                            background: #16a34a;
-                            color: #ffffff;
-                            font-size: 12px;
-                            font-weight: bold;
-                            padding: 4px 14px;
-                            border-radius: 20px;
-                            letter-spacing: 0.8px;
-                            text-transform: uppercase;
-                        }
-
-                        .content {
-                            padding: 28px 32px;
-                        }
-
-                        .greeting {
-                            font-size: 15px;
-                            color: #1B263B;
-                            margin-bottom: 20px;
-                        }
-
-                        .section {
-                            margin-bottom: 24px;
-                        }
-
-                        .section-title {
-                            font-size: 11px;
-                            font-weight: bold;
-                            color: #354a75;
-                            text-transform: uppercase;
-                            letter-spacing: 1px;
-                            margin-bottom: 10px;
-                            padding-bottom: 6px;
-                            border-bottom: 2px solid #e5e7eb;
-                        }
-
-                        .cred-box {
-                            background: #eeeeee;
-                            border-left: 4px solid #1B263B;
-                            border-radius: 4px;
-                            padding: 14px 18px;
-                        }
-
-                        .cred-row {
-                            display: flex;
-                            justify-content: space-between;
-                            margin-bottom: 8px;
-                            font-size: 14px;
-                        }
-
-                        .cred-row:last-child {
-                            margin-bottom: 0;
-                        }
-
-                        .cred-label {
-                            color: #354a75;
-                            font-weight: bold;
-                        }
-
-                        .cred-value {
-                            color: #1B263B;
-                            font-weight: bold;
-                            font-family: monospace;
-                            font-size: 15px;
-                        }
-
-                        table.details {
-                            width: 100%%;
-                            border-collapse: collapse;
-                            font-size: 14px;
-                        }
-
-                        table.details td {
-                            padding: 8px 4px;
-                            color: #1B263B;
-                            border-bottom: 1px solid #e5e7eb;
-                        }
-
-                        table.details td:first-child {
-                            color: #354a75;
-                            width: 42%%;
-                        }
-
-                        table.details tr:last-child td {
-                            border-bottom: none;
-                        }
-
-                        .notice {
-                            background: #eeeeee;
-                            border: 1px solid #e5e7eb;
-                            border-left: 4px solid #f59e0b;
-                            border-radius: 4px;
-                            padding: 12px 16px;
-                            font-size: 13px;
-                            color: #1B263B;
-                            margin-bottom: 24px;
-                        }
-
-                        .notice strong {
-                            color: #dc2626;
-                        }
-
-                        .footer {
-                            background: #e5e7eb;
-                            text-align: center;
-                            padding: 18px 32px;
-                            font-size: 12px;
-                            color: #354a75;
-                        }
-                    </style>
-                </head>
-
-                <body>
-                    <div class="wrapper">
-                        <div class="header">
-                            <h1>Smart Attendance System</h1>
-                            <p>Automated Account Notification</p>
-                            <span class="badge">Account %s</span>
-                        </div>
-                        <div class="content">
-                            <p class="greeting">Dear <strong>%s</strong>,<br><br>
-                                Your student account has been successfully <strong>%s</strong>. Below are your login credentials and
-                                account details.</p>
-
-                            <div class="section">
-                                <div class="section-title">Account Credentials</div>
-                                <div class="cred-box">
-                                    <div class="cred-row">
-                                        <span class="cred-label">User ID : </span>
-                                        <span class="cred-value">&nbsp;%s</span>
-                                    </div>
-                                    <div class="cred-row">
-                                        <span class="cred-label">Password : </span>
-                                        <span class="cred-value">&nbsp;%s</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">Student Details</div>
-                                <table class="details">
-                                    <tr>
-                                        <td>Full Name</td>
-                                        <td><strong>%s</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>College</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Enrollment No</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Branch</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Semester</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Class</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Batch</td>
-                                        <td>%s</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">Managed By</div>
-                                <table class="details">
-                                    <tr>
-                                        <td>Administrator</td>
-                                        <td><strong>%s</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="notice">
-                                <strong>⚠ Important:</strong> Please log in and change your password after your first login.
-                                If you did not expect this email, contact your administrator immediately.
-                            </div>
-                        </div>
-                        <div class="footer">
-                            &copy; Smart Attendance System &nbsp;|&nbsp; This is an automated message, please do not reply.
-                        </div>
-                    </div>
-                </body>
-
-                </html>
-                """
-                .formatted(
-                        type, student.getName(), type,
-                        student.getUserId(), password,
-                        student.getName(), student.getCollegeName(),
-                        student.getEnrollmentNo(),
-                        student.getAcademic().getBranch(),
-                        student.getAcademic().getSemester(),
-                        student.getAcademic().getClassName(),
-                        student.getAcademic().getBatch(),
-                        student.getAdmin().getName());
+        body = body
+                .replace("{{type}}", type)
+                .replace("{{studentName}}", student.getName())
+                .replace("{{userId}}", student.getUserId())
+                .replace("{{password}}", password)
+                .replace("{{collegeName}}", student.getCollegeName())
+                .replace("{{enrollmentNo}}", student.getEnrollmentNo())
+                .replace("{{branch}}", student.getAcademic().getBranch())
+                .replace("{{semester}}", student.getAcademic().getSemester())
+                .replace("{{className}}", student.getAcademic().getClassName())
+                .replace("{{batch}}", student.getAcademic().getBatch())
+                .replace("{{adminName}}", student.getAdmin().getName());
 
         mailSenderService.sendMail(student.getEmail(), subject, body);
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
     public void sendTeacherDetailsMail(Teacher teacher, String adminId, String password, String type) {
-        if (password == null) {
+        if (password == null)
             password = "same as before";
-        }
+
         String subject = "Teacher Account " + type + " – Smart Attendance System";
 
-        String body = """
-                <!DOCTYPE html>
-                <html>
+        String body;
+        try {
+            body = loadTemplate(TPL_TEACHER);
+        } catch (IOException e) {
+            log.error("Failed to load teacher-account.html: {}", e.getMessage());
+            return;
+        }
 
-                <head>
-                    <meta charset="UTF-8" />
-                    <style>
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            background: #e5e7eb;
-                            font-family: Arial, Helvetica, sans-serif;
-                        }
-
-                        .wrapper {
-                            max-width: 600px;
-                            margin: 30px auto;
-                            background: #ffffff;
-                            border-radius: 8px;
-                            overflow: hidden;
-                            box-shadow: 0 2px 8px rgba(27, 38, 59, 0.12);
-                        }
-
-                        .header {
-                            background: #354a75;
-                            padding: 28px 32px;
-                            text-align: center;
-                        }
-
-                        .header h1 {
-                            margin: 0;
-                            color: #ffffff;
-                            font-size: 22px;
-                            letter-spacing: 0.5px;
-                        }
-
-                        .header p {
-                            margin: 6px 0 0;
-                            color: #eeeeee;
-                            font-size: 13px;
-                        }
-
-                        .badge {
-                            display: inline-block;
-                            margin-top: 12px;
-                            background: #16a34a;
-                            color: #ffffff;
-                            font-size: 12px;
-                            font-weight: bold;
-                            padding: 4px 14px;
-                            border-radius: 20px;
-                            letter-spacing: 0.8px;
-                            text-transform: uppercase;
-                        }
-
-                        .content {
-                            padding: 28px 32px;
-                        }
-
-                        .greeting {
-                            font-size: 15px;
-                            color: #1B263B;
-                            margin-bottom: 20px;
-                        }
-
-                        .section {
-                            margin-bottom: 24px;
-                        }
-
-                        .section-title {
-                            font-size: 11px;
-                            font-weight: bold;
-                            color: #354a75;
-                            text-transform: uppercase;
-                            letter-spacing: 1px;
-                            margin-bottom: 10px;
-                            padding-bottom: 6px;
-                            border-bottom: 2px solid #e5e7eb;
-                        }
-
-                        .cred-box {
-                            background: #eeeeee;
-                            border-left: 4px solid #354a75;
-                            border-radius: 4px;
-                            padding: 14px 18px;
-                        }
-
-                        .cred-row {
-                            display: flex;
-                            justify-content: space-between;
-                            margin-bottom: 8px;
-                            font-size: 14px;
-                        }
-
-                        .cred-row:last-child {
-                            margin-bottom: 0;
-                        }
-
-                        .cred-label {
-                            color: #1B263B;
-                            font-weight: bold;
-                        }
-
-                        .cred-value {
-                            color: #354a75;
-                            font-weight: bold;
-                            font-family: monospace;
-                            font-size: 15px;
-                        }
-
-                        table.details {
-                            width: 100%%;
-                            border-collapse: collapse;
-                            font-size: 14px;
-                        }
-
-                        table.details td {
-                            padding: 8px 4px;
-                            color: #1B263B;
-                            border-bottom: 1px solid #e5e7eb;
-                        }
-
-                        table.details td:first-child {
-                            color: #354a75;
-                            width: 42%%;
-                        }
-
-                        table.details tr:last-child td {
-                            border-bottom: none;
-                        }
-
-                        .notice {
-                            background: #eeeeee;
-                            border: 1px solid #e5e7eb;
-                            border-left: 4px solid #f59e0b;
-                            border-radius: 4px;
-                            padding: 12px 16px;
-                            font-size: 13px;
-                            color: #1B263B;
-                            margin-bottom: 24px;
-                        }
-
-                        .notice strong {
-                            color: #dc2626;
-                        }
-
-                        .footer {
-                            background: #e5e7eb;
-                            text-align: center;
-                            padding: 18px 32px;
-                            font-size: 12px;
-                            color: #354a75;
-                        }
-                    </style>
-                </head>
-
-                <body>
-                    <div class="wrapper">
-                        <div class="header">
-                            <h1>Smart Attendance System</h1>
-                            <p>Automated Account Notification</p>
-                            <span class="badge">Account %s</span>
-                        </div>
-                        <div class="content">
-                            <p class="greeting">Dear <strong>%s</strong>,<br><br>
-                                Your teacher account has been successfully <strong>%s</strong>. Below are your login credentials and
-                                account details.</p>
-
-                            <div class="section">
-                                <div class="section-title">Account Credentials</div>
-                                <div class="cred-box">
-                                    <div class="cred-row">
-                                        <span class="cred-label">User ID : </span>
-                                        <span class="cred-value">&nbsp;%s</span>
-                                    </div>
-                                    <div class="cred-row">
-                                        <span class="cred-label">Password : </span>
-                                        <span class="cred-value">&nbsp;%s</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">Teacher Details</div>
-                                <table class="details">
-                                    <tr>
-                                        <td>Full Name</td>
-                                        <td><strong>%s</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>College</td>
-                                        <td>%s</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">Managed By</div>
-                                <table class="details">
-                                    <tr>
-                                        <td>Administrator</td>
-                                        <td><strong>%s</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="notice">
-                                <strong>⚠ Important:</strong> Please log in and change your password after your first login.
-                                If you did not expect this email, contact your administrator immediately.
-                            </div>
-                        </div>
-                        <div class="footer">
-                            &copy; Smart Attendance System &nbsp;|&nbsp; This is an automated message, please do not reply.
-                        </div>
-                    </div>
-                </body>
-
-                </html>
-                """
-                .formatted(
-                        type, teacher.getName(), type,
-                        teacher.getUserId(), password,
-                        teacher.getName(), teacher.getCollegeName(),
-                        teacher.getAdmin().getName());
+        body = body
+                .replace("{{type}}", type)
+                .replace("{{teacherName}}", teacher.getName())
+                .replace("{{userId}}", teacher.getUserId())
+                .replace("{{password}}", password)
+                .replace("{{collegeName}}", teacher.getCollegeName())
+                .replace("{{adminName}}", teacher.getAdmin().getName());
 
         mailSenderService.sendMail(teacher.getEmail(), subject, body);
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
     public void sendFullImageApprovalReport(Admin admin, List<ImageApprovalResult> results) {
         String subject = "Bulk Image Approval Report – Smart Attendance System";
 
@@ -526,115 +111,127 @@ public class AdminMailService {
 
             rows.append("""
                     <tr>
-                        <td>%d</td>
-                        <td>%s</td>
-                        <td><span style="%s">%s</span></td>
+                        <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%d</td>
+                        <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%s</td>
+                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;"><span style="%s">%s</span></td>
                     </tr>
                     """.formatted(i + 1, r.getEnrollmentNo(), badgeStyle, r.getStatus()));
         }
 
-        String body = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8"/>
-                    <style>
-                        body { margin:0; padding:0; background:#e5e7eb; font-family:Arial,Helvetica,sans-serif; }
-                        .wrapper { max-width:600px; margin:30px auto; background:#ffffff; border-radius:8px;
-                                   overflow:hidden; box-shadow:0 2px 8px rgba(27,38,59,0.12); }
-                        .header { background:#354a75; padding:28px 32px; text-align:center; }
-                        .header h1 { margin:0; color:#ffffff; font-size:22px; letter-spacing:0.5px; }
-                        .header p { margin:6px 0 0; color:#eeeeee; font-size:13px; }
-                        .badge { display:inline-block; margin-top:12px; background:#16a34a; color:#fff;
-                                 font-size:12px; font-weight:bold; padding:4px 14px; border-radius:20px;
-                                 letter-spacing:0.8px; text-transform:uppercase; }
-                        .content { padding:28px 32px; }
-                        .greeting { font-size:15px; color:#1B263B; margin-bottom:20px; }
-                        .section { margin-bottom:24px; }
-                        .section-title { font-size:11px; font-weight:bold; color:#354a75;
-                                         text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;
-                                         padding-bottom:6px; border-bottom:2px solid #e5e7eb; }
-                        .cred-box { background:#eeeeee; border-left:4px solid #354a75;
-                                    border-radius:4px; padding:14px 18px; }
-                        .cred-row { display:flex; justify-content:space-between;
-                                    margin-bottom:8px; font-size:14px; }
-                        .cred-row:last-child { margin-bottom:0; }
-                        .cred-label { color:#1B263B; font-weight:bold; }
-                        .cred-value-green { color:#16a34a; font-weight:bold; font-family:monospace; font-size:15px; }
-                        .cred-value-red { color:#dc2626; font-weight:bold; font-family:monospace; font-size:15px; }
-                        table.details { width:100%%; border-collapse:collapse; font-size:14px; }
-                        table.details th { background:#354a75; color:#fff; padding:8px; text-align:left; }
-                        table.details td { padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb; }
-                        table.details tr:last-child td { border-bottom:none; }
-                        .notice { background:#eeeeee; border:1px solid #e5e7eb; border-left:4px solid #f59e0b;
-                                  border-radius:4px; padding:12px 16px; font-size:13px;
-                                  color:#1B263B; margin-bottom:24px; }
-                        .notice strong { color:#dc2626; }
-                        .footer { background:#e5e7eb; text-align:center; padding:18px 32px;
-                                  font-size:12px; color:#354a75; }
-                    </style>
-                </head>
-                <body>
-                    <div class="wrapper">
-                        <div class="header">
-                            <h1>Smart Attendance System</h1>
-                            <p>Automated Account Notification</p>
-                            <span class="badge">Image Approval Report</span>
-                        </div>
-                        <div class="content">
-                            <p class="greeting">Dear <strong>%s</strong>,<br><br>
-                                The bulk image approval process has completed. Here is a full summary of results
-                                for <strong>%d</strong> student(s).</p>
+        String body;
+        try {
+            body = loadTemplate(TPL_APPROVAL_REPORT);
+        } catch (IOException e) {
+            log.error("Failed to load image-approval-report.html: {}", e.getMessage());
+            return;
+        }
 
-                            <div class="section">
-                                <div class="section-title">Approval Summary</div>
-                                <div class="cred-box">
-                                    <div class="cred-row">
-                                        <span class="cred-label">Total Processed</span>
-                                        <span style="font-weight:bold; font-family:monospace; font-size:15px; color:#354a75;">&nbsp;%d</span>
-                                    </div>
-                                    <div class="cred-row">
-                                        <span class="cred-label">Approved</span>
-                                        <span class="cred-value-green">&nbsp;%d ✓</span>
-                                    </div>
-                                    <div class="cred-row">
-                                        <span class="cred-label">Face Not Matched</span>
-                                        <span class="cred-value-red">&nbsp;%d ✗</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">Student Results</div>
-                                <table class="details">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Enrollment No</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    %s
-                                </table>
-                            </div>
-
-                            <div class="notice">
-                                <strong>⚠ Note:</strong> Students with <em>Face Not Matched</em> status were not updated.
-                                Please review their submitted images manually or request a re-upload.
-                            </div>
-                        </div>
-                        <div class="footer">
-                            &copy; Smart Attendance System &nbsp;|&nbsp; This is an automated message, please do not reply.
-                        </div>
-                    </div>
-                </body>
-                </html>
-                """
-                .formatted(
-                        admin.getName(),
-                        results.size(),
-                        results.size(), approvedCount, failedCount,
-                        rows.toString());
+        body = body
+                .replace("{{adminName}}", admin.getName())
+                .replace("{{totalCount}}", String.valueOf(results.size()))
+                .replace("{{approvedCount}}", String.valueOf(approvedCount))
+                .replace("{{failedCount}}", String.valueOf(failedCount))
+                .replace("{{rows}}", rows.toString());
 
         mailSenderService.sendMail(admin.getEmail(), subject, body);
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
+    public void sendMultipleImageUploadReportMail(Admin admin, List<ImageApprovalResult> results) {
+        String subject = "Bulk Image Upload Report – Smart Attendance System";
+
+        long successCount = results.stream().filter(r -> "SUCCESS".equals(r.getStatus())).count();
+        long failedCount = results.size() - successCount;
+
+        StringBuilder rows = new StringBuilder();
+        for (int i = 0; i < results.size(); i++) {
+            ImageApprovalResult r = results.get(i);
+            boolean success = "SUCCESS".equals(r.getStatus());
+
+            String badgeStyle = success
+                    ? "background:#16a34a; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;"
+                    : "background:#dc2626; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;";
+
+            // ✅ Resolve detail BEFORE touching anything — r is NEVER mutated
+            String detail = switch (r.getStatus()) {
+                case "SUCCESS" -> "Image uploaded successfully ✓";
+                case "USER NOT FOUND" -> "No student found with this enrollment no";
+                case "FILE SIZE EXCEEDED" -> "Image exceeds the 5MB size limit";
+                case "INVALID FILE TYPE" -> "Only JPG, JPEG, PNG files are allowed";
+                case "INVALID FILE NAME" -> "File name is missing or has no extension";
+                case "INTERNAL ERROR" -> "Unexpected error during upload";
+                default -> r.getStatus();
+            };
+
+            // ✅ Local display label only — never r.setStatus()
+            String displayLabel = success ? "SUCCESS" : "ERROR";
+
+            rows.append(
+                    """
+                            <tr>
+                                <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb; text-align:center;">%d</td>
+                                <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%s</td>
+                                <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;"><span style="%s">%s</span></td>
+                                <td style="padding:8px 4px; color:#6b7280; font-size:13px; border-bottom:1px solid #e5e7eb;">%s</td>
+                            </tr>
+                            """
+                            .formatted(i + 1, r.getEnrollmentNo(), badgeStyle, displayLabel, detail));
+        }
+
+        String body;
+        try {
+            body = loadTemplate(TPL_UPLOAD_REPORT);
+        } catch (IOException e) {
+            log.error("Failed to load bulk-upload-report.html: {}", e.getMessage());
+            return;
+        }
+
+        body = body
+                .replace("{{adminName}}", admin.getName())
+                .replace("{{totalCount}}", String.valueOf(results.size()))
+                .replace("{{successCount}}", String.valueOf(successCount))
+                .replace("{{failedCount}}", String.valueOf(failedCount))
+                .replace("{{rows}}", rows.toString());
+
+        mailSenderService.sendMail(admin.getEmail(), subject, body);
+    }
+
+
+    public void sendImageDecisionMail(Student student, boolean approved) {
+        String subject = (approved ? "Image Approved" : "Image Rejected") + " – Smart Attendance System";
+
+        String body;
+        try {
+            body = loadTemplate(TPL_IMAGE_DECISION);
+        } catch (IOException e) {
+            log.error("Failed to load student-image-decision.html: {}", e.getMessage());
+            return;
+        }
+
+        String badgeHtml = approved
+                ? "<span style=\"display:inline-block; margin-top:12px; background:#16a34a; color:#fff; font-size:12px; font-weight:bold; padding:4px 14px; border-radius:20px; letter-spacing:0.8px; text-transform:uppercase;\">Image Approved ✓</span>"
+                : "<span style=\"display:inline-block; margin-top:12px; background:#dc2626; color:#fff; font-size:12px; font-weight:bold; padding:4px 14px; border-radius:20px; letter-spacing:0.8px; text-transform:uppercase;\">Image Rejected ✗</span>";
+
+        String statusHtml = approved
+                ? "<strong style=\"color:#16a34a;\">approved</strong>"
+                : "<strong style=\"color:#dc2626;\">rejected</strong>";
+
+        String noticeHtml = approved
+                ? "<div style=\"background:#f0fdf4; border:1px solid #bbf7d0; border-left:4px solid #16a34a; border-radius:4px; padding:12px 16px; font-size:13px; color:#1B263B; margin-bottom:24px;\">This image will now be used for attendance verification.</div>"
+                : "<div style=\"background:#fef2f2; border:1px solid #fecaca; border-left:4px solid #dc2626; border-radius:4px; padding:12px 16px; font-size:13px; color:#1B263B; margin-bottom:24px;\">Please contact your administrator or re-upload a valid image.</div>";
+
+        body = body
+                .replace("{{studentName}}", student.getName())
+                .replace("{{enrollmentNo}}", student.getEnrollmentNo())
+                .replace("{{adminName}}", student.getAdmin().getName())
+                .replace("{{actionLabel}}", approved ? "Approved" : "Rejected")
+                .replace("{{statusDetail}}", approved
+                        ? "Your new image is now active on your account."
+                        : "The submitted image did not meet the required criteria.")
+                .replace("{{badgeHtml}}", badgeHtml)
+                .replace("{{statusHtml}}", statusHtml)
+                .replace("{{noticeHtml}}", noticeHtml);
+
+        mailSenderService.sendMail(student.getEmail(), subject, body);
+    }
 }

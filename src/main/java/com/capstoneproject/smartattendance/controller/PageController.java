@@ -159,6 +159,11 @@ public class PageController {
         model.addAttribute("academicId",attendanceId);
         return "attendance";
     }
+
+    @GetMapping("/admin/test")
+    public String testPage() {
+        return "test";
+    }
     
 }
 

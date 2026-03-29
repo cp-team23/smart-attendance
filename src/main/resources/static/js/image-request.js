@@ -10,7 +10,7 @@ document.getElementById("approveAllImage").addEventListener("click", async () =>
     try {
         const ok = await showConfirm({
             title: "Approve All Request ?",
-            message: "Are you sure you want to approve all this request? This action cannot be undone.",
+            message: "Are you sure you want to approve all requests? <b>Only images whose face matches the previous image will be approved.</b>",
             confirmText: "Approve"
         });
         if (!ok) return;
