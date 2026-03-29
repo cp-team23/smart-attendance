@@ -468,7 +468,7 @@ public class AdminService {
         student.setCurImage(student.getNewImage());
         student.setNewImage(null);
         studentRepo.save(student);
-        adminMailService.sendImageDecisionMail(student, true,false);   // approve
+        adminMailService.sendImageDecisionMail(student, true);   // approve
     }
 
     public void rejectImageChangeRequestService(String adminId, String userId) throws IOException {
@@ -490,7 +490,7 @@ public class AdminService {
         cloudinaryService.deleteImage(publicId);
         student.setNewImage(null);
         studentRepo.save(student);
-        adminMailService.sendImageDecisionMail(student, false,false);  // reject
+        adminMailService.sendImageDecisionMail(student, false);  // reject
     }
 
     public void addTeacherService(TeacherDto teacherDto, String adminId) {

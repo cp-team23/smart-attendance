@@ -37,22 +37,6 @@ public class MailSenderService {
         }
     }
 
-    public void sendMailSync(String to, String subject, String body) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(to);
-            helper.setFrom("smartattendanceprojectteam@gmail.com");
-            helper.setSubject(subject);
-            helper.setText(body, true);
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            log.error("Failed to send mail to {}: {}", to, e.getMessage());
-            throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
-        }
-    }
 }
 
 

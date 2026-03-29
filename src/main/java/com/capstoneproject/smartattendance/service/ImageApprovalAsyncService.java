@@ -50,7 +50,7 @@ public class ImageApprovalAsyncService {
                         String publicId = cloudinaryService.extractPublicId(s.getCurImage());
                         cloudinaryService.deleteImage(publicId);
                     }
-                    adminMailService.sendImageDecisionMail(s, true,true);
+                    adminMailService.sendImageDecisionMail(s, true);
                     s.setCurImage(s.getNewImage());
                     s.setNewImage(null);
                     studentRepo.save(s);

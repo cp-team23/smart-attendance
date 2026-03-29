@@ -3,7 +3,10 @@ package com.capstoneproject.smartattendance.service.mail;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -22,36 +25,50 @@ public class AdminMailService {
 
     private final MailSenderService mailSenderService;
 
-    // ── Template paths ─────────────────────────────────────────────────────────
+    // ── Template Cache ──────────────────────────────────────────────────────────
+    private final Map<String, String> templateCache = new ConcurrentHashMap<>();
+
     private static final String TPL_STUDENT = "templates/mail/student-account.html";
     private static final String TPL_TEACHER = "templates/mail/teacher-account.html";
     private static final String TPL_APPROVAL_REPORT = "templates/mail/image-approval-report.html";
     private static final String TPL_UPLOAD_REPORT = "templates/mail/bulk-upload-report.html";
     private static final String TPL_IMAGE_DECISION = "templates/mail/student-image-decision.html";
 
+    @PostConstruct
+    public void init() {
+        loadAndCache(TPL_STUDENT);
+        loadAndCache(TPL_TEACHER);
+        loadAndCache(TPL_APPROVAL_REPORT);
+        loadAndCache(TPL_UPLOAD_REPORT);
+        loadAndCache(TPL_IMAGE_DECISION);
+        log.info("Email templates successfully cached.");
+    }
 
-    // ── Helper: load HTML file from classpath ──────────────────────────────────
-    private String loadTemplate(String path) throws IOException {
-        ClassPathResource resource = new ClassPathResource(path);
-        return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    private void loadAndCache(String path) {
+        try {
+            ClassPathResource resource = new ClassPathResource(path);
+            String content = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            templateCache.put(path, content);
+        } catch (IOException e) {
+            log.error("CRITICAL: Failed to load template {}: {}", path, e.getMessage());
+        }
+    }
+
+    private String getTemplate(String path) {
+        String content = templateCache.get(path);
+        if (content == null) {
+            log.error("Template cache miss for: {}", path);
+            return ""; // Or throw a custom exception
+        }
+        return content;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
     public void sendStudentDetailsMail(Student student, String adminId, String password, String type) {
-        if (password == null)
-            password = "same as before";
+        if (password == null) password = "same as before";
 
         String subject = "Student Account " + type + " – Smart Attendance System";
-
-        String body;
-        try {
-            body = loadTemplate(TPL_STUDENT);
-        } catch (IOException e) {
-            log.error("Failed to load student-account.html: {}", e.getMessage());
-            return;
-        }
-
-        body = body
+        String body = getTemplate(TPL_STUDENT)
                 .replace("{{type}}", type)
                 .replace("{{studentName}}", student.getName())
                 .replace("{{userId}}", student.getUserId())
@@ -67,22 +84,11 @@ public class AdminMailService {
         mailSenderService.sendMail(student.getEmail(), subject, body);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
     public void sendTeacherDetailsMail(Teacher teacher, String adminId, String password, String type) {
-        if (password == null)
-            password = "same as before";
+        if (password == null) password = "same as before";
 
         String subject = "Teacher Account " + type + " – Smart Attendance System";
-
-        String body;
-        try {
-            body = loadTemplate(TPL_TEACHER);
-        } catch (IOException e) {
-            log.error("Failed to load teacher-account.html: {}", e.getMessage());
-            return;
-        }
-
-        body = body
+        String body = getTemplate(TPL_TEACHER)
                 .replace("{{type}}", type)
                 .replace("{{teacherName}}", teacher.getName())
                 .replace("{{userId}}", teacher.getUserId())
@@ -93,10 +99,8 @@ public class AdminMailService {
         mailSenderService.sendMail(teacher.getEmail(), subject, body);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
     public void sendFullImageApprovalReport(Admin admin, List<ImageApprovalResult> results) {
         String subject = "Bulk Image Approval Report – Smart Attendance System";
-
         long approvedCount = results.stream().filter(r -> "APPROVED".equals(r.getStatus())).count();
         long failedCount = results.size() - approvedCount;
 
@@ -104,29 +108,20 @@ public class AdminMailService {
         for (int i = 0; i < results.size(); i++) {
             ImageApprovalResult r = results.get(i);
             boolean approved = "APPROVED".equals(r.getStatus());
-
             String badgeStyle = approved
-                    ? "background:#16a34a; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold; font-family:Arial,sans-serif;"
-                    : "background:#dc2626; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold; font-family:Arial,sans-serif;";
+                    ? "background:#16a34a; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;"
+                    : "background:#dc2626; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;";
 
             rows.append("""
                     <tr>
-                        <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%d</td>
-                        <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%s</td>
+                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;">%d</td>
+                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;">%s</td>
                         <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;"><span style="%s">%s</span></td>
                     </tr>
                     """.formatted(i + 1, r.getEnrollmentNo(), badgeStyle, r.getStatus()));
         }
 
-        String body;
-        try {
-            body = loadTemplate(TPL_APPROVAL_REPORT);
-        } catch (IOException e) {
-            log.error("Failed to load image-approval-report.html: {}", e.getMessage());
-            return;
-        }
-
-        body = body
+        String body = getTemplate(TPL_APPROVAL_REPORT)
                 .replace("{{adminName}}", admin.getName())
                 .replace("{{totalCount}}", String.valueOf(results.size()))
                 .replace("{{approvedCount}}", String.valueOf(approvedCount))
@@ -136,10 +131,8 @@ public class AdminMailService {
         mailSenderService.sendMail(admin.getEmail(), subject, body);
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
     public void sendMultipleImageUploadReportMail(Admin admin, List<ImageApprovalResult> results) {
         String subject = "Bulk Image Upload Report – Smart Attendance System";
-
         long successCount = results.stream().filter(r -> "SUCCESS".equals(r.getStatus())).count();
         long failedCount = results.size() - successCount;
 
@@ -147,46 +140,25 @@ public class AdminMailService {
         for (int i = 0; i < results.size(); i++) {
             ImageApprovalResult r = results.get(i);
             boolean success = "SUCCESS".equals(r.getStatus());
-
-            String badgeStyle = success
-                    ? "background:#16a34a; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;"
-                    : "background:#dc2626; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;";
-
-            // ✅ Resolve detail BEFORE touching anything — r is NEVER mutated
+            String badgeStyle = success ? "background:#16a34a; color:#fff;" : "background:#dc2626; color:#fff;";
+            
             String detail = switch (r.getStatus()) {
                 case "SUCCESS" -> "Image uploaded successfully ✓";
                 case "USER NOT FOUND" -> "No student found with this enrollment no";
-                case "FILE SIZE EXCEEDED" -> "Image exceeds the 5MB size limit";
-                case "INVALID FILE TYPE" -> "Only JPG, JPEG, PNG files are allowed";
-                case "INVALID FILE NAME" -> "File name is missing or has no extension";
-                case "INTERNAL ERROR" -> "Unexpected error during upload";
                 default -> r.getStatus();
             };
 
-            // ✅ Local display label only — never r.setStatus()
-            String displayLabel = success ? "SUCCESS" : "ERROR";
-
-            rows.append(
-                    """
-                            <tr>
-                                <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb; text-align:center;">%d</td>
-                                <td style="padding:8px 4px; color:#1B263B; border-bottom:1px solid #e5e7eb;">%s</td>
-                                <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;"><span style="%s">%s</span></td>
-                                <td style="padding:8px 4px; color:#6b7280; font-size:13px; border-bottom:1px solid #e5e7eb;">%s</td>
-                            </tr>
-                            """
-                            .formatted(i + 1, r.getEnrollmentNo(), badgeStyle, displayLabel, detail));
+            rows.append("""
+                    <tr>
+                        <td style="text-align:center;">%d</td>
+                        <td>%s</td>
+                        <td><span style="%s">%s</span></td>
+                        <td>%s</td>
+                    </tr>
+                    """.formatted(i + 1, r.getEnrollmentNo(), badgeStyle, success ? "SUCCESS" : "ERROR", detail));
         }
 
-        String body;
-        try {
-            body = loadTemplate(TPL_UPLOAD_REPORT);
-        } catch (IOException e) {
-            log.error("Failed to load bulk-upload-report.html: {}", e.getMessage());
-            return;
-        }
-
-        body = body
+        String body = getTemplate(TPL_UPLOAD_REPORT)
                 .replace("{{adminName}}", admin.getName())
                 .replace("{{totalCount}}", String.valueOf(results.size()))
                 .replace("{{successCount}}", String.valueOf(successCount))
@@ -196,46 +168,20 @@ public class AdminMailService {
         mailSenderService.sendMail(admin.getEmail(), subject, body);
     }
 
-
-    public void sendImageDecisionMail(Student student, boolean approved,boolean sync) {
+    public void sendImageDecisionMail(Student student, boolean approved) {
         String subject = (approved ? "Image Approved" : "Image Rejected") + " – Smart Attendance System";
-
-        String body;
-        try {
-            body = loadTemplate(TPL_IMAGE_DECISION);
-        } catch (IOException e) {
-            log.error("Failed to load student-image-decision.html: {}", e.getMessage());
-            return;
-        }
-
+        
         String badgeHtml = approved
-                ? "<span style=\"display:inline-block; margin-top:12px; background:#16a34a; color:#fff; font-size:12px; font-weight:bold; padding:4px 14px; border-radius:20px; letter-spacing:0.8px; text-transform:uppercase;\">Image Approved ✓</span>"
-                : "<span style=\"display:inline-block; margin-top:12px; background:#dc2626; color:#fff; font-size:12px; font-weight:bold; padding:4px 14px; border-radius:20px; letter-spacing:0.8px; text-transform:uppercase;\">Image Rejected ✗</span>";
+                ? "<span style=\"background:#16a34a; color:#fff; padding:4px 14px; border-radius:20px;\">Image Approved ✓</span>"
+                : "<span style=\"background:#dc2626; color:#fff; padding:4px 14px; border-radius:20px;\">Image Rejected ✗</span>";
 
-        String statusHtml = approved
-                ? "<strong style=\"color:#16a34a;\">approved</strong>"
-                : "<strong style=\"color:#dc2626;\">rejected</strong>";
-
-        String noticeHtml = approved
-                ? "<div style=\"background:#f0fdf4; border:1px solid #bbf7d0; border-left:4px solid #16a34a; border-radius:4px; padding:12px 16px; font-size:13px; color:#1B263B; margin-bottom:24px;\">This image will now be used for attendance verification.</div>"
-                : "<div style=\"background:#fef2f2; border:1px solid #fecaca; border-left:4px solid #dc2626; border-radius:4px; padding:12px 16px; font-size:13px; color:#1B263B; margin-bottom:24px;\">Please contact your administrator or re-upload a valid image.</div>";
-
-        body = body
+        String body = getTemplate(TPL_IMAGE_DECISION)
                 .replace("{{studentName}}", student.getName())
                 .replace("{{enrollmentNo}}", student.getEnrollmentNo())
                 .replace("{{adminName}}", student.getAdmin().getName())
-                .replace("{{actionLabel}}", approved ? "Approved" : "Rejected")
-                .replace("{{statusDetail}}", approved
-                        ? "Your new image is now active on your account."
-                        : "The submitted image did not meet the required criteria.")
                 .replace("{{badgeHtml}}", badgeHtml)
-                .replace("{{statusHtml}}", statusHtml)
-                .replace("{{noticeHtml}}", noticeHtml);
+                .replace("{{statusDetail}}", approved ? "Your new image is active." : "Image did not meet criteria.");
 
-        if(sync){
-            mailSenderService.sendMailSync(student.getEmail(), subject, body);
-        }else{
-            mailSenderService.sendMail(student.getEmail(), subject, body);
-        }
+        mailSenderService.sendMail(student.getEmail(), subject, body);
     }
 }
