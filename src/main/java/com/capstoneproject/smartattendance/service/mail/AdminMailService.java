@@ -197,7 +197,7 @@ public class AdminMailService {
     }
 
 
-    public void sendImageDecisionMail(Student student, boolean approved) {
+    public void sendImageDecisionMail(Student student, boolean approved,boolean sync) {
         String subject = (approved ? "Image Approved" : "Image Rejected") + " – Smart Attendance System";
 
         String body;
@@ -232,6 +232,10 @@ public class AdminMailService {
                 .replace("{{statusHtml}}", statusHtml)
                 .replace("{{noticeHtml}}", noticeHtml);
 
-        mailSenderService.sendMail(student.getEmail(), subject, body);
+        if(sync){
+            mailSenderService.sendMailSync(student.getEmail(), subject, body);
+        }else{
+            mailSenderService.sendMail(student.getEmail(), subject, body);
+        }
     }
 }
