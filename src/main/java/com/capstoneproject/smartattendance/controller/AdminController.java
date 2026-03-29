@@ -328,7 +328,7 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("response", "DELETED_SUCCESSFULLY"));
     }
 
-    @PatchMapping("/student/approve/iamge/all")
+    @PatchMapping("/student/approve/image/all")
     public ResponseEntity<?> approveAllStudentImage(Authentication authentication) {
         String adminId = authentication.getName();
         adminService.approveImageAllStudentImageService(adminId);

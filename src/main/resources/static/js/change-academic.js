@@ -221,9 +221,12 @@ function initDropdown(prefix = "") {
 async function fetchStudents(academicId, side) {
     showLoader(); // 👈
     try {
-        const res = await fetch("/api/admin/all-student/" + academicId);
+        const res = await fetch("/api/admin/student/all", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify([academicId])
+        });
         const data = await res.json();
-
         if (!res.ok) {
             removeLoader(); // 👈
             showSnackbar("Failed to load students", "error");

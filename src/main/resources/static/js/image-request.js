@@ -15,7 +15,7 @@ document.getElementById("approveAllImage").addEventListener("click", async () =>
         });
         if (!ok) return;
         showLoader();
-        const res = await fetch("/api/admin/student/approve/iamge/all", {
+        const res = await fetch("/api/admin/student/approve/image/all", {
             method: "PATCH"
         });
         const data = await res.json();

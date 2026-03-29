@@ -953,6 +953,7 @@ public class AdminService {
         imageApprovalAsyncService.processImageApprovals(admin, studentsWithNewImage);
     }
 
+
     public List<ImageApprovalResult> addMultipleStudentImageService(String adminId, List<MultipartFile> images) throws IOException {
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new CustomeException(ErrorCode.USER_NOT_FOUND));
