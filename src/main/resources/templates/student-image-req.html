@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Image Requests - Smart Attendance System</title>
-    <link rel="icon" type="image/png"  href="/favicon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="stylesheet" href="/css/basic.css">
     <link rel="stylesheet" href="/css/properties.css">
     <link rel="stylesheet" href="/css/snackbar.css">
@@ -17,7 +17,6 @@
 
         <!-- Sidebar -->
         <aside class="sidebar">
-
             <div class="profile" id="profile">
                 <h3 id="adminname">&nbsp;</h3>
                 <p id="admincollegeName">&nbsp;</p>
@@ -31,14 +30,13 @@
                     <li id="userUpdate">Update User</li>
                     <li id="allStudent">All Students</li>
                     <li id="allTeacher">All Teachers</li>
-                    <li id="imageChangeReq" class="active">Image Requests</li>
+                    <li id="imageChangeReq" class="active">Change Images</li>
                     <li id="changeAcademic">Change Academic</li>
                     <li id="academic">Academic</li>
                     <li id="allAttendance">Session History</li>
                     <li id="recycleBin">Recycle Bin</li>
                 </ul>
             </nav>
-
             <button class="logout" id="logout">Logout</button>
         </aside>
 
@@ -47,7 +45,6 @@
 
             <!-- Page Header -->
             <div class="page-header">
-
                 <div class="header-left">
                     <h2>Image Change Requests</h2>
                     <p class="subtitle">Manage and review student image update requests</p>
@@ -60,31 +57,130 @@
                         </svg>
                         <input type="text" id="searchInput" placeholder="Search by Enrollment No...">
                     </div>
-                     <button class="refresh-btn" onclick="loadImageRequest()">
-                        ↻ Refresh
-                    </button>
-                    <button class="refresh-btn" id="approveAllImage">
-                        Approve All
-                    </button>
+                    <button class="refresh-btn" onclick="loadImageRequest()">↻ Refresh</button>
+                    <button class="refresh-btn" id="approveAllImage">Approve All</button>
                 </div>
-               
-
             </div>
 
             <!-- Cards Container -->
             <div class="cards-container" id="cardsContainer"></div>
 
-                <!-- Example Card -->
-
-
         </main>
-
     </div>
-<div id="loader-root"></div>
+
+    <!-- FAB Button -->
+    <button class="fab-bulk" id="fabBulk" title="Bulk Image Upload">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 16 12 12 8 16" />
+            <line x1="12" y1="12" x2="12" y2="21" />
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+        </svg>
+        <span>Bulk Upload</span>
+    </button>
+
+    <!-- Bulk Upload Modal -->
+    <div class="bulk-overlay" id="bulkOverlay">
+        <div class="bulk-panel" id="bulkPanel">
+
+            <!-- Header -->
+            <div class="bulk-header">
+                <div>
+                    <div class="bulk-title">Bulk Student Image Upload</div>
+                    <div class="bulk-sub">Files must be named as <b>enrollmentno.jpg</b> &nbsp;·&nbsp; Max 5MB each</div>
+                </div>
+                <button class="bulk-close" id="bulkClose">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Upload View -->
+            <div id="bulkUploadView">
+
+                <!-- Dropzone -->
+                <div class="bulk-dropzone" id="bulkDropzone">
+                    <input type="file" id="bulkFileInput" multiple accept="image/png,image/jpeg,image/jpg" />
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round" style="color:#64748b;margin-bottom:10px;">
+                        <polyline points="16 16 12 12 8 16" />
+                        <line x1="12" y1="12" x2="12" y2="21" />
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                    </svg>
+                    <div class="bulk-dz-head">Drop images here or click to browse</div>
+                    <div class="bulk-dz-sub">Name files like <b>enrollmentno.jpg</b>, <b>enrollmentno.png</b> &nbsp;·&nbsp; PNG, JPG, JPEG</div>
+                </div>
+
+                <!-- File List -->
+                <div class="bulk-file-list" id="bulkFileList"></div>
+                <div class="bulk-counter" id="bulkFileCounter" style="display:none;">
+                    <span id="bulkFileCount">0</span> file(s) selected
+                </div>
+
+                <!-- Progress -->
+                <div class="bulk-progress" id="bulkProgressWrap" style="display:none;">
+                    <div class="bulk-pbar-bg">
+                        <div class="bulk-pbar-fill" id="bulkPbarFill"></div>
+                    </div>
+                    <div class="bulk-pbar-label" id="bulkPbarLabel">Uploading…</div>
+                </div>
+
+                <!-- Upload Btn -->
+                <button class="bulk-upload-btn" id="bulkUploadBtn" disabled>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 16 12 12 8 16" />
+                        <line x1="12" y1="12" x2="12" y2="21" />
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                    </svg>
+                    Upload Images
+                </button>
+            </div>
+
+            <!-- Results View (hidden until upload done) -->
+            <div id="bulkResultView" style="display:none;">
+                <div class="bulk-summary-row">
+                    <div class="bulk-stat">
+                        <div class="bulk-stat-num" id="bulkSumTotal">0</div>
+                        <div class="bulk-stat-lbl">Total</div>
+                    </div>
+                    <div class="bulk-stat bulk-stat-ok">
+                        <div class="bulk-stat-num" id="bulkSumOk">0</div>
+                        <div class="bulk-stat-lbl">Success</div>
+                    </div>
+                    <div class="bulk-stat bulk-stat-fail">
+                        <div class="bulk-stat-num" id="bulkSumFail">0</div>
+                        <div class="bulk-stat-lbl">Failed</div>
+                    </div>
+                </div>
+
+                <table class="bulk-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Enrollment No</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bulkResultBody"></tbody>
+                </table>
+
+                <button class="bulk-reset-btn" id="bulkResetBtn">↺ &nbsp;Upload Another Batch</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="loader-root"></div>
     <div id="confirm-root"></div>
+
     <script src="/js/basic.js"></script>
     <script src="/js/snackbar.js"></script>
     <script src="/js/image-request.js"></script>
+    <script src="/js/bulk-upload.js"></script>
 </body>
 
 </html>
