@@ -24,15 +24,15 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminMailService {
 
     private final MailSenderService mailSenderService;
+    private final PdfReportService  pdfReportService;   // ← NEW
 
-    // ── Template Cache ──────────────────────────────────────────────────────────
     private final Map<String, String> templateCache = new ConcurrentHashMap<>();
 
-    private static final String TPL_STUDENT = "templates/mail/student-account.html";
-    private static final String TPL_TEACHER = "templates/mail/teacher-account.html";
+    private static final String TPL_STUDENT         = "templates/mail/student-account.html";
+    private static final String TPL_TEACHER         = "templates/mail/teacher-account.html";
     private static final String TPL_APPROVAL_REPORT = "templates/mail/image-approval-report.html";
-    private static final String TPL_UPLOAD_REPORT = "templates/mail/bulk-upload-report.html";
-    private static final String TPL_IMAGE_DECISION = "templates/mail/student-image-decision.html";
+    private static final String TPL_UPLOAD_REPORT   = "templates/mail/bulk-upload-report.html";
+    private static final String TPL_IMAGE_DECISION  = "templates/mail/student-image-decision.html";
 
     @PostConstruct
     public void init() {
@@ -58,12 +58,13 @@ public class AdminMailService {
         String content = templateCache.get(path);
         if (content == null) {
             log.error("Template cache miss for: {}", path);
-            return ""; // Or throw a custom exception
+            return "";
         }
         return content;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
+    // ── Unchanged methods ─────────────────────────────────────────────────
+
     public void sendStudentDetailsMail(Student student, String adminId, String password, String type) {
         if (password == null) password = "same as before";
 
@@ -99,78 +100,9 @@ public class AdminMailService {
         mailSenderService.sendMail(teacher.getEmail(), subject, body);
     }
 
-    public void sendFullImageApprovalReport(Admin admin, List<ImageApprovalResult> results) {
-        String subject = "Bulk Image Approval Report – Smart Attendance System";
-        long approvedCount = results.stream().filter(r -> "APPROVED".equals(r.getStatus())).count();
-        long failedCount = results.size() - approvedCount;
-
-        StringBuilder rows = new StringBuilder();
-        for (int i = 0; i < results.size(); i++) {
-            ImageApprovalResult r = results.get(i);
-            boolean approved = "APPROVED".equals(r.getStatus());
-            String badgeStyle = approved
-                    ? "background:#16a34a; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;"
-                    : "background:#dc2626; color:#fff; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;";
-
-            rows.append("""
-                    <tr>
-                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;">%d</td>
-                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;">%s</td>
-                        <td style="padding:8px 4px; border-bottom:1px solid #e5e7eb;"><span style="%s">%s</span></td>
-                    </tr>
-                    """.formatted(i + 1, r.getEnrollmentNo(), badgeStyle, r.getStatus()));
-        }
-
-        String body = getTemplate(TPL_APPROVAL_REPORT)
-                .replace("{{adminName}}", admin.getName())
-                .replace("{{totalCount}}", String.valueOf(results.size()))
-                .replace("{{approvedCount}}", String.valueOf(approvedCount))
-                .replace("{{failedCount}}", String.valueOf(failedCount))
-                .replace("{{rows}}", rows.toString());
-
-        mailSenderService.sendMail(admin.getEmail(), subject, body);
-    }
-
-    public void sendMultipleImageUploadReportMail(Admin admin, List<ImageApprovalResult> results) {
-        String subject = "Bulk Image Upload Report – Smart Attendance System";
-        long successCount = results.stream().filter(r -> "SUCCESS".equals(r.getStatus())).count();
-        long failedCount = results.size() - successCount;
-
-        StringBuilder rows = new StringBuilder();
-        for (int i = 0; i < results.size(); i++) {
-            ImageApprovalResult r = results.get(i);
-            boolean success = "SUCCESS".equals(r.getStatus());
-            String badgeStyle = success ? "background:#16a34a; color:#fff;" : "background:#dc2626; color:#fff;";
-            
-            String detail = switch (r.getStatus()) {
-                case "SUCCESS" -> "Image uploaded successfully ✓";
-                case "USER NOT FOUND" -> "No student found with this enrollment no";
-                default -> r.getStatus();
-            };
-
-            rows.append("""
-                    <tr>
-                        <td style="text-align:center;">%d</td>
-                        <td>%s</td>
-                        <td><span style="%s">%s</span></td>
-                        <td>%s</td>
-                    </tr>
-                    """.formatted(i + 1, r.getEnrollmentNo(), badgeStyle, success ? "SUCCESS" : "ERROR", detail));
-        }
-
-        String body = getTemplate(TPL_UPLOAD_REPORT)
-                .replace("{{adminName}}", admin.getName())
-                .replace("{{totalCount}}", String.valueOf(results.size()))
-                .replace("{{successCount}}", String.valueOf(successCount))
-                .replace("{{failedCount}}", String.valueOf(failedCount))
-                .replace("{{rows}}", rows.toString());
-
-        mailSenderService.sendMail(admin.getEmail(), subject, body);
-    }
-
     public void sendImageDecisionMail(Student student, boolean approved) {
         String subject = (approved ? "Image Approved" : "Image Rejected") + " – Smart Attendance System";
-        
+
         String badgeHtml = approved
                 ? "<span style=\"background:#16a34a; color:#fff; padding:4px 14px; border-radius:20px;\">Image Approved ✓</span>"
                 : "<span style=\"background:#dc2626; color:#fff; padding:4px 14px; border-radius:20px;\">Image Rejected ✗</span>";
@@ -183,5 +115,64 @@ public class AdminMailService {
                 .replace("{{statusDetail}}", approved ? "Your new image is active." : "Image did not meet criteria.");
 
         mailSenderService.sendMail(student.getEmail(), subject, body);
+    }
+
+    
+    public void sendFullImageApprovalReport(Admin admin, List<ImageApprovalResult> results) {
+        String subject = "Bulk Image Approval Report – Smart Attendance System";
+
+        long approvedCount = results.stream().filter(r -> "APPROVED".equals(r.getStatus())).count();
+        long failedCount   = results.size() - approvedCount;
+
+        // 1. Generate the PDF
+        byte[] reportPdf = pdfReportService.generateApprovalReportPdf(admin.getName(), results);
+
+        // 2. Build the slim email body (no table)
+        String body = getTemplate(TPL_APPROVAL_REPORT)
+                .replace("{{adminName}}",    admin.getName())
+                .replace("{{totalCount}}",   String.valueOf(results.size()))
+                .replace("{{approvedCount}}", String.valueOf(approvedCount))
+                .replace("{{failedCount}}",  String.valueOf(failedCount));
+
+        // 3. Send with PDF attached
+        mailSenderService.sendMailWithAttachment(
+                admin.getEmail(),
+                subject,
+                body,
+                reportPdf,
+                "image-approval-report.pdf",
+                "application/pdf"
+        );
+    }
+
+    /**
+     * Sends the bulk image upload report.
+     * The file result table is now a branded PDF attachment.
+     */
+    public void sendMultipleImageUploadReportMail(Admin admin, List<ImageApprovalResult> results) {
+        String subject = "Bulk Image Upload Report – Smart Attendance System";
+
+        long successCount = results.stream().filter(r -> "SUCCESS".equals(r.getStatus())).count();
+        long failedCount  = results.size() - successCount;
+
+        // 1. Generate the PDF
+        byte[] reportPdf = pdfReportService.generateUploadReportPdf(admin.getName(), results);
+
+        // 2. Build the slim email body (no table)
+        String body = getTemplate(TPL_UPLOAD_REPORT)
+                .replace("{{adminName}}",   admin.getName())
+                .replace("{{totalCount}}",  String.valueOf(results.size()))
+                .replace("{{successCount}}", String.valueOf(successCount))
+                .replace("{{failedCount}}", String.valueOf(failedCount));
+
+        // 3. Send with PDF attached
+        mailSenderService.sendMailWithAttachment(
+                admin.getEmail(),
+                subject,
+                body,
+                reportPdf,
+                "bulk-upload-report.pdf",
+                "application/pdf"
+        );
     }
 }

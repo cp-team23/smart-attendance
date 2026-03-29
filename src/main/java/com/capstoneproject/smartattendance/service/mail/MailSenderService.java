@@ -1,6 +1,7 @@
 package com.capstoneproject.smartattendance.service.mail;
 
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -37,8 +38,29 @@ public class MailSenderService {
         }
     }
 
-}
+    @Async
+    public void sendMailWithAttachment(String to, String subject, String body,
+                                       byte[] attachmentBytes, String attachmentName,
+                                       String contentType) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setTo(to);
+            helper.setFrom("smartattendanceprojectteam@gmail.com");
+            helper.setSubject(subject);
+            helper.setText(body, true);
+            helper.addAttachment(attachmentName, new ByteArrayResource(attachmentBytes), contentType);
+
+            mailSender.send(message);
+            log.info("Mail with attachment '{}' sent to {}: {}", attachmentName, to, subject);
+        } catch (Exception e) {
+            log.error("Failed to send mail with attachment to {}: {}", to, e.getMessage());
+            throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
+        }
+    }
+
+}
 
 
 
