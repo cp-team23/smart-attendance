@@ -10,6 +10,8 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import io.lettuce.core.ClientOptions;
+
 @Configuration
 public class RedisConfig {
 
@@ -29,7 +31,14 @@ public class RedisConfig {
         config.setPort(port);
         config.setPassword(RedisPassword.of(password));
 
+        ClientOptions clientOptions = ClientOptions.builder()
+                .autoReconnect(true)
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .build();
+
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .clientOptions(clientOptions) 
+                .commandTimeout(java.time.Duration.ofSeconds(5))
                 .useSsl()
                 .build();
 

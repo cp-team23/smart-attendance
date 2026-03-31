@@ -55,7 +55,7 @@ function teacherContent() {
         </div>
         <div class="field">
             <input type="text" id="password" required />
-            <label>Enter password</label>
+            <label>Enter new password</label>
         </div>
         <button type="button" class="addBtn" id="addBtn">Update Teacher</button>
     </form>`;
@@ -124,7 +124,7 @@ function studentContent() {
         </div>
         <div class="field">
             <input type="text" id="password" required />
-            <label>Enter password</label>
+            <label>Enter new password</label>
         </div>
         <button type="button" class="addBtn" id="addBtn">Update Student</button>
     </form>`;

@@ -126,6 +126,10 @@ html, body {
     transition: 0.15s ease;
 }
 
+#cardsContainer > *:last-child {
+    margin-bottom: 50px;
+}
+
 .approve {
     background: #16a34a;
     color: white;
