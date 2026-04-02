@@ -160,9 +160,9 @@ public class PageController {
         return "attendance";
     }
 
-    @GetMapping("/admin/test")
+    @GetMapping("/app")
     public String testPage() {
-        return "test";
+        return "student-app";
     }
     
 }
