@@ -1,37 +1,48 @@
 package com.capstoneproject.smartattendance.service.mail;
 
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.capstoneproject.smartattendance.exception.CustomeException;
 import com.capstoneproject.smartattendance.exception.ErrorCode;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class MailSenderService {
 
-    private final JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Async
     public void sendMail(String to, String subject, String body) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Map<String, Object> payload = Map.of(
+                "sender", Map.of("email", "smartattendanceprojectteam@gmail.com", "name", "Smart Attendance"),
+                "to", List.of(Map.of("email", to)),
+                "subject", subject,
+                "htmlContent", body
+            );
 
-            helper.setTo(to);
-            helper.setFrom("smartattendanceprojectteam@gmail.com");
-            helper.setSubject(subject);
-            helper.setText(body, true);
+            restTemplate.postForObject(
+                "https://api.brevo.com/v3/smtp/email",
+                new HttpEntity<>(payload, buildHeaders()),
+                String.class
+            );
 
-            mailSender.send(message);
+            log.info("Mail sent to {}: {}", to, subject);
         } catch (Exception e) {
             log.error("Failed to send mail to {}: {}", to, e.getMessage());
             throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
@@ -43,16 +54,23 @@ public class MailSenderService {
                                        byte[] attachmentBytes, String attachmentName,
                                        String contentType) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Map<String, Object> payload = Map.of(
+                "sender", Map.of("email", "smartattendanceprojectteam@gmail.com", "name", "Smart Attendance"),
+                "to", List.of(Map.of("email", to)),
+                "subject", subject,
+                "htmlContent", body,
+                "attachment", List.of(Map.of(
+                    "content", Base64.getEncoder().encodeToString(attachmentBytes),
+                    "name", attachmentName
+                ))
+            );
 
-            helper.setTo(to);
-            helper.setFrom("smartattendanceprojectteam@gmail.com");
-            helper.setSubject(subject);
-            helper.setText(body, true);
-            helper.addAttachment(attachmentName, new ByteArrayResource(attachmentBytes), contentType);
+            restTemplate.postForObject(
+                "https://api.brevo.com/v3/smtp/email",
+                new HttpEntity<>(payload, buildHeaders()),
+                String.class
+            );
 
-            mailSender.send(message);
             log.info("Mail with attachment '{}' sent to {}: {}", attachmentName, to, subject);
         } catch (Exception e) {
             log.error("Failed to send mail with attachment to {}: {}", to, e.getMessage());
@@ -60,47 +78,10 @@ public class MailSenderService {
         }
     }
 
+    private HttpHeaders buildHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("api-key", brevoApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
 }
-
-
-
-// package com.capstoneproject.smartattendance.service.mail;
-
-// import jakarta.mail.internet.MimeMessage;
-// import org.springframework.mail.javamail.JavaMailSender;
-// import org.springframework.mail.javamail.MimeMessageHelper;
-// import org.springframework.scheduling.annotation.Async;
-// import org.springframework.stereotype.Service;
-
-// import com.capstoneproject.smartattendance.exception.CustomeException;
-// import com.capstoneproject.smartattendance.exception.ErrorCode;
-
-// import lombok.RequiredArgsConstructor;
-// import lombok.extern.slf4j.Slf4j;
-
-// @Slf4j
-// @Service
-// @RequiredArgsConstructor
-// public class MailSenderService {
-
-//     private final JavaMailSender mailSender;
-
-//     @Async
-//     public void sendMail(String to, String subject, String body) {
-
-//         try {
-//             MimeMessage message = mailSender.createMimeMessage();
-//             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-//             helper.setTo(to);
-//             helper.setSubject(subject);
-//             helper.setText(body, true);   // true = isHtml
-
-//             mailSender.send(message);
-
-//         } catch (Exception e) {
-//             log.error("Failed to send mail to {}: {}", to, e.getMessage());
-//             throw new CustomeException(ErrorCode.MAIL_SEND_FAILED);
-//         }
-//     }
-// }
