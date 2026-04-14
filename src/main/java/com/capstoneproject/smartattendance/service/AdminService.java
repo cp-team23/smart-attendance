@@ -945,6 +945,7 @@ public class AdminService {
         List<Student> studentsWithNewImage = admin.getStudents()
                 .stream()
                 .filter(s -> s.getNewImage() != null)
+                .filter(s -> !s.isDeleted())
                 .toList();
 
         if (studentsWithNewImage.isEmpty()) {
